@@ -357,6 +357,9 @@ static void itemdb_jobid2mapid(unsigned int *bclass, unsigned int jobmask)
 		bclass[0] |= 1<<MAPID_NINJA;
 		bclass[1] |= 1<<MAPID_NINJA;
 	}
+	if (jobmask & 1<<JOB_SORC_) { // [ADGTH]
+		bclass[0] |= 1<<MAPID_SORC_;
+	}
 	if (jobmask & 1<<26) //Bongun/Munak
 		bclass[0] |= 1<<MAPID_GANGSI;
 	if (jobmask & 1<<27) //Death Knight

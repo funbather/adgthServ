@@ -12592,8 +12592,12 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 		sregen = regen->ssregen;
 		if(flag&(RGN_SHP)) { // Sitting HP regen
 			rate = (int)(natural_heal_diff_tick * (sregen->rate.hp / 100.));
-			if (regen->state.overweight)
-				rate >>= 1; // Half as fast when overweight.
+			
+			/*if (regen->state.overweight)
+				rate >>= 1; // Half as fast when overweight.*/
+				
+      rate *= 10; // [ADGTH]
+      
 			sregen->tick.hp += rate;
 			while(sregen->tick.hp >= (unsigned int)battle_config.natural_heal_skill_interval) {
 				sregen->tick.hp -= battle_config.natural_heal_skill_interval;
@@ -12649,7 +12653,10 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 		// Homun HP regen fix (they should regen as if they were sitting (twice as fast)
 		if(bl->type == BL_HOM)
 			rate *= 2;
-
+			
+    if(bl->type == BL_PC) // Very slow standing HP regen. [ADGTH]
+			rate >>= 1;
+			
 		regen->tick.hp += rate;
 
 		if(regen->tick.hp >= (unsigned int)battle_config.natural_healhp_interval) {

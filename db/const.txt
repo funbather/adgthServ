@@ -45,6 +45,7 @@ Job_Xmas	26
 Job_Summer	27
 Job_Hanbok	28
 Job_Oktoberfest	29
+Job_Sorc_ 30
 
 Job_Novice_High	4001
 Job_Swordman_High	4002
@@ -191,6 +192,7 @@ EAJ_THIEF	0x06
 EAJ_TAEKWON	0x07
 EAJ_GUNSLINGER	0x09
 EAJ_NINJA	0x0A
+EAJ_SORC_ 0x0B
 EAJ_GANGSI	0x0E
 
 EAJ_KNIGHT	0x101
