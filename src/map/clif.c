@@ -750,6 +750,12 @@ void clif_dropflooritem(struct flooritem_data* fitem)
 	uint32 header=0x09e;
 #endif
 	int view, offset=0;
+	uint8 rarity = 1;
+	int i = 0;
+	
+	for(i = 0; i < 4; i++) {
+    if(fitem->item.card[i] > 0) { rarity++; }
+	}
 
 	nullpo_retv(fitem);
 
@@ -763,7 +769,7 @@ void clif_dropflooritem(struct flooritem_data* fitem)
 	WBUFW(buf, offset+8) = itemtype(fitem->item.nameid);
 	offset +=2;
 #endif
-	WBUFB(buf, offset+8) = fitem->item.identify;
+	WBUFB(buf, offset+8) = rarity;//fitem->item.identify; Packet now signals how many enchantments/cards an item has [ADGTH]
 	WBUFW(buf, offset+9) = fitem->bl.x;
 	WBUFW(buf, offset+11) = fitem->bl.y;
 	WBUFB(buf, offset+13) = fitem->subx;
@@ -772,7 +778,6 @@ void clif_dropflooritem(struct flooritem_data* fitem)
 
 	clif_send(buf, packet_len(header), &fitem->bl, AREA);
 }
-
 
 
 /// Makes an item disappear from the ground.
@@ -2792,7 +2797,6 @@ static int clif_hpmeter(struct map_session_data *sd)
 void clif_updatestatus(struct map_session_data *sd,int type)
 {
 	int fd,len=8;
-
 	nullpo_retv(sd);
 
 	fd=sd->fd;
@@ -2837,13 +2841,13 @@ void clif_updatestatus(struct map_session_data *sd,int type)
 		WFIFOL(fd,4)=sd->status.skill_point;
 		break;
 	case SP_HIT:
-		WFIFOL(fd,4)=sd->battle_status.hit;
+		WFIFOL(fd,4)=125+sd->bonus.crit_atk_rate+(sd->battle_status.dex/2);//sd->battle_status.hit; [ADGTH]
 		break;
 	case SP_FLEE1:
 		WFIFOL(fd,4)=sd->battle_status.flee;
 		break;
 	case SP_FLEE2:
-		WFIFOL(fd,4)=sd->battle_status.flee2/10;
+		WFIFOL(fd,4)=(300-(2*sd->battle_status.speed))/3;//sd->battle_status.flee2/10; [ADGTH]
 		break;
 	case SP_MAXHP:
 		WFIFOL(fd,4)=sd->battle_status.max_hp;
@@ -2868,8 +2872,14 @@ void clif_updatestatus(struct map_session_data *sd,int type)
 		WFIFOL(fd,4)=sd->battle_status.amotion;
 		break;
 	case SP_ATK1:
-		WFIFOL(fd,4)=pc_leftside_atk(sd);
+	{ double dps;
+    dps = (pc_leftside_atk(sd) + pc_rightside_atk(sd));
+    dps *= (50000/(2000-(2000-sd->battle_status.amotion)));
+    dps += (dps*sd->battle_status.str*.5)/100;
+    dps += (dps*((125+sd->bonus.crit_atk_rate+(sd->battle_status.dex/2))*(sd->battle_status.cri)))/100000;
+		WFIFOL(fd,4)=dps;//pc_leftside_atk(sd);
 		break;
+	}
 	case SP_DEF1:
 		WFIFOL(fd,4)=pc_leftside_def(sd);
 		break;
@@ -2877,7 +2887,7 @@ void clif_updatestatus(struct map_session_data *sd,int type)
 		WFIFOL(fd,4)=pc_leftside_mdef(sd);
 		break;
 	case SP_ATK2:
-		WFIFOL(fd,4)=pc_rightside_atk(sd);
+		WFIFOL(fd,4)=pc_leftside_atk(sd) + pc_rightside_atk(sd);//pc_rightside_atk(sd); [ADGTH]
 		break;
 	case SP_DEF2:
 		WFIFOL(fd,4)=pc_rightside_def(sd);
@@ -3223,6 +3233,12 @@ void clif_refreshlook(struct block_list *bl,int id,int type,int val,enum send_ta
 void clif_initialstatus(struct map_session_data *sd) {
 	int fd, mdef2;
 	unsigned char *buf;
+	
+	double dps;
+	dps = (pc_leftside_atk(sd) + pc_rightside_atk(sd));
+  dps *= (50000/(2000-(2000-sd->battle_status.amotion)));
+  dps += (dps*sd->battle_status.str*.5)/100;
+  dps += (dps*((125+sd->bonus.crit_atk_rate+(sd->battle_status.dex/2))*(sd->battle_status.cri)))/100000;
 
 	nullpo_retv(sd);
 
@@ -3244,10 +3260,9 @@ void clif_initialstatus(struct map_session_data *sd) {
 	WBUFB(buf,13)=pc_need_status_point(sd,SP_DEX,1);
 	WBUFB(buf,14)=min(sd->status.luk, UINT8_MAX);
 	WBUFB(buf,15)=pc_need_status_point(sd,SP_LUK,1);
-
-	WBUFW(buf,16) = pc_leftside_atk(sd);
-	WBUFW(buf,18) = pc_rightside_atk(sd);
-	WBUFW(buf,20) = pc_rightside_matk(sd);
+	WBUFW(buf,16) = dps;
+	WBUFW(buf,18) = pc_leftside_atk(sd) + pc_rightside_atk(sd); // [ADGTH]
+	WBUFW(buf,20) = pc_leftside_matk(sd);//pc_rightside_matk(sd); Messed something up lmao [ADGTH]
 	WBUFW(buf,22) = pc_leftside_matk(sd);
 	WBUFW(buf,24) = pc_leftside_def(sd);
 	WBUFW(buf,26) = pc_rightside_def(sd);
@@ -3258,9 +3273,9 @@ void clif_initialstatus(struct map_session_data *sd) {
 		( mdef2 < 0 ) ? 0 : //Negative check for Frenzy'ed characters.
 #endif
 		mdef2;
-	WBUFW(buf,32) = sd->battle_status.hit;
+	WBUFW(buf,32) = 125+sd->bonus.crit_atk_rate+(sd->battle_status.dex/2); //sd->battle_status.hit; Crit Damage [ADGTH]
 	WBUFW(buf,34) = sd->battle_status.flee;
-	WBUFW(buf,36) = sd->battle_status.flee2/10;
+	WBUFW(buf,36) = (300-(2*sd->battle_status.speed))/3;//sd->battle_status.flee2/10; Movespeed bonus [ADGTH]
 	WBUFW(buf,38) = sd->battle_status.cri/10;
 	WBUFW(buf,40) = sd->battle_status.amotion; // aspd
 	WBUFW(buf,42) = 0;  // always 0 (plusASPD)
@@ -14182,6 +14197,12 @@ void clif_parse_AutoRevive(int fd, struct map_session_data *sd)
 ///      <criticalSuccessValue>.W <ASPD>.W <plusASPD>.W
 void clif_check(int fd, struct map_session_data* pl_sd)
 {
+  double dps;
+  dps = pl_sd->battle_status.batk+pl_sd->battle_status.rhw.atk+pl_sd->battle_status.lhw.atk+pl_sd->battle_status.rhw.atk2+pl_sd->battle_status.lhw.atk2;
+  dps *= (50000/(2000-(2000-pl_sd->battle_status.amotion)));
+  dps += (dps*pl_sd->status.str*.5)/100;
+  dps += (dps*((125+pl_sd->bonus.crit_atk_rate+(pl_sd->battle_status.dex/2))*(pl_sd->battle_status.cri)))/100000;
+
 	WFIFOHEAD(fd,packet_len(0x214));
 	WFIFOW(fd, 0) = 0x214;
 	WFIFOB(fd, 2) = min(pl_sd->status.str, UINT8_MAX);
@@ -14196,17 +14217,17 @@ void clif_check(int fd, struct map_session_data* pl_sd)
 	WFIFOB(fd,11) = pc_need_status_point(pl_sd, SP_DEX, 1);
 	WFIFOB(fd,12) = min(pl_sd->status.luk, UINT8_MAX);
 	WFIFOB(fd,13) = pc_need_status_point(pl_sd, SP_LUK, 1);
-	WFIFOW(fd,14) = pl_sd->battle_status.batk+pl_sd->battle_status.rhw.atk+pl_sd->battle_status.lhw.atk;
-	WFIFOW(fd,16) = pl_sd->battle_status.rhw.atk2+pl_sd->battle_status.lhw.atk2;
+	WFIFOW(fd,14) = dps;
+	WFIFOW(fd,16) = pl_sd->battle_status.batk+pl_sd->battle_status.rhw.atk+pl_sd->battle_status.lhw.atk+pl_sd->battle_status.rhw.atk2+pl_sd->battle_status.lhw.atk2;
 	WFIFOW(fd,18) = pl_sd->battle_status.matk_max;
 	WFIFOW(fd,20) = pl_sd->battle_status.matk_min;
 	WFIFOW(fd,22) = pl_sd->battle_status.def;
 	WFIFOW(fd,24) = pl_sd->battle_status.def2;
 	WFIFOW(fd,26) = pl_sd->battle_status.mdef;
 	WFIFOW(fd,28) = pl_sd->battle_status.mdef2;
-	WFIFOW(fd,30) = pl_sd->battle_status.hit;
+	WFIFOW(fd,30) = 125+pl_sd->bonus.crit_atk_rate+(pl_sd->battle_status.dex/2);//pl_sd->battle_status.hit;
 	WFIFOW(fd,32) = pl_sd->battle_status.flee;
-	WFIFOW(fd,34) = pl_sd->battle_status.flee2/10;
+	WFIFOW(fd,34) = (300-(2*pl_sd->battle_status.speed))/3;//pl_sd->battle_status.flee2/10;
 	WFIFOW(fd,36) = pl_sd->battle_status.cri/10;
 	WFIFOW(fd,38) = (2000-pl_sd->battle_status.amotion)/10;  // aspd
 	WFIFOW(fd,40) = 0;  // FIXME: What is 'plusASPD' supposed to be? Maybe adelay?

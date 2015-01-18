@@ -6479,7 +6479,8 @@ int pc_gets_status_point(int level)
 
 #ifdef RENEWAL_STAT
 /// Renewal status point cost formula
-#define PC_STATUS_POINT_COST(low) (((low) < 100) ? (2 + ((low) - 1) / 10) : (16 + 4 * (((low) - 100) / 5)))
+//#define PC_STATUS_POINT_COST(low) (((low) < 100) ? (2 + ((low) - 1) / 10) : (16 + 4 * (((low) - 100) / 5)))
+#define PC_STATUS_POINT_COST(low) (1)
 #else
 /// Pre-Renewal status point cost formula
 #define PC_STATUS_POINT_COST(low) (( 1 + ((low) + 9) / 10 ))
@@ -6510,6 +6511,7 @@ int pc_need_status_point(struct map_session_data* sd, int type, int val)
 		sp += PC_STATUS_POINT_COST(low);
 
 	return sp;
+	//return 1; // Stat points only cost 1 [ADGTH]
 }
 
 /**
@@ -6769,12 +6771,12 @@ int pc_resetlvl(struct map_session_data* sd,int type)
 		if(sd->sc.option !=0)
 			sd->sc.option = 0;
 
-		sd->status.str=1;
-		sd->status.agi=1;
-		sd->status.vit=1;
-		sd->status.int_=1;
-		sd->status.dex=1;
-		sd->status.luk=1;
+		sd->status.str=0; // [ADGTH]
+		sd->status.agi=0;
+		sd->status.vit=0;
+		sd->status.int_=0;
+		sd->status.dex=0;
+		sd->status.luk=0;
 		if(sd->status.class_ == JOB_NOVICE_HIGH) {
 			sd->status.status_point=100;	// not 88 [celest]
 			// give platinum skills upon changing
@@ -6867,12 +6869,12 @@ int pc_resetstate(struct map_session_data* sd)
 		sd->status.status_point+=add;
 	}
 
-	pc_setstat(sd, SP_STR, 1);
-	pc_setstat(sd, SP_AGI, 1);
-	pc_setstat(sd, SP_VIT, 1);
-	pc_setstat(sd, SP_INT, 1);
-	pc_setstat(sd, SP_DEX, 1);
-	pc_setstat(sd, SP_LUK, 1);
+	pc_setstat(sd, SP_STR, 0);
+	pc_setstat(sd, SP_AGI, 0);
+	pc_setstat(sd, SP_VIT, 0);
+	pc_setstat(sd, SP_INT, 0);
+	pc_setstat(sd, SP_DEX, 0);
+	pc_setstat(sd, SP_LUK, 0);
 
 	clif_updatestatus(sd,SP_STR);
 	clif_updatestatus(sd,SP_AGI);
@@ -7772,22 +7774,22 @@ bool pc_setparam(struct map_session_data *sd,int type,int val)
 		}
 		break;
 	case SP_STR:
-		sd->status.str = cap_value(val, 1, pc_maxparameter(sd,PARAM_STR));
+		sd->status.str = cap_value(val, 0, pc_maxparameter(sd,PARAM_STR)); //[ADGTH]
 		break;
 	case SP_AGI:
-		sd->status.agi = cap_value(val, 1, pc_maxparameter(sd,PARAM_AGI));
+		sd->status.agi = cap_value(val, 0, pc_maxparameter(sd,PARAM_AGI));
 		break;
 	case SP_VIT:
-		sd->status.vit = cap_value(val, 1, pc_maxparameter(sd,PARAM_VIT));
+		sd->status.vit = cap_value(val, 0, pc_maxparameter(sd,PARAM_VIT));
 		break;
 	case SP_INT:
-		sd->status.int_ = cap_value(val, 1, pc_maxparameter(sd,PARAM_INT));
+		sd->status.int_ = cap_value(val, 0, pc_maxparameter(sd,PARAM_INT));
 		break;
 	case SP_DEX:
-		sd->status.dex = cap_value(val, 1, pc_maxparameter(sd,PARAM_DEX));
+		sd->status.dex = cap_value(val, 0, pc_maxparameter(sd,PARAM_DEX));
 		break;
 	case SP_LUK:
-		sd->status.luk = cap_value(val, 1, pc_maxparameter(sd,PARAM_LUK));
+		sd->status.luk = 0; //cap_value(val, 0, pc_maxparameter(sd,PARAM_LUK));
 		break;
 	case SP_KARMA:
 		sd->status.karma = val;

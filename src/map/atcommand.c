@@ -2543,7 +2543,7 @@ ACMD_FUNC(param)
 	if(value > 0  && *status[i] + value >= max_status[i])
 		new_value = max_status[i];
 	else if(value < 0 && *status[i] <= -value)
-		new_value = 1;
+		new_value = 0; // Can have 0 of a stat [ADGTH]
 	else
 		new_value = *status[i] + value;
 

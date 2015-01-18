@@ -18,7 +18,7 @@
 /// The official walkpath disables users from taking non-clear walk paths,
 /// e.g. if they want to get around an obstacle they have to walk around it,
 /// while with OFFICIAL_WALKPATH disabled if they click to walk around a obstacle the server will do it automatically
-#define OFFICIAL_WALKPATH
+//#define OFFICIAL_WALKPATH
 
 /// leave this line uncommented to enable callfunc checks when processing scripts.
 /// while allowed, the script engine will attempt to match user-defined functions
@@ -47,7 +47,7 @@
 /// Client-sided range checks are, however, are always circular.
 /// Enabling this changes all checks to circular checks, which is more realistic,
 /// - but is not the official behaviour.
-//#define CIRCULAR_AREA
+#define CIRCULAR_AREA
 
 /// Comment to disable Guild/Party Bound item system
 /// By default, we recover/remove Guild/Party Bound items automatically
@@ -62,7 +62,7 @@
 //#define ADJUST_SKILL_DAMAGE
 
 /// Uncomment to enable the job base HP/SP table (job_basehpsp_db.txt)
-//#define HP_SP_TABLES
+#define HP_SP_TABLES
 
 /// Enable separated item by `guid`. [Cydh]
 /// See db/[pre-]re/item_flag.txt and doc/item_group.txt for the `guid` explanation.

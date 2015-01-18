@@ -1640,10 +1640,10 @@ static int64 battle_calc_sizefix(int64 damage, struct map_session_data *sd, unsi
 static int battle_calc_status_attack(struct status_data *status, short hand)
 {
 	//left-hand penalty on sATK is always 50% [Baalberith]
-	if (hand == EQI_HAND_L)
+	//if (hand == EQI_HAND_L)
 		return status->batk;
-	else
-		return 2 * status->batk;
+	//else
+	//	return 2 * status->batk;
 }
 
 static int battle_calc_base_weapon_attack(struct block_list *src, struct status_data *tstatus, struct weapon_atk *wa, struct map_session_data *sd)
@@ -1700,6 +1700,7 @@ static int64 battle_calc_base_damage(struct status_data *status, struct weapon_a
 	unsigned int atkmin=0, atkmax=0;
 	short type = 0;
 	int64 damage = 0;
+	double dam = 0;
 
 	if (!sd) { //Mobs/Pets
 		if(flag&4) {
@@ -1716,7 +1717,7 @@ static int64 battle_calc_base_damage(struct status_data *status, struct weapon_a
 		type = (wa == &status->lhw)?EQI_HAND_L:EQI_HAND_R;
 
 		if (!(flag&1) || (flag&2)) { //Normal attacks
-			atkmin = status->dex;
+			atkmin = wa->atk; //status->dex;
 
 			if (sd->equip_index[type] >= 0 && sd->inventory_data[sd->equip_index[type]])
 				atkmin = atkmin*(80 + sd->inventory_data[sd->equip_index[type]]->wlv*20)/100;
@@ -1776,10 +1777,10 @@ static int64 battle_calc_base_damage(struct status_data *status, struct weapon_a
 	}
 
 #ifdef RENEWAL
-	if (flag&1)
-		damage = (damage * 14) / 10;
+	//if (flag&1)
+		//damage = (damage * 14) / 10;
 #endif
-
+  
 	return damage;
 }
 
@@ -2155,7 +2156,7 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 
 		//The official equation is *2, but that only applies when sd's do critical.
 		//Therefore, we use the old value 3 on cases when an sd gets attacked by a mob
-		cri -= tstatus->luk * ((!sd && tsd) ? 3 : 2);
+		//cri -= tstatus->luk * ((!sd && tsd) ? 3 : 2); [ADGTH]
 
 		if( tsc && tsc->data[SC_SLEEP] )
 			cri <<= 1;
@@ -2396,7 +2397,7 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 	if(sc && sc->data[SC_MTF_ASPD])
 		hitrate += 5;
 
-	hitrate = cap_value(hitrate, battle_config.min_hitrate, battle_config.max_hitrate);
+	hitrate = 100-flee;//cap_value(hitrate, battle_config.min_hitrate, battle_config.max_hitrate);
 	return (rnd()%100 < hitrate);
 }
 
@@ -4439,6 +4440,7 @@ struct Damage battle_calc_defense_reduction(struct Damage wd, struct block_list 
 	 * Damage = Attack * (4000+eDEF)/(4000+eDEF*10) - sDEF
 	 * Pierce defence gains 1 atk per def/2
 	 */
+	if (def1 > 100) def1 = 100;
 	if( def1 == -400 ) /* being hit by a gazillion units, -400 creates a division by 0 and subsequently crashes */
 		def1 = -399;
 	ATK_ADD2(wd.damage, wd.damage2,
@@ -4446,9 +4448,11 @@ struct Damage battle_calc_defense_reduction(struct Damage wd, struct block_list 
 		is_attack_piercing(wd, src, target, skill_id, skill_lv, EQI_HAND_L) ? (def1/2) : 0
 	);
 	if( !attack_ignores_def(wd, src, target, skill_id, skill_lv, EQI_HAND_R) && !is_attack_piercing(wd, src, target, skill_id, skill_lv, EQI_HAND_R) )
-		wd.damage = wd.damage * (4000+def1) / (4000+10*def1) - vit_def;
+		wd.damage = (wd.damage * (100-def1)) / 100;
+		//wd.damage = wd.damage * (4000+def1) / (4000+10*def1) - vit_def; // [ADGTH]
 	if( is_attack_left_handed(src, skill_id) && !attack_ignores_def(wd, src, target, skill_id, skill_lv, EQI_HAND_L) && !is_attack_piercing(wd, src, target, skill_id, skill_lv, EQI_HAND_L) )
-		wd.damage2 = wd.damage2 * (4000+def1) / (4000+10*def1) - vit_def;
+		wd.damage2 = (wd.damage2 * (100-def1)) / 100;
+		//wd.damage2 = wd.damage2 * (4000+def1) / (4000+10*def1) - vit_def;
 
 #else
 		if (def1 > 100) def1 = 100;
@@ -4961,8 +4965,11 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 	struct status_change *tsc = status_get_sc(target);
 	struct status_data *tstatus = status_get_status_data(target);
 	int right_element, left_element;
+	struct status_data *mystatus = status_get_status_data(src);
+	double strMod = 0;
 
 	memset(&wd,0,sizeof(wd));
+	
 
 	if (src == NULL || target == NULL) {
 		nullpo_info(NLP_MARK);
@@ -5075,10 +5082,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 
 #ifdef RENEWAL
 	if (is_attack_critical(wd, src, target, skill_id, skill_lv, false)) {
-		if (sd) { //Check for player so we don't crash out, monsters don't have bonus crit rates [helvetica]
-			wd.damage = (int)floor((float)((wd.damage * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
+		if (sd) { //Check for player so we don't crash out, monsters don't have bonus crit rates [helvetica] // [ADGTH]
+			wd.damage = (int)floor((float)((wd.damage * (125 + sd->bonus.crit_atk_rate + mystatus->dex/2)) / 100));//(int)floor((float)((wd.damage * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
 			if (is_attack_left_handed(src, skill_id))
-				wd.damage2 = (int)floor((float)((wd.damage2 * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
+				wd.damage2 = (int)floor((float)((wd.damage2 * (125 + sd->bonus.crit_atk_rate + mystatus->dex/2)) / 100));//(int)floor((float)((wd.damage2 * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
 		} else
 			wd.damage = (int)floor((float)(wd.damage * 140) / 100);
 	}
@@ -5251,8 +5258,11 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 
 	wd = battle_calc_weapon_final_atk_modifiers(wd, src, target, skill_id, skill_lv);
 
-	battle_do_reflect(BF_WEAPON,&wd, src, target, skill_id, skill_lv); //WIP [lighta]
+  strMod = (85+rnd()%30)+(mystatus->str/2);
+  strMod = (wd.damage * strMod) / 100;
+	wd.damage = strMod;
 
+	battle_do_reflect(BF_WEAPON,&wd, src, target, skill_id, skill_lv); //WIP [lighta]
 	return wd;
 }
 
