@@ -4705,6 +4705,7 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_ca
 		if(b_status.matk_max != status->matk_max || b_status.matk_min != status->matk_min) {
 			clif_updatestatus(sd,SP_MATK2);
 			clif_updatestatus(sd,SP_MATK1);
+			clif_updatestatus(sd,SP_ATK2);
 		}
 #endif
 		if(b_status.mdef != status->mdef) {
