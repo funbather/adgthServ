@@ -9011,7 +9011,46 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			clif_skill_nodamage(src,bl,skill_id,0,0);
 		}
 		break;
+		
+	case SC_ICESPIRIT:
+	case SC_FIRESPIRIT:
+	case SC_WINDSPIRIT:
+		{
+			short element = 0, sctype = 0, pos = -1;
+			struct status_change *sc = status_get_sc(src);
 
+			if( !sc )
+				break;
+
+			for( i = SC_SPIRIT_1; i <= SC_SPIRIT_3; i++ ) {
+				if( !sctype && !sc->data[i] )
+					sctype = i; // Take the free SC
+				if( sc->data[i] )
+					pos = max(sc->data[i]->val2,pos);
+			}
+
+			if( !sctype ) {
+        status_change_end(src, SC_SPIRIT_3, INVALID_TIMER);
+        sc_start4(src,src,(enum sc_type)SC_SPIRIT_3,100,sc->data[SC_SPIRIT_2]->val1,sc->data[SC_SPIRIT_2]->val2+1,sc->data[SC_SPIRIT_2]->val3,0,-1);
+        status_change_end(src, SC_SPIRIT_2, INVALID_TIMER);
+        sc_start4(src,src,(enum sc_type)SC_SPIRIT_2,100,sc->data[SC_SPIRIT_1]->val1,sc->data[SC_SPIRIT_1]->val2+1,sc->data[SC_SPIRIT_1]->val3,0,-1);
+        status_change_end(src, SC_SPIRIT_1, INVALID_TIMER);
+        sctype = SC_SPIRIT_1;
+        pos = -1;
+			}
+
+			pos++; // Used in val2 for SC. Indicates the order of this ball
+			switch( skill_id ) { // Set val1. The SC element for this ball
+				case SC_ICESPIRIT:    element = SCS_ICE;  break;
+				case SC_FIRESPIRIT:    element = SCS_FIRE;  break;
+				case SC_WINDSPIRIT:    element = SCS_WIND; break;
+			}
+
+			sc_start4(src,src,(enum sc_type)sctype,100,element,pos,skill_lv,0,-1);
+			clif_skill_nodamage(src,bl,skill_id,0,0);
+		}
+		break;
+		
 	case WL_READING_SB:
 		if( sd ) {
 			struct status_change *sc = status_get_sc(bl);

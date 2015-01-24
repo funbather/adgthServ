@@ -702,6 +702,10 @@ typedef enum sc_type {
 	SC__CHAOS,
 	SC_ELEMENTAL_SHIELD,
 	SC_CHASEWALK2,
+	
+	SC_SPIRIT_1,
+	SC_SPIRIT_2,
+	SC_SPIRIT_3,
 
 #ifdef RENEWAL
 	SC_EXTREMITYFIST2, //! NOTE: This SC should be right before SC_MAX, so it doesn't disturb if RENEWAL is disabled
@@ -1520,6 +1524,9 @@ enum si_type {
 	SI_GET_MAILBOX = 814,
 	SI_JUMPINGCLAN = 815,
 	SI_JP_OTP = 816,
+	SI_SPIRIT_1 = 817,
+	SI_SPIRIT_2 = 818,
+	SI_SPIRIT_3 = 819,
 	SI_MAX,
 };
 

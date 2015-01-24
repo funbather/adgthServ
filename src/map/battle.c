@@ -1111,6 +1111,18 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			else if(flag&BF_MAGIC)
 				DAMAGE_SUBRATE(sc->data[SC_ARMORCHANGE]->val3)
 		}
+		
+    if(sc->data[SC_SPIRIT_1] && sc->data[SC_SPIRIT_1]->val1 == SCS_ICE) { //[ADGTH]
+      DAMAGE_SUBRATE(15*sc->data[SC_SPIRIT_1]->val3/50);
+    }
+	
+    if(sc->data[SC_SPIRIT_2] && sc->data[SC_SPIRIT_2]->val1 == SCS_ICE) {
+      DAMAGE_SUBRATE(15*sc->data[SC_SPIRIT_2]->val3/50);
+    }
+	
+    if(sc->data[SC_SPIRIT_3] && sc->data[SC_SPIRIT_3]->val1 == SCS_ICE) {
+      DAMAGE_SUBRATE(15*sc->data[SC_SPIRIT_3]->val3/50);
+    }
 
 		if(sc->data[SC_SMOKEPOWDER]) {
 			if( (flag&(BF_SHORT|BF_WEAPON)) == (BF_SHORT|BF_WEAPON) )

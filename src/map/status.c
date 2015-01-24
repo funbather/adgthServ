@@ -983,6 +983,11 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_QUEST_BUFF1] = SI_QUEST_BUFF1;
 	StatusIconChangeTable[SC_QUEST_BUFF2] = SI_QUEST_BUFF2;
 	StatusIconChangeTable[SC_QUEST_BUFF3] = SI_QUEST_BUFF3;
+	
+	// [ADGTH]
+	StatusIconChangeTable[SC_SPIRIT_1] = SI_SPIRIT_1;
+	StatusIconChangeTable[SC_SPIRIT_2] = SI_SPIRIT_2;
+	StatusIconChangeTable[SC_SPIRIT_3] = SI_SPIRIT_3;
 
 	/* Other SC which are not necessarily associated to skills */
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
@@ -1093,6 +1098,10 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_QUEST_BUFF1] |= SCB_BATK|SCB_MATK;
 	StatusChangeFlagTable[SC_QUEST_BUFF2] |= SCB_BATK|SCB_MATK;
 	StatusChangeFlagTable[SC_QUEST_BUFF3] |= SCB_BATK|SCB_MATK;
+	
+	StatusChangeFlagTable[SC_SPIRIT_1] |= SCB_STR|SCB_INT|SCB_ASPD|SCB_SPEED;
+	StatusChangeFlagTable[SC_SPIRIT_2] |= SCB_STR|SCB_INT|SCB_ASPD|SCB_SPEED;
+	StatusChangeFlagTable[SC_SPIRIT_3] |= SCB_STR|SCB_INT|SCB_ASPD|SCB_SPEED;
 
 #ifdef RENEWAL
 	// renewal EDP increases your weapon atk
@@ -1141,6 +1150,9 @@ void initChangeTables(void)
 	StatusDisplayType[SC_SUPER_STAR]	  = true;
 	StatusDisplayType[SC_STRANGELIGHTS]	  = true;
 	StatusDisplayType[SC_DECORATION_OF_MUSIC] = true;
+	StatusDisplayType[SC_SPIRIT_1] = true;
+	StatusDisplayType[SC_SPIRIT_2] = true;
+	StatusDisplayType[SC_SPIRIT_3] = true;
 
 	/* StatusChangeState (SCS_) NOMOVE */
 	StatusChangeStateTable[SC_ANKLE]				|= SCS_NOMOVE;
@@ -4837,6 +4849,20 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 		str -= sc->data[SC_KYOUGAKU]->val2;
 	if(sc->data[SC_FULL_THROTTLE])
 		str += str * 20 / 100;
+		
+		
+	// [ADGTH]
+	if(sc->data[SC_SPIRIT_1] && sc->data[SC_SPIRIT_1]->val1 == SCS_FIRE) {
+    str += sc->data[SC_SPIRIT_1]->val3/2;
+	}
+	
+	if(sc->data[SC_SPIRIT_2] && sc->data[SC_SPIRIT_2]->val1 == SCS_FIRE) {
+    str += sc->data[SC_SPIRIT_2]->val3/2;
+	}
+	
+	if(sc->data[SC_SPIRIT_3] && sc->data[SC_SPIRIT_3]->val1 == SCS_FIRE) {
+    str += sc->data[SC_SPIRIT_3]->val3/2;
+	}
 
 	return (unsigned short)cap_value(str,0,USHRT_MAX);
 }
@@ -5027,6 +5053,20 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 			int_ -= int_ * sc->data[SC_STRIPHELM]->val2/100;
 		if(sc->data[SC__STRIPACCESSORY])
 			int_ -= int_ * sc->data[SC__STRIPACCESSORY]->val2 / 100;
+	}
+	
+			
+	// [ADGTH]
+	if(sc->data[SC_SPIRIT_1] && sc->data[SC_SPIRIT_1]->val1 == SCS_FIRE) {
+    int_ += sc->data[SC_SPIRIT_1]->val3/2;
+	}
+	
+	if(sc->data[SC_SPIRIT_2] && sc->data[SC_SPIRIT_2]->val1 == SCS_FIRE) {
+    int_ += sc->data[SC_SPIRIT_2]->val3/2;
+	}
+	
+	if(sc->data[SC_SPIRIT_3] && sc->data[SC_SPIRIT_3]->val1 == SCS_FIRE) {
+    int_ += sc->data[SC_SPIRIT_3]->val3/2;
 	}
 
 	return (unsigned short)cap_value(int_,0,USHRT_MAX);
@@ -6076,6 +6116,19 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 		speed = speed * 100 / sc->data[SC_WALKSPEED]->val1;
 	if( sc->data[SC_REBOUND] )
 		speed += max(speed, 100);
+		
+		// [ADGTH]
+	if(sc->data[SC_SPIRIT_1] && sc->data[SC_SPIRIT_1]->val1 == SCS_WIND) {
+    speed -= 16*sc->data[SC_SPIRIT_1]->val3/50;
+	}
+	
+	if(sc->data[SC_SPIRIT_2] && sc->data[SC_SPIRIT_2]->val1 == SCS_WIND) {
+    speed -= 16*sc->data[SC_SPIRIT_2]->val3/50;
+	}
+	
+	if(sc->data[SC_SPIRIT_3] && sc->data[SC_SPIRIT_3]->val1 == SCS_WIND) {
+    speed -= 16*sc->data[SC_SPIRIT_3]->val3/50;
+	}
 
 	return (unsigned short)cap_value(speed, MIN_WALK_SPEED, MAX_WALK_SPEED);
 }
@@ -6208,6 +6261,19 @@ static short status_calc_aspd(struct block_list *bl, struct status_change *sc, s
 					skills2 += sc->data[SC_ASSNCROS]->val2/10;
 					break;
 			}
+	}
+	
+			// [ADGTH]
+	if(sc->data[SC_SPIRIT_1] && sc->data[SC_SPIRIT_1]->val1 == SCS_WIND) {
+    skills2 += 10*sc->data[SC_SPIRIT_1]->val3/50;
+	}
+	
+	if(sc->data[SC_SPIRIT_2] && sc->data[SC_SPIRIT_2]->val1 == SCS_WIND) {
+    skills2 += 10*sc->data[SC_SPIRIT_2]->val3/50;
+	}
+	
+	if(sc->data[SC_SPIRIT_3] && sc->data[SC_SPIRIT_3]->val1 == SCS_WIND) {
+    skills2 += 10*sc->data[SC_SPIRIT_3]->val3/50;
 	}
 
 	return ( flag&1? (skills1 + pots) : skills2 );
@@ -9987,6 +10053,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		// Start |1 val_flag setting
 		case SC_ROLLINGCUTTER:
 		case SC_BANDING:
+		case SC_SPIRIT_1:
+		case SC_SPIRIT_2:
+		case SC_SPIRIT_3:
 		case SC_SPHERE_1:
 		case SC_SPHERE_2:
 		case SC_SPHERE_3:

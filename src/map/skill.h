@@ -1664,6 +1664,12 @@ enum e_skill {
 	ECL_SADAGUI,
 	ECL_SEQUOIADUST,
 	ECLAGE_RECALL,
+	
+	// [ADGTH]
+	SC_INVOKE = 4000,
+	SC_ICESPIRIT,
+	SC_FIRESPIRIT,
+	SC_WINDSPIRIT,
 
 	GC_DARKCROW = 5001,
 	RA_UNLIMIT,
@@ -1970,6 +1976,13 @@ enum {
  **/
 void skill_usave_add(struct map_session_data * sd, uint16 skill_id, uint16 skill_lv);
 void skill_usave_trigger(struct map_session_data *sd);
+
+//[ADGTH]
+enum sc_spirits {
+  SCS_ICE = 0x44,
+  SCS_FIRE,
+  SCS_WIND,
+};
 
 /**
  * Warlock
