@@ -1112,7 +1112,7 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 				DAMAGE_SUBRATE(sc->data[SC_ARMORCHANGE]->val3)
 		}
 		
-    if(sc->data[SC_SPIRIT_1] && sc->data[SC_SPIRIT_1]->val1 == SCS_ICE) { //[ADGTH]
+    /*if(sc->data[SC_SPIRIT_1] && sc->data[SC_SPIRIT_1]->val1 == SCS_ICE) { //[ADGTH]
       DAMAGE_SUBRATE(15*sc->data[SC_SPIRIT_1]->val3/50);
     }
 	
@@ -1122,6 +1122,10 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 	
     if(sc->data[SC_SPIRIT_3] && sc->data[SC_SPIRIT_3]->val1 == SCS_ICE) {
       DAMAGE_SUBRATE(15*sc->data[SC_SPIRIT_3]->val3/50);
+    }*/
+    
+    if(pc_checkskill(sd, SC_ICESPIRIT) > 0) {
+      DAMAGE_SUBRATE(66 * pc_checkskill(sd, SC_ICESPIRIT) / 100);
     }
 
 		if(sc->data[SC_SMOKEPOWDER]) {
@@ -3204,6 +3208,9 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 	}
 
 	switch( skill_id ) {
+	  //case SC_ARCANECANNON: //[ADGTH]
+      //skillratio = 100+5*pc_checkskill(sd, SC_FIRESPIRIT);
+      //break;
 		case SM_BASH:
 		case MS_BASH:
 			skillratio += 30*skill_lv;
@@ -5475,6 +5482,22 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 				}
 
 				switch(skill_id){
+          case SC_ARCANECANNON: { // [ADGTH]
+            struct Damage wd;
+            skillratio = 200+10*pc_checkskill(sd, SC_FIRESPIRIT);
+            wd = battle_calc_weapon_attack(src, target, skill_id, 1, 0);
+            ad.damage += wd.damage;
+            }
+            break;
+          case SC_PLASMAFIELD:
+            skillratio += 50 + 5 * pc_checkskill(sd, SC_FIRESPIRIT);
+            break;
+          case SC_ARCANEVORTEX:
+            skillratio += 50 + 5 * pc_checkskill(sd, SC_WINDSPIRIT);
+            break;
+          case SC_FLASHFREEZE:
+            skillratio += 50 + 5 * pc_checkskill(sd, SC_ICESPIRIT);
+            break;
 					case MG_NAPALMBEAT:
 						skillratio += skill_lv*10-30;
 						break;
@@ -5668,11 +5691,13 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							}
 						}
 					break;
-					case WL_CHAINLIGHTNING_ATK:
-						skillratio += 400 + 100 * skill_lv;
+					case WL_CHAINLIGHTNING_ATK: // Surge [ADGTH]
+            skillratio += 5 * pc_checkskill(sd,SC_FIRESPIRIT);
+					
+						/*skillratio += 400 + 100 * skill_lv;
 						RE_LVL_DMOD(100);
 						if (mflag > 0)
-							skillratio += 100 * mflag;
+							skillratio += 100 * mflag;*/
 						break;
 					case WL_EARTHSTRAIN:
 						skillratio += 1900 + 100 * skill_lv;

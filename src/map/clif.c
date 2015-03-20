@@ -2908,10 +2908,10 @@ void clif_updatestatus(struct map_session_data *sd,int type)
 		WFIFOL(fd,4)=sd->battle_status.cri/10;
 		break;
 	case SP_MATK1:
-		WFIFOL(fd,4)=pc_rightside_matk(sd);
+		WFIFOL(fd,4)=sd->battle_status.matk_max;//pc_rightside_matk(sd);
 		break;
 	case SP_MATK2:
-		WFIFOL(fd,4)=pc_leftside_matk(sd);
+		WFIFOL(fd,4)=sd->battle_status.matk_max;//pc_leftside_matk(sd);
 		break;
 
 
@@ -3262,8 +3262,8 @@ void clif_initialstatus(struct map_session_data *sd) {
 	WBUFB(buf,15)=pc_need_status_point(sd,SP_LUK,1);
 	WBUFW(buf,16) = dps;
 	WBUFW(buf,18) = pc_leftside_atk(sd) + pc_rightside_atk(sd); // [ADGTH]
-	WBUFW(buf,20) = pc_leftside_matk(sd);//pc_rightside_matk(sd); Messed something up lmao [ADGTH]
-	WBUFW(buf,22) = pc_leftside_matk(sd);
+	WBUFW(buf,20) = sd->battle_status.matk_max;//pc_leftside_matk(sd);//pc_rightside_matk(sd); Messed something up lmao [ADGTH]
+	WBUFW(buf,22) = sd->battle_status.matk_max;//pc_leftside_matk(sd);
 	WBUFW(buf,24) = pc_leftside_def(sd);
 	WBUFW(buf,26) = pc_rightside_def(sd);
 	WBUFW(buf,28) = pc_leftside_mdef(sd);
@@ -14220,7 +14220,7 @@ void clif_check(int fd, struct map_session_data* pl_sd)
 	WFIFOW(fd,14) = dps;
 	WFIFOW(fd,16) = pl_sd->battle_status.batk+pl_sd->battle_status.rhw.atk+pl_sd->battle_status.lhw.atk+pl_sd->battle_status.rhw.atk2+pl_sd->battle_status.lhw.atk2;
 	WFIFOW(fd,18) = pl_sd->battle_status.matk_max;
-	WFIFOW(fd,20) = pl_sd->battle_status.matk_min;
+	WFIFOW(fd,20) = pl_sd->battle_status.matk_max;//pl_sd->battle_status.matk_min;
 	WFIFOW(fd,22) = pl_sd->battle_status.def;
 	WFIFOW(fd,24) = pl_sd->battle_status.def2;
 	WFIFOW(fd,26) = pl_sd->battle_status.mdef;

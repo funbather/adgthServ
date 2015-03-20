@@ -703,9 +703,25 @@ typedef enum sc_type {
 	SC_ELEMENTAL_SHIELD,
 	SC_CHASEWALK2,
 	
+	// [ADGTH]
 	SC_SPIRIT_1,
 	SC_SPIRIT_2,
 	SC_SPIRIT_3,
+	
+	// Sorcerer Cooldowns
+	III_EXHAUST,
+	IIF_EXHAUST,
+	IFF_EXHAUST,
+	FFF_EXHAUST,
+	FFW_EXHAUST,
+	FWW_EXHAUST,
+	WWW_EXHAUST,
+	WWI_EXHAUST,
+	WII_EXHAUST,
+	IFW_EXHAUST,
+	
+	SC_INVIG, // Only now that I realize SC is not a smart abbreviation of 'Sorcerer'
+	SC_ENERG,
 
 #ifdef RENEWAL
 	SC_EXTREMITYFIST2, //! NOTE: This SC should be right before SC_MAX, so it doesn't disturb if RENEWAL is disabled
@@ -1524,9 +1540,21 @@ enum si_type {
 	SI_GET_MAILBOX = 814,
 	SI_JUMPINGCLAN = 815,
 	SI_JP_OTP = 816,
-	SI_SPIRIT_1 = 817,
+	SI_SPIRIT_1 = 817, // [ADGTH]
 	SI_SPIRIT_2 = 818,
 	SI_SPIRIT_3 = 819,
+	SI_III_EXHAUST = 820,
+	SI_IIF_EXHAUST = 821,
+	SI_IFF_EXHAUST = 822,
+	SI_FFF_EXHAUST = 823,
+	SI_FFW_EXHAUST = 824,
+	SI_FWW_EXHAUST = 825,
+	SI_WWW_EXHAUST = 826,
+	SI_WWI_EXHAUST = 827,
+	SI_WII_EXHAUST = 828,
+	SI_IFW_EXHAUST = 829,
+	SI_INVIG       = 830,
+	SI_ENERG       = 831,
 	SI_MAX,
 };
 

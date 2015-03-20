@@ -806,6 +806,13 @@ void initChangeTables(void)
 	set_sc_with_vfx( RL_AM_BLAST	, SC_ANTI_M_BLAST	, SI_ANTI_M_BLAST	, SCB_NONE );
 
 	set_sc_with_vfx( SC_ALL_RIDING		, SC_ALL_RIDING		, SI_ALL_RIDING		, SCB_SPEED );
+	
+	/* Sorcerer [ADGTH] */
+	set_sc( SC_INVIGORATE		, SC_INVIG		, SI_INVIG		, SCB_ALL );
+	set_sc( SC_ENERGIZE		, SC_ENERG		, SI_ENERG		, SCB_ASPD|SCB_SPEED );
+  add_sc( SC_PLASMAFIELD			, SC_STUN		);
+  add_sc( SC_FLASHFREEZE			, SC_FREEZE		);
+	
 
 	/* Storing the target job rather than simply SC_SPIRIT simplifies code later on */
 	SkillStatusChangeTable[SL_ALCHEMIST]	= (sc_type)MAPID_ALCHEMIST,
@@ -988,6 +995,18 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_SPIRIT_1] = SI_SPIRIT_1;
 	StatusIconChangeTable[SC_SPIRIT_2] = SI_SPIRIT_2;
 	StatusIconChangeTable[SC_SPIRIT_3] = SI_SPIRIT_3;
+	StatusIconChangeTable[III_EXHAUST] = SI_III_EXHAUST;
+	StatusIconChangeTable[IIF_EXHAUST] = SI_IIF_EXHAUST;
+	StatusIconChangeTable[IFF_EXHAUST] = SI_IFF_EXHAUST;
+	StatusIconChangeTable[FFF_EXHAUST] = SI_FFF_EXHAUST;
+	StatusIconChangeTable[FFW_EXHAUST] = SI_FFW_EXHAUST;
+	StatusIconChangeTable[FWW_EXHAUST] = SI_FWW_EXHAUST;
+	StatusIconChangeTable[WWW_EXHAUST] = SI_WWW_EXHAUST;
+	StatusIconChangeTable[WWI_EXHAUST] = SI_WWI_EXHAUST;
+	StatusIconChangeTable[WII_EXHAUST] = SI_WII_EXHAUST;
+	StatusIconChangeTable[IFW_EXHAUST] = SI_IFW_EXHAUST;
+	StatusIconChangeTable[SC_INVIG]    = SI_INVIG;
+	StatusIconChangeTable[SC_ENERG]    = SI_ENERG;
 
 	/* Other SC which are not necessarily associated to skills */
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
@@ -1102,6 +1121,8 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_SPIRIT_1] |= SCB_STR|SCB_INT|SCB_ASPD|SCB_SPEED;
 	StatusChangeFlagTable[SC_SPIRIT_2] |= SCB_STR|SCB_INT|SCB_ASPD|SCB_SPEED;
 	StatusChangeFlagTable[SC_SPIRIT_3] |= SCB_STR|SCB_INT|SCB_ASPD|SCB_SPEED;
+  StatusChangeFlagTable[SC_INVIG]    |= SCB_ALL;
+  StatusChangeFlagTable[SC_ENERG]    |= SCB_ASPD|SCB_SPEED;
 
 #ifdef RENEWAL
 	// renewal EDP increases your weapon atk
@@ -2179,7 +2200,7 @@ unsigned int status_weapon_atk(struct weapon_atk wa, struct status_data *status)
  */
 void status_calc_misc(struct block_list *bl, struct status_data *status, int level)
 {
-	//int stat;
+	int stat;
 	// Non players get the value set, players need to stack with previous bonuses.
 	if( bl->type != BL_PC )
 		status->batk =
@@ -2242,11 +2263,9 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 
 	//Critical
 	if( bl->type&battle_config.enable_critical ) {
-		//stat = status->cri;
-		//stat += 10 + (status->luk*10/3); // (every 1 luk = +0.3 critical)
-		if(status->dex >= 5) {
-      status->cri += (status->dex*2);//cap_value(stat,1,SHRT_MAX);
-		}
+      stat = status->cri+10;
+      stat += (status->dex*2);//cap_value(stat,1,SHRT_MAX);
+      status->cri = cap_value(stat,0,SHRT_MAX);
 	}
 	else
 		status->cri = 0;
@@ -3251,6 +3270,16 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		status->dex += skill;
 	if((skill = pc_checkskill(sd,RA_RESEARCHTRAP))>0)
 		status->int_ += skill;
+	if((skill = pc_checkskill(sd,SC_ICESPIRIT)) > 0)
+    status->vit += skill;
+  if((skill = pc_checkskill(sd,SC_FIRESPIRIT)) > 0)
+    status->int_ += skill;
+  if((skill = pc_checkskill(sd,SC_FIRESPIRIT)) > 0)
+    status->str += skill;
+  if((skill = pc_checkskill(sd,SC_WINDSPIRIT)) > 0)
+    status->agi += skill;
+  if((skill = pc_checkskill(sd,SC_WINDSPIRIT)) > 0)
+    status->dex += skill;
 
 	// Bonuses from cards and equipment as well as base stat, remember to avoid overflows.
 	i = status->str + sd->status.str + sd->param_bonus[0] + sd->param_equip[0];
@@ -4355,10 +4384,10 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 	}
 
 	if(flag&SCB_CRI && b_status->cri) {
-		if (status->luk == b_status->luk)
+		if (status->dex == b_status->dex)
 			status->cri = status_calc_critical(bl, sc, b_status->cri);
 		else
-			status->cri = status_calc_critical(bl, sc, b_status->cri + 3*(status->luk - b_status->luk));
+			status->cri = status_calc_critical(bl, sc, b_status->cri + 2*(status->dex - b_status->dex));
 
 		/// After status_calc_critical so the bonus is applied despite if you have or not a sc bugreport:5240
 		if( bl->type == BL_PC && ((TBL_PC*)bl)->status.weapon == W_KATAR )
@@ -4643,6 +4672,7 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_ca
 	// Compare against new values and send client updates
 	if( bl->type == BL_PC ) {
 		TBL_PC* sd = BL_CAST(BL_PC, bl);
+		
 		if(b_status.str != status->str)
 			clif_updatestatus(sd,SP_STR);
 		if(b_status.agi != status->agi)
@@ -4674,8 +4704,9 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_ca
 #ifndef RENEWAL
 			|| b_status.rhw.atk != status->rhw.atk || b_status.lhw.atk != status->lhw.atk
 #endif
-			)
+			) {
 			clif_updatestatus(sd,SP_ATK1);
+			}
 
 		if(b_status.def != status->def) {
 			clif_updatestatus(sd,SP_DEF1);
@@ -4704,7 +4735,7 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_ca
 		}
 		if(b_status.flee2 != (300-(2*sd->battle_status.speed))/3);//status->flee2) [ADGTH]
 			clif_updatestatus(sd,SP_FLEE2);
-		if(b_status.cri != status->cri) {
+		if(b_status.cri != status->cri || b_status.dex != status->dex) {
 			clif_updatestatus(sd,SP_ATK1);
 			clif_updatestatus(sd,SP_CRITICAL);
 		}
@@ -4851,7 +4882,7 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 		str += str * 20 / 100;
 		
 		
-	// [ADGTH]
+	/* Change to static bonuses [ADGTH]
 	if(sc->data[SC_SPIRIT_1] && sc->data[SC_SPIRIT_1]->val1 == SCS_FIRE) {
     str += sc->data[SC_SPIRIT_1]->val3/2;
 	}
@@ -4862,7 +4893,7 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 	
 	if(sc->data[SC_SPIRIT_3] && sc->data[SC_SPIRIT_3]->val1 == SCS_FIRE) {
     str += sc->data[SC_SPIRIT_3]->val3/2;
-	}
+	}*/
 
 	return (unsigned short)cap_value(str,0,USHRT_MAX);
 }
@@ -5056,7 +5087,7 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 	}
 	
 			
-	// [ADGTH]
+	/* Change to static bonuses [ADGTH]
 	if(sc->data[SC_SPIRIT_1] && sc->data[SC_SPIRIT_1]->val1 == SCS_FIRE) {
     int_ += sc->data[SC_SPIRIT_1]->val3/2;
 	}
@@ -5067,7 +5098,7 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 	
 	if(sc->data[SC_SPIRIT_3] && sc->data[SC_SPIRIT_3]->val1 == SCS_FIRE) {
     int_ += sc->data[SC_SPIRIT_3]->val3/2;
-	}
+	}*/
 
 	return (unsigned short)cap_value(int_,0,USHRT_MAX);
 }
@@ -5135,6 +5166,8 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 		dex -= dex * sc->data[SC_MARSHOFABYSS]->val2 / 100;
 	if(sc->data[SC_FULL_THROTTLE])
 		dex += dex * 20 / 100;
+	if(sc->data[SC_INVIG])
+		dex += sc->data[SC_INVIG]->val2;
 
 	return (unsigned short)cap_value(dex,0,USHRT_MAX);
 }
@@ -5271,6 +5304,8 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk += sc->data[SC_QUEST_BUFF2]->val1;
 	if(sc->data[SC_QUEST_BUFF3])
 		batk += sc->data[SC_QUEST_BUFF3]->val1;
+	if(sc->data[SC_INVIG])
+    batk += batk*sc->data[SC_INVIG]->val1/100;
 
 	return (unsigned short)cap_value(batk,0,USHRT_MAX);
 }
@@ -5363,6 +5398,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += watk * sc->data[SC_ANGRIFFS_MODUS]->val2/100;
 	if(sc->data[SC_ODINS_POWER])
 		watk += 40 + 30 * sc->data[SC_ODINS_POWER]->val1;
+	if(sc->data[SC_INVIG])
+    watk += watk * sc->data[SC_INVIG]->val1 / 100;
 
 	return (unsigned short)cap_value(watk,0,USHRT_MAX);
 }
@@ -5467,6 +5504,8 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 		matk += sc->data[SC_MOONLITSERENADE]->val3/100;
 	if (sc->data[SC_MTF_MATK])
 		matk += matk * 25 / 100;
+	if(sc->data[SC_INVIG])
+    matk += matk * sc->data[SC_INVIG]->val1 / 100;
 
 	return (unsigned short)cap_value(matk,0,USHRT_MAX);
 }
@@ -6056,6 +6095,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 			speed_rate = 150;
 
 		// GetMoveHasteValue1()
+		if( sc->data[SC_ENERG] )
+      val += sc->data[SC_ENERG]->val2 / 100;
 		if( sc->data[SC_SPEEDUP1] ) // !FIXME: used both by NPC_AGIUP and Speed Potion script
 			val = max( val, 50 );
 		if( sc->data[SC_INCREASEAGI] )
@@ -6117,7 +6158,7 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 	if( sc->data[SC_REBOUND] )
 		speed += max(speed, 100);
 		
-		// [ADGTH]
+	/* Change to static bonuses [ADGTH]
 	if(sc->data[SC_SPIRIT_1] && sc->data[SC_SPIRIT_1]->val1 == SCS_WIND) {
     speed -= 16*sc->data[SC_SPIRIT_1]->val3/50;
 	}
@@ -6128,7 +6169,7 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 	
 	if(sc->data[SC_SPIRIT_3] && sc->data[SC_SPIRIT_3]->val1 == SCS_WIND) {
     speed -= 16*sc->data[SC_SPIRIT_3]->val3/50;
-	}
+	}*/
 
 	return (unsigned short)cap_value(speed, MIN_WALK_SPEED, MAX_WALK_SPEED);
 }
@@ -6263,7 +6304,10 @@ static short status_calc_aspd(struct block_list *bl, struct status_change *sc, s
 			}
 	}
 	
-			// [ADGTH]
+	if( sc->data[SC_ENERG] )
+    skills2 += sc->data[SC_ENERG]->val1 / 100;
+	
+	/* Change to static bonuses [ADGTH]
 	if(sc->data[SC_SPIRIT_1] && sc->data[SC_SPIRIT_1]->val1 == SCS_WIND) {
     skills2 += 10*sc->data[SC_SPIRIT_1]->val3/50;
 	}
@@ -6274,7 +6318,7 @@ static short status_calc_aspd(struct block_list *bl, struct status_change *sc, s
 	
 	if(sc->data[SC_SPIRIT_3] && sc->data[SC_SPIRIT_3]->val1 == SCS_WIND) {
     skills2 += 10*sc->data[SC_SPIRIT_3]->val3/50;
-	}
+	}*/
 
 	return ( flag&1? (skills1 + pots) : skills2 );
 }
@@ -8755,6 +8799,26 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val4 = tick/10000;
 			if (!val4) val4 = 1;
 			tick_time = 10000; // [GodLesZ] tick time
+			break;
+			
+		case SC_ENERG:
+      clif_emotion(bl,E_GO);
+		case SC_INVIG:
+		if(type == SC_INVIG)
+      clif_emotion(bl,E_PIF);
+		case III_EXHAUST: //[ADGTH]
+		case IIF_EXHAUST: 
+		case IFF_EXHAUST: 
+		case FFF_EXHAUST: 
+		case FFW_EXHAUST: 
+		case FWW_EXHAUST: 
+		case WWW_EXHAUST: 
+		case WWI_EXHAUST: 
+		case WII_EXHAUST: 
+		case IFW_EXHAUST: 
+			val4 = tick;
+			if (!val4) val4 = 1;
+			tick_time = tick;
 			break;
 		case SC_S_LIFEPOTION:
 		case SC_L_LIFEPOTION:

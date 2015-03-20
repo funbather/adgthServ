@@ -6674,9 +6674,9 @@ int pc_skillup(struct map_session_data *sd,uint16 skill_id)
 		int lv,range, upgradable;
 		sd->status.skill[skill_id].lv++;
 		sd->status.skill_point--;
-		if( !skill_get_inf(skill_id) )
+		//if( !skill_get_inf(skill_id) )
 			status_calc_pc(sd,SCO_NONE); // Only recalculate for passive skills.
-		else if( sd->status.skill_point == 0 && pc_is_taekwon_ranker(sd) )
+		if( sd->status.skill_point == 0 && pc_is_taekwon_ranker(sd) ) // Hope this don't break anything [ADGTH]
 			pc_calc_skilltree(sd); // Required to grant all TK Ranker skills.
 		else
 			pc_check_skilltree(sd, skill_id); // Check if a new skill can Lvlup

@@ -1670,6 +1670,16 @@ enum e_skill {
 	SC_ICESPIRIT,
 	SC_FIRESPIRIT,
 	SC_WINDSPIRIT,
+	SC_REJUVENATE,
+	SC_INVIGORATE,
+	SC_CALLSENTINEL,
+	SC_ARCANECANNON,
+	SC_SURGE,
+	SC_PLASMAFIELD,
+	SC_ARCANEVORTEX,
+	SC_FLASHFREEZE,
+	SC_ENERGIZE,
+	SC_PHASEWALK,
 
 	GC_DARKCROW = 5001,
 	RA_UNLIMIT,
@@ -1979,9 +1989,19 @@ void skill_usave_trigger(struct map_session_data *sd);
 
 //[ADGTH]
 enum sc_spirits {
-  SCS_ICE = 0x44,
-  SCS_FIRE,
-  SCS_WIND,
+  SCS_ICE  = 0x001,
+  SCS_FIRE = 0x010,
+  SCS_WIND = 0x100,
+  SCS_III  = 0x003,
+  SCS_IIF  = 0x012,
+  SCS_IFF  = 0x021,
+  SCS_FFF  = 0x030,
+  SCS_FFW  = 0x120,
+  SCS_FWW  = 0x210,
+  SCS_WWW  = 0x300,
+  SCS_WWI  = 0x201,
+  SCS_WII  = 0x102,
+  SCS_IFW  = 0x111,
 };
 
 /**
