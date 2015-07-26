@@ -696,6 +696,13 @@ int pc_equippoint(struct map_session_data *sd,int n){
 			(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO))//Kagerou and Oboro can dual wield daggers. [Rytech]
 			return EQP_ARMS;
 	}
+     
+  if(sd->sc.data[SC_MONKEYGRIP] && ep == (EQP_HAND_L + EQP_HAND_R))
+    return EQP_HAND_R;
+    
+  if(sd->sc.data[SC_TWINHAND] && ep == EQP_HAND_R)
+    return (EQP_HAND_R + EQP_HAND_L);
+     
 	return ep;
 }
 
@@ -1454,8 +1461,8 @@ static int pc_calc_skillpoint(struct map_session_data* sd)
 	uint16 i, skill_point=0;
 
 	nullpo_ret(sd);
-
-	for(i=1;i<MAX_SKILL;i++){
+ 
+	for(i=2;i<MAX_SKILL;i++){ // Ignore Basic Skill
 		uint8 skill_lv;
 		if( (skill_lv = pc_checkskill(sd,i)) > 0) {
 			uint16 inf2 = skill_get_inf2(i);
@@ -5369,7 +5376,7 @@ char pc_randomwarp(struct map_session_data *sd, clr_type type)
  *------------------------------------------*/
 bool pc_memo(struct map_session_data* sd, int pos)
 {
-	int skill;
+	//int skill;
 
 	nullpo_ret(sd);
 
@@ -5383,7 +5390,7 @@ bool pc_memo(struct map_session_data* sd, int pos)
 	if( pos < -1 || pos >= MAX_MEMOPOINTS )
 		return false; // invalid input
 
-	// check required skill level
+	/* check required skill level
 	skill = pc_checkskill(sd, AL_WARP);
 	if( skill < 1 ) {
 		clif_skill_memomessage(sd,2); // "You haven't learned Warp."
@@ -5392,7 +5399,7 @@ bool pc_memo(struct map_session_data* sd, int pos)
 	if( skill < 2 || skill - 2 < pos ) {
 		clif_skill_memomessage(sd,1); // "Skill Level is not high enough."
 		return false;
-	}
+	}*/
 
 	if( pos == -1 )
 	{
@@ -5443,6 +5450,10 @@ int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 sk
 		cooldown += sd->skillcooldown[i].val;
 		cooldown = max(0,cooldown);
 	}
+	
+	if(sd->sc.data[SC_MONKEYGRIP])
+    cooldown = cooldown * 130 / 100;
+    
 	return cooldown;
 }
 
@@ -5587,6 +5598,7 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_GANGSI:                return MAPID_GANGSI;
 		case JOB_OKTOBERFEST:           return MAPID_OKTOBERFEST;
 		case JOB_SORC_:                 return MAPID_SORC_;
+		case JOB_WARRIOR:               return MAPID_WARRIOR;
 	//2-1 Jobs
 		case JOB_SUPER_NOVICE:          return MAPID_SUPER_NOVICE;
 		case JOB_KNIGHT:                return MAPID_KNIGHT;
@@ -5732,6 +5744,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_GANGSI:                return JOB_GANGSI;
 		case MAPID_OKTOBERFEST:           return JOB_OKTOBERFEST;
 		case MAPID_SORC_:                 return JOB_SORC_;
+		case MAPID_WARRIOR:               return JOB_WARRIOR;
 	//2-1 Jobs
 		case MAPID_SUPER_NOVICE:          return JOB_SUPER_NOVICE;
 		case MAPID_KNIGHT:                return JOB_KNIGHT;
@@ -5903,6 +5916,8 @@ const char* job_name(int class_)
 		
 	case JOB_SORC_:
 		return msg_txt(NULL,2000);
+	case JOB_WARRIOR:
+    return msg_txt(NULL,2001);
 
 	case JOB_NOVICE_HIGH:
 	case JOB_SWORDMAN_HIGH:
@@ -6973,8 +6988,8 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 		}
 
 		// do not reset basic skill
-		if( i == NV_BASIC && (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE )
-			continue;
+		//if( i == NV_BASIC && (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE )
+			//continue;
 
 		if( sd->status.skill[i].flag == SKILL_FLAG_PERM_GRANTED )
 			continue;
@@ -9163,7 +9178,7 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos)
 	if(battle_config.battle_log)
 		ShowInfo("equip %hu(%d) %x:%x\n",sd->status.inventory[n].nameid,n,id?id->equip:0,req_pos);
 
-	if(!pc_isequip(sd,n) || !(pos&req_pos) || sd->status.inventory[n].equip != 0 || sd->status.inventory[n].attribute==1 ) { // [Valaris]
+	if(!pc_isequip(sd,n) || !(pos&req_pos) || sd->status.inventory[n].equip != 0){// || sd->status.inventory[n].attribute==1 ) { // [Valaris]
 		// FIXME: pc_isequip: equip level failure uses 2 instead of 0
 		clif_equipitemack(sd,n,0,0);	// fail
 		return false;
@@ -9191,11 +9206,11 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos)
 			pos = sd->equip_index[EQI_SHADOW_ACC_L] >= 0 ? EQP_SHADOW_ACC_R : EQP_SHADOW_ACC_L;
 	}
 
-	if(pos == EQP_ARMS && id->equip == EQP_HAND_R) { //Dual wield capable weapon.
+	/*if(pos == EQP_ARMS && id->equip == EQP_HAND_R) { //Dual wield capable weapon.
 		pos = (req_pos&EQP_ARMS);
 		if (pos == EQP_ARMS) //User specified both slots, pick one for them.
 			pos = sd->equip_index[EQI_HAND_R] >= 0 ? EQP_HAND_L : EQP_HAND_R;
-	}
+	}*/
 
 	if (pos&EQP_HAND_R && battle_config.use_weapon_skill_range&BL_PC) {
 		//Update skill-block range database when weapon range changes. [Skotlex]

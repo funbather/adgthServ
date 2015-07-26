@@ -1037,6 +1037,18 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
     sc_start(src,bl,SC_FREEZE,100,skill_lv,3000);
     break;
     
+  case WR_HILTBASH: //[ADGTH]
+    sc_start(src,bl,SC_STUN,100,skill_lv,1500+skill_lv*500);
+    break;
+    
+  case WR_PILEBUNKER: //[ADGTH]
+    sc_start4(src,bl,SC_SHATTER,100,0,0,0,8000,8000);
+    break;
+    
+  case WR_BULWARKBASH: //[ADGTH]
+    sc_start(src,bl,SC_STUN,100,skill_lv,3000);
+    break;
+           
 	case WZ_STORMGUST:
 		// Storm Gust counter was dropped in renewal
 #ifdef RENEWAL
@@ -3030,6 +3042,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	//Skill hit type
 	type = (skill_id == 0) ? 5 : skill_get_hit(skill_id);
+	type = dmg.type;
 
 	switch( skill_id ) {
 		case SC_TRIANGLESHOT:
@@ -4084,6 +4097,14 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 
 	switch(skill_id)
 	{
+	case WR_SUNDER:
+	case WR_HILTBASH:
+//	case WR_CLEAVE:
+	case WR_PILEBUNKER:
+	case WR_ECHOBLADE:
+	case WR_BULWARKBOOMERANG:
+//	case WR_BULWARKBLITZ:
+//	case WR_BULWARKBASH:
 	case MER_CRASH:
 	case SM_BASH:
 	case MS_BASH:
@@ -4245,6 +4266,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 			BF_WEAPON, src, src, skill_id, skill_lv, tick, flag, BCT_ENEMY);
 		break;
 
+  case WR_BULWARKBLITZ:
 	case KN_CHARGEATK:
 		{
 		bool path = path_search_long(NULL, src->m, src->x, src->y, bl->x, bl->y,CELL_CHKWALL);
@@ -4259,7 +4281,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 		if( path )
 		{
 			skill_attack(BF_WEAPON, src, src, bl, skill_id, skill_lv, tick, dist);
-			skill_blown(src, bl, dist, dir, 0);
+			//skill_blown(src, bl, dist, dir, 0);
 			//HACK: since knockback officially defaults to the left, the client also turns to the left... therefore,
 			// make the caster look in the direction of the target
 			unit_setdir(src, (dir+4)%8);
@@ -4380,6 +4402,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 		break;
 
 	//Splash attack skills.
+	case WR_CLEAVE:
+	case WR_BULWARKBASH:
 	case AS_GRIMTOOTH:
 	case MC_CARTREVOLUTION:
 	case NPC_SPLASHATTACK:
@@ -4516,7 +4540,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 			skill_attack(skill_get_type(skill_id), src, src, bl, skill_id, skill_lv, tick, flag);
 		break;
 
-	case KN_BOWLINGBASH:
+  /*case KN_BOWLINGBASH:
 	case MS_BOWLINGBASH:
 		{
 			int min_x,max_x,min_y,max_y,i,c,dir,tx,ty;
@@ -4586,6 +4610,84 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 				}
 			}
 			// Original hit or chain hit depending on flag
+			skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,(flag&0xFFF)>0?SD_ANIMATION:0);
+		}
+		break;*/
+		
+  case KN_BOWLINGBASH: //[ADGTH] Copied in case I fuck this up
+	case MS_BOWLINGBASH:
+		{
+			int min_x,max_x,min_y,max_y,i,c,dir,tx,ty;
+			// Chain effect and check range gets reduction by recursive depth, as this can reach 0, we don't use blowcount
+			c = (5-(flag&0xFFF)+1)/2;
+			// Determine the Bowling Bash area depending on configuration
+			if (battle_config.bowling_bash_area == 0) {
+				// Gutter line system
+				min_x = ((src->x)-c) - ((src->x)-c)%40;
+				if(min_x < 0) min_x = 0;
+				max_x = min_x + 39;
+				min_y = ((src->y)-c) - ((src->y)-c)%40;
+				if(min_y < 0) min_y = 0;
+				max_y = min_y + 39;
+			} else if (battle_config.bowling_bash_area == 1) {
+				// Gutter line system without demi gutter bug
+				min_x = src->x - (src->x)%40;
+				max_x = min_x + 39;
+				min_y = src->y - (src->y)%40;
+				max_y = min_y + 39;
+			} else {
+				// Area around caster
+				min_x = src->x - battle_config.bowling_bash_area;
+				max_x = src->x + battle_config.bowling_bash_area;
+				min_y = src->y - battle_config.bowling_bash_area;
+				max_y = src->y + battle_config.bowling_bash_area;
+			}
+			// Initialization, break checks, direction
+			if((flag&0xFFF) > 0) {
+				// Ignore monsters outside area
+				if(bl->x < min_x || bl->x > max_x || bl->y < min_y || bl->y > max_y)
+					break;
+				// Ignore monsters already in list
+				if(idb_exists(bowling_db, bl->id))
+					break;
+				// Random direction
+				dir = rand()%8;
+			} else {
+				// Create an empty list of already hit targets
+				db_clear(bowling_db);
+				// Direction is walkpath
+				dir = (unit_getdir(src)+4)%8;
+			}
+			// Add current target to the list of already hit targets
+			idb_put(bowling_db, bl->id, bl);
+			// Keep moving target in direction square by square
+			tx = bl->x;
+			ty = bl->y;
+			for(i=0;i<c;i++) {
+				// Target coordinates (get changed even if knockback fails)
+				tx -= dirx[dir];
+				ty -= diry[dir];
+				// If target cell is a wall then break
+				if(map_getcell(bl->m,tx,ty,CELL_CHKWALL))
+					break;
+				skill_blown(src,bl,3,dir,0);
+				// Splash around target cell, but only cells inside area; we first have to check the area is not negative
+				if((max(min_x,tx-1) <= min(max_x,tx+1)) &&
+					(max(min_y,ty-1) <= min(max_y,ty+1)) &&
+					(map_foreachinarea(skill_area_sub, bl->m, max(min_x,tx-1), max(min_y,ty-1), min(max_x,tx+1), min(max_y,ty+1), splash_target(src), src, skill_id, skill_lv, tick, flag|BCT_ENEMY, skill_area_sub_count))) {
+					// Recursive call
+					map_foreachinarea(skill_area_sub, bl->m, max(min_x,tx-1), max(min_y,ty-1), min(max_x,tx+1), min(max_y,ty+1), splash_target(src), src, skill_id, skill_lv, tick, (flag|BCT_ENEMY)+1, skill_castend_damage_id);
+					// Self-collision
+					if(bl->x >= min_x && bl->x <= max_x && bl->y >= min_y && bl->y <= max_y)
+						skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,(flag&0xFFF)>0?SD_ANIMATION:0);
+					break;
+				}
+			}
+			// Original hit or chain hit depending on flag
+			
+			if(!(flag&1))
+        skill_blown(src,bl,7,dir,0);
+        
 			skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,(flag&0xFFF)>0?SD_ANIMATION:0);
 		}
 		break;
@@ -5846,6 +5948,30 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		clif_skill_nodamage (src, bl, skill_id, skill_lv, 1);
 		break;
 		
+	case WR_MONKEYGRIP:
+    if(!sd->sc.data[SC_MONKEYGRIP]) {
+      sc_start4(src,src,(enum sc_type)SC_MONKEYGRIP,100,pc_checkskill(sd,WR_MONKEYGRIP)*5 + 70,123,123,0,-1);
+      pc_unequipitem(sd,sd->equip_index[EQI_HAND_L],3);
+      pc_unequipitem(sd,sd->equip_index[EQI_HAND_R],3);
+    } else {
+      status_change_end(src, SC_MONKEYGRIP, INVALID_TIMER);
+      pc_unequipitem(sd,sd->equip_index[EQI_HAND_L],3);
+      pc_unequipitem(sd,sd->equip_index[EQI_HAND_R],3);
+    }
+    break;
+
+	case WR_TWINHAND:
+    if(!sd->sc.data[SC_TWINHAND]) {
+      sc_start4(src,src,(enum sc_type)SC_TWINHAND,100,pc_checkskill(sd,WR_TWINHAND)*5 + 120,123,123,0,-1);
+      pc_unequipitem(sd,sd->equip_index[EQI_HAND_L],3);
+      pc_unequipitem(sd,sd->equip_index[EQI_HAND_R],3);
+    }else {
+      status_change_end(src, SC_TWINHAND, INVALID_TIMER);
+      pc_unequipitem(sd,sd->equip_index[EQI_HAND_L],3);
+      pc_unequipitem(sd,sd->equip_index[EQI_HAND_R],3);
+    }
+    break;
+		
   // Invoke [ADGTH]
   case SC_INVOKE: { 
       int invoke;
@@ -6509,7 +6635,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		}
 		break;
 
-	case SM_PROVOKE:
+//	case SM_PROVOKE:
 	case SM_SELFPROVOKE:
 	case MER_PROVOKE:
 		if( (tstatus->mode&MD_BOSS) || battle_check_undead(tstatus->race,tstatus->def_ele) )
@@ -6526,6 +6652,33 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
 			map_freeblock_unlock();
 			return 0;
+		}
+		unit_skillcastcancel(bl, 2);
+
+		if( tsc && tsc->count )
+		{
+			status_change_end(bl, SC_FREEZE, INVALID_TIMER);
+			if( tsc->data[SC_STONE] && tsc->opt1 == OPT1_STONE )
+				status_change_end(bl, SC_STONE, INVALID_TIMER);
+			status_change_end(bl, SC_SLEEP, INVALID_TIMER);
+			status_change_end(bl, SC_TRICKDEAD, INVALID_TIMER);
+		}
+
+		if( dstmd )
+		{
+			dstmd->state.provoke_flag = src->id;
+			mob_target(dstmd, src, skill_get_range2(src,skill_id,skill_lv));
+		}
+		break;
+		
+	case SM_PROVOKE:
+			if (flag&1)
+			sc_start(src,bl,type, 100, skill_lv,skill_get_time(skill_id,skill_lv));
+					else {
+			map_foreachinrange(skill_area_sub, src, skill_get_splash(skill_id, skill_lv), BL_CHAR,
+				src, skill_id, skill_lv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+							map_freeblock_unlock();
+			clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
 		}
 		unit_skillcastcancel(bl, 2);
 
@@ -6682,6 +6835,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		clif_skill_nodamage(src,bl,skill_id,skill_lv,
 			sc_start(src,bl,SC_STUN,(20 + 10 * skill_lv),skill_lv,skill_get_time2(skill_id,skill_lv)));
 		break;
+		
+	case WR_BULWARKBASH:
 	case RG_RAID:
 		skill_area_temp[1] = 0;
 		clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
@@ -7021,6 +7176,18 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 	case NV_FIRSTAID:
 		clif_skill_nodamage(src,bl,skill_id,5,1);
 		status_heal(bl,5,0,0);
+		break;
+
+  case ALL_FIRSTAID: // [ADGTH]
+		if(status_isimmune(bl)) {
+			clif_skill_nodamage(src,bl,skill_id,skill_lv,0);
+			break;
+		}
+		status_change_end(bl, SC_SILENCE, INVALID_TIMER);
+		status_change_end(bl, SC_BLIND, INVALID_TIMER);
+		status_change_end(bl, SC_BLEEDING, INVALID_TIMER);
+		status_change_end(bl, SC_POISON, INVALID_TIMER);
+		clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 		break;
 
 	case AL_CURE:
@@ -11388,9 +11555,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
 		if(sd)
 		{
 			clif_skill_warppoint(sd, skill_id, skill_lv, sd->status.save_point.map,
-				(skill_lv >= 2) ? sd->status.memo_point[0].map : 0,
-				(skill_lv >= 3) ? sd->status.memo_point[1].map : 0,
-				(skill_lv >= 4) ? sd->status.memo_point[2].map : 0
+				sd->status.memo_point[0].map, 0 ,0
 			);
 		}
 		if( sc && sc->data[SC_CURSEDCIRCLE_ATKER] ) //Should only remove after the skill has been casted.
@@ -11984,6 +12149,7 @@ int skill_castend_map (struct map_session_data *sd, uint16 skill_id, const char 
 			}
 
 			lv = sd->skillitem==skill_id?sd->skillitemlv:pc_checkskill(sd,skill_id);
+			lv += 1;
 			wx = sd->menuskill_val>>16;
 			wy = sd->menuskill_val&0xffff;
 

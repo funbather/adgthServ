@@ -8079,6 +8079,32 @@ BUILDIN_FUNC(getequiprefinerycnt)
 }
 
 /*==========================================
+ * Get the item level (attribute) value at pos [ADGTH]
+ * return (npc)
+ *	x : item level
+ *	0 : false (not refined)
+ *------------------------------------------*/
+BUILDIN_FUNC(getequipilvlcnt)
+{
+	int i = -1,num;
+	TBL_PC *sd;
+
+	num = script_getnum(st,2);
+	sd = script_rid2sd(st);
+	if( sd == NULL )
+		return 0;
+
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
+	if(i >= 0)
+		script_pushint(st,sd->status.inventory[i].attribute);
+	else
+		script_pushint(st,0);
+
+	return SCRIPT_CMD_SUCCESS;
+}
+
+/*==========================================
  * Get the weapon level value at pos
  * (pos should normally only be EQI_HAND_L or EQI_HAND_R)
  * return (npc)
@@ -14301,6 +14327,20 @@ BUILDIN_FUNC(getrefine)
 }
 
 /*=======================================================
+ * Returns the item level of the current item, or an
+ * item with inventory index specified [ADGTH]
+ *-------------------------------------------------------*/
+BUILDIN_FUNC(getilvl)
+{
+	TBL_PC *sd;
+	if ((sd = script_rid2sd(st))!= NULL)
+		script_pushint(st,sd->status.inventory[current_equip_item_index].attribute);
+	else
+		script_pushint(st,0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+/*=======================================================
  * Day/Night controls
  *-------------------------------------------------------*/
 BUILDIN_FUNC(night)
@@ -19519,6 +19559,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(isequippedcnt,"i*"), // check how many items/cards are being equipped [Celest]
 	BUILDIN_DEF(cardscnt,"i*"), // check how many items/cards are being equipped in the same arm [Lupus]
 	BUILDIN_DEF(getrefine,""), // returns the refined number of the current item, or an item with index specified [celest]
+  BUILDIN_DEF(getilvl,""), // returns ilvl [ADGTH]
 	BUILDIN_DEF(night,""), // sets the server to night time
 	BUILDIN_DEF(day,""), // sets the server to day time
 #ifdef PCRE_SUPPORT

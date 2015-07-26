@@ -1124,9 +1124,25 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
       DAMAGE_SUBRATE(15*sc->data[SC_SPIRIT_3]->val3/50);
     }*/
     
-    if(pc_checkskill(sd, SC_ICESPIRIT) > 0) {
-      DAMAGE_SUBRATE(66 * pc_checkskill(sd, SC_ICESPIRIT) / 100);
+    if(pc_checkskill(sd, WR_HARDHEARTED > 0)) {
+      int ratio = (sd->battle_status.hp * 100) / sd->battle_status.max_hp;
+      int reduc = pc_checkskill(sd, WR_HARDHEARTED);
+      
+      if(ratio <= 25) {
+        DAMAGE_SUBRATE(reduc * 4);
+      } else if (ratio <= 50) {
+        DAMAGE_SUBRATE(reduc * 3);
+      } else if (ratio <= 75) {
+        DAMAGE_SUBRATE(reduc * 2);
+      } else
+        DAMAGE_SUBRATE(reduc * 1);
     }
+    
+    if(pc_checkskill(sd, SC_ICESPIRIT) > 0)
+      DAMAGE_SUBRATE(66 * pc_checkskill(sd, SC_ICESPIRIT) / 100);
+    
+    if(pc_checkskill(sd, ALL_TENACITY) > 0)
+      DAMAGE_SUBRATE(150 * pc_checkskill(sd, ALL_TENACITY) / 100);
 
 		if(sc->data[SC_SMOKEPOWDER]) {
 			if( (flag&(BF_SHORT|BF_WEAPON)) == (BF_SHORT|BF_WEAPON) )
@@ -2155,9 +2171,10 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 	if (skill_id == NPC_CRITICALSLASH || skill_id == LG_PINPOINTATTACK) //Always critical skills
 		return true;
 
-	if( !(wd.type&DMG_MULTI_HIT) && sstatus->cri && (!skill_id ||
+	/*if( !(wd.type&DMG_MULTI_HIT) && sstatus->cri && (!skill_id ||
 		skill_id == KN_AUTOCOUNTER || skill_id == SN_SHARPSHOOTING ||
-		skill_id == MA_SHARPSHOOTING || skill_id == NJ_KIRIKAGE))
+		skill_id == MA_SHARPSHOOTING || skill_id == NJ_KIRIKAGE))*/
+    if( !(wd.type&DMG_MULTI_HIT) && sstatus->cri)
 	{
 		short cri = sstatus->cri;
 
@@ -3211,6 +3228,30 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 	  //case SC_ARCANECANNON: //[ADGTH]
       //skillratio = 100+5*pc_checkskill(sd, SC_FIRESPIRIT);
       //break;
+    case WR_SUNDER:
+      skillratio = 150 + 50*skill_lv;
+      break;
+    case WR_HILTBASH:
+      skillratio += 25*skill_lv;
+      break;
+    case WR_CLEAVE:
+      skillratio = 150 + 25*skill_lv;
+      break;
+    case WR_PILEBUNKER:
+      skillratio = 175 + 75*skill_lv;
+      break;
+    case WR_ECHOBLADE:
+      skillratio = 300 + 100*skill_lv;
+      break;
+    case WR_BULWARKBOOMERANG:
+      skillratio += 50*skill_lv;
+      break;
+    case WR_BULWARKBLITZ:
+      skillratio += 50*skill_lv;
+      break;
+    case WR_BULWARKBASH:
+      skillratio = 200 + 75*skill_lv;
+      break;
 		case SM_BASH:
 		case MS_BASH:
 			skillratio += 30*skill_lv;
@@ -3278,7 +3319,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		}
 		case KN_BOWLINGBASH:
 		case MS_BOWLINGBASH:
-			skillratio+= 40*skill_lv;
+			skillratio = 100 + 75 * skill_lv;
 			break;
 		case AS_GRIMTOOTH:
 			skillratio += 20*skill_lv;
@@ -5102,11 +5143,11 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 #ifdef RENEWAL
 	if (is_attack_critical(wd, src, target, skill_id, skill_lv, false)) {
 		if (sd) { //Check for player so we don't crash out, monsters don't have bonus crit rates [helvetica] // [ADGTH]
-			wd.damage = (int)floor((float)((wd.damage * (125 + sd->bonus.crit_atk_rate + mystatus->dex/2)) / 100));//(int)floor((float)((wd.damage * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
+			wd.damage = (int)floor((float)((wd.damage * (125 + sd->bonus.crit_atk_rate + mystatus->dex)) / 100));//(int)floor((float)((wd.damage * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
 			if (is_attack_left_handed(src, skill_id))
-				wd.damage2 = (int)floor((float)((wd.damage2 * (125 + sd->bonus.crit_atk_rate + mystatus->dex/2)) / 100));//(int)floor((float)((wd.damage2 * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
+				wd.damage2 = (int)floor((float)((wd.damage2 * (125 + sd->bonus.crit_atk_rate + mystatus->dex)) / 100));//(int)floor((float)((wd.damage2 * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
 		} else
-			wd.damage = (int)floor((float)(wd.damage * 140) / 100);
+			wd.damage = (int)floor((float)(wd.damage * 150) / 100);
 	}
 #endif
 
@@ -5277,7 +5318,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 
 	wd = battle_calc_weapon_final_atk_modifiers(wd, src, target, skill_id, skill_lv);
 
-  strMod = (85+rnd()%30)+(mystatus->str/2);
+  strMod = (85+rnd()%30)+(mystatus->str);
+  if(pc_checkskill(sd, ALL_POWER))
+    strMod += pc_checkskill(sd, ALL_POWER);
   strMod = (wd.damage * strMod) / 100;
 	wd.damage = strMod;
 
@@ -5483,10 +5526,11 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 
 				switch(skill_id){
           case SC_ARCANECANNON: { // [ADGTH]
-            struct Damage wd;
-            skillratio = 200+10*pc_checkskill(sd, SC_FIRESPIRIT);
-            wd = battle_calc_weapon_attack(src, target, skill_id, 1, 0);
-            ad.damage += wd.damage;
+              struct Damage wd;
+              skillratio = 200+10*pc_checkskill(sd, SC_FIRESPIRIT);
+              wd = battle_calc_weapon_attack(src, target, skill_id, 1, 0);
+              ad.type = (wd.type == DMG_CRITICAL) ? DMG_CRITICAL : DMG_ENDURE;
+              ad.damage += wd.damage;
             }
             break;
           case SC_PLASMAFIELD:
@@ -6057,6 +6101,17 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 	if ((skill_damage = battle_skill_damage(src,target,skill_id)) != 0)
 		MATK_ADDRATE(skill_damage);
 #endif
+
+
+  if (is_attack_critical(ad, src, target, skill_id, skill_lv, (ad.type == DMG_ENDURE) ? false : true)) {
+    if (sd) { //Check for player so we don't crash out, monsters don't have bonus crit rates [helvetica] // [ADGTH]
+      ad.damage = (int)floor((float)((ad.damage * (125 + sd->bonus.crit_atk_rate + sd->battle_status.dex)) / 100));//(int)floor((float)((wd.damage * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
+    }
+  }
+
+
+  if(ad.type == DMG_ENDURE)
+    ad.type = DMG_NORMAL;
 
 	//battle_do_reflect(BF_MAGIC,&ad, src, target, skill_id, skill_lv); //WIP [lighta] Magic skill has own handler at skill_attack
 	return ad;

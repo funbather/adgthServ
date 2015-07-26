@@ -16,7 +16,7 @@ struct status_change;
  * Changing this limit requires edits to refine_db.txt
  **/
 #ifdef RENEWAL
-#	define MAX_REFINE 20
+#	define MAX_REFINE 125
 #else
 #	define MAX_REFINE 10
 #endif
@@ -722,6 +722,10 @@ typedef enum sc_type {
 	
 	SC_INVIG, // Only now that I realize SC is not a smart abbreviation of 'Sorcerer'
 	SC_ENERG,
+	
+	SC_MONKEYGRIP,
+	SC_TWINHAND,
+	SC_SHATTER,
 
 #ifdef RENEWAL
 	SC_EXTREMITYFIST2, //! NOTE: This SC should be right before SC_MAX, so it doesn't disturb if RENEWAL is disabled
@@ -1555,6 +1559,9 @@ enum si_type {
 	SI_IFW_EXHAUST = 829,
 	SI_INVIG       = 830,
 	SI_ENERG       = 831,
+	SI_MONKEYGRIP  = 832,
+	SI_TWINHAND    = 833,
+	SI_SHATTER     = 834,
 	SI_MAX,
 };
 

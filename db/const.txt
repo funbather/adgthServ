@@ -46,6 +46,7 @@ Job_Summer	27
 Job_Hanbok	28
 Job_Oktoberfest	29
 Job_Sorc_ 30
+Job_Warrior 31
 
 Job_Novice_High	4001
 Job_Swordman_High	4002
@@ -193,6 +194,7 @@ EAJ_TAEKWON	0x07
 EAJ_GUNSLINGER	0x09
 EAJ_NINJA	0x0A
 EAJ_SORC_ 0x0B
+EAJ_WARRIOR 0x0C
 EAJ_GANGSI	0x0E
 
 EAJ_KNIGHT	0x101
@@ -628,6 +630,8 @@ bAddClassDropItemGroup	2071
 
 bAddMaxWeight	2072
 bAddItemGroupHealRate	2073
+
+bWatk 3000
 
 EQI_HEAD_TOP	1
 EQI_ARMOR	2

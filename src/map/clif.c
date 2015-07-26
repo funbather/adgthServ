@@ -2330,9 +2330,10 @@ void clif_item_sub_v5(unsigned char *buf, int n, int idx, struct item *it, struc
 		WBUFW(buf,n+26) = it->bound ? BOUND_DISPYELLOW : id->flag.bindOnEquip ? BOUND_ONEQUIP : 0; //bindOnEquipType
 		WBUFW(buf,n+28) = (id->equip&EQP_VISIBLE) ? id->look : 0;
 		//V5_ITEM_flag
-		WBUFB(buf,n+30) = it->identify; //0x1 IsIdentified
-		WBUFB(buf,n+30) |= (it->attribute) ? 0x2 : 0; //0x2 IsDamaged
-		WBUFB(buf,n+30) |= (it->favorite) ? 0x4 : 0; //0x4 PlaceETCTab
+		//WBUFB(buf,n+30) = it->identify; //0x1 IsIdentified
+		//WBUFB(buf,n+30) |= (it->attribute) ? 0x2 : 0; //0x2 IsDamaged
+		WBUFB(buf,n+30) = it->attribute; //0x2 IsDamaged
+		//WBUFB(buf,n+30) |= (it->favorite) ? 0x4 : 0; //0x4 PlaceETCTab
 	}
 	else { //normal 24B
 		WBUFW(buf,n+5) = it->amount;
@@ -2841,7 +2842,7 @@ void clif_updatestatus(struct map_session_data *sd,int type)
 		WFIFOL(fd,4)=sd->status.skill_point;
 		break;
 	case SP_HIT:
-		WFIFOL(fd,4)=125+sd->bonus.crit_atk_rate+(sd->battle_status.dex/2);//sd->battle_status.hit; [ADGTH]
+		WFIFOL(fd,4)=125+sd->bonus.crit_atk_rate+(sd->battle_status.dex);//sd->battle_status.hit; [ADGTH]
 		break;
 	case SP_FLEE1:
 		WFIFOL(fd,4)=sd->battle_status.flee;
@@ -2875,8 +2876,8 @@ void clif_updatestatus(struct map_session_data *sd,int type)
 	{ double dps;
     dps = (pc_leftside_atk(sd) + pc_rightside_atk(sd));
     dps *= (50000/(2000-(2000-sd->battle_status.amotion)));
-    dps += (dps*sd->battle_status.str*.5)/100;
-    dps += (dps*((125+sd->bonus.crit_atk_rate+(sd->battle_status.dex/2))*(sd->battle_status.cri)))/100000;
+    dps += (dps*sd->battle_status.str)/100;
+    dps += (dps*((125+sd->bonus.crit_atk_rate+(sd->battle_status.dex))*(sd->battle_status.cri)))/100000;
 		WFIFOL(fd,4)=dps;//pc_leftside_atk(sd);
 		break;
 	}
@@ -3273,7 +3274,7 @@ void clif_initialstatus(struct map_session_data *sd) {
 		( mdef2 < 0 ) ? 0 : //Negative check for Frenzy'ed characters.
 #endif
 		mdef2;
-	WBUFW(buf,32) = 125+sd->bonus.crit_atk_rate+(sd->battle_status.dex/2); //sd->battle_status.hit; Crit Damage [ADGTH]
+	WBUFW(buf,32) = 125+sd->bonus.crit_atk_rate+(sd->battle_status.dex); //sd->battle_status.hit; Crit Damage [ADGTH]
 	WBUFW(buf,34) = sd->battle_status.flee;
 	WBUFW(buf,36) = (300-(2*sd->battle_status.speed))/3;//sd->battle_status.flee2/10; Movespeed bonus [ADGTH]
 	WBUFW(buf,38) = sd->battle_status.cri/10;
@@ -14225,7 +14226,7 @@ void clif_check(int fd, struct map_session_data* pl_sd)
 	WFIFOW(fd,24) = pl_sd->battle_status.def2;
 	WFIFOW(fd,26) = pl_sd->battle_status.mdef;
 	WFIFOW(fd,28) = pl_sd->battle_status.mdef2;
-	WFIFOW(fd,30) = 125+pl_sd->bonus.crit_atk_rate+(pl_sd->battle_status.dex/2);//pl_sd->battle_status.hit;
+	WFIFOW(fd,30) = 125+pl_sd->bonus.crit_atk_rate+(pl_sd->battle_status.dex);//pl_sd->battle_status.hit;
 	WFIFOW(fd,32) = pl_sd->battle_status.flee;
 	WFIFOW(fd,34) = (300-(2*pl_sd->battle_status.speed))/3;//pl_sd->battle_status.flee2/10;
 	WFIFOW(fd,36) = pl_sd->battle_status.cri/10;

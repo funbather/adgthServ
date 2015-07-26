@@ -100,7 +100,7 @@
 #define PINCODE_LENGTH 4
 
 #define MAX_FRIENDS 40
-#define MAX_MEMOPOINTS 3
+#define MAX_MEMOPOINTS 1
 #define MAX_SKILLCOOLDOWN 20
 
 //Size of the fame list arrays.
@@ -657,6 +657,7 @@ enum e_job {
 	JOB_HANBOK,
 	JOB_OKTOBERFEST,
 	JOB_SORC_,
+	JOB_WARRIOR,
 	JOB_MAX_BASIC,
 
 	JOB_NOVICE_HIGH = 4001,

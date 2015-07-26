@@ -812,6 +812,7 @@ void initChangeTables(void)
 	set_sc( SC_ENERGIZE		, SC_ENERG		, SI_ENERG		, SCB_ASPD|SCB_SPEED );
   add_sc( SC_PLASMAFIELD			, SC_STUN		);
   add_sc( SC_FLASHFREEZE			, SC_FREEZE		);
+  set_sc( WR_PILEBUNKER   , SC_SHATTER  , SI_SHATTER, SCB_DEF);
 	
 
 	/* Storing the target job rather than simply SC_SPIRIT simplifies code later on */
@@ -1007,6 +1008,8 @@ void initChangeTables(void)
 	StatusIconChangeTable[IFW_EXHAUST] = SI_IFW_EXHAUST;
 	StatusIconChangeTable[SC_INVIG]    = SI_INVIG;
 	StatusIconChangeTable[SC_ENERG]    = SI_ENERG;
+	StatusIconChangeTable[SC_MONKEYGRIP] = SI_MONKEYGRIP;
+	StatusIconChangeTable[SC_TWINHAND] = SI_TWINHAND;
 
 	/* Other SC which are not necessarily associated to skills */
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
@@ -2077,12 +2080,16 @@ int status_base_amotion_pc(struct map_session_data* sd, struct status_data* stat
 				mod = sd->weapontype2 / W_1HSWORD + W_1HSWORD / sd->weapontype2 ;
 	}
 
-	amotion = ( sd->status.weapon < MAX_WEAPON_TYPE && mod < 0 )
+/*	amotion = ( sd->status.weapon < MAX_WEAPON_TYPE && mod < 0 )
 			? (job_info[classidx].aspd_base[sd->status.weapon]) // Single weapon
 			: ((job_info[classidx].aspd_base[sd->weapontype2] // Dual-wield
 			+ job_info[classidx].aspd_base[sd->weapontype2]) * 6 / 10 + 10 * mod
 			- job_info[classidx].aspd_base[sd->weapontype2]
-			+ job_info[classidx].aspd_base[sd->weapontype1]);
+			+ job_info[classidx].aspd_base[sd->weapontype1]);*/
+			
+	amotion = (sd->status.weapon < MAX_WEAPON_TYPE)
+	 ? (job_info[classidx].aspd_base[sd->status.weapon])
+	 : (job_info[classidx].aspd_base[sd->weapontype1]); // Twinhand fix [ADGTH]
 
 	/*if ( sd->status.shield )
 			amotion += ( 2000 - job_info[classidx].aspd_base[W_FIST] ) +
@@ -2190,7 +2197,7 @@ unsigned int status_weapon_atk(struct weapon_atk wa, struct status_data *status)
 	unsigned short status_base_matk_min(const struct status_data* status) { return status->int_ + (status->int_ / 7) * (status->int_ / 7); }
 	unsigned short status_base_matk_max(const struct status_data* status) { return status->int_ + (status->int_ / 5) * (status->int_ / 5); }
 #else
-	unsigned short status_base_matk(const struct status_data* status, int level) { return (10+level) + ((10+level) * status->int_)/100; } //return status->int_ + (status->int_ / 2) + (status->dex / 5) + (status->luk / 3) + (level / 4); } [ADGTH]
+	unsigned short status_base_matk(const struct status_data* status, int level) { return (10+level) + ((10+level) * status->int_)/50; } //return status->int_ + (status->int_ / 2) + (status->dex / 5) + (status->luk / 3) + (level / 4); } [ADGTH]
 #endif
 
 /**
@@ -2217,7 +2224,7 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 		//Flee
 		//stat = status->flee;
 		//stat += level + status->agi + 100;
-		status->flee = status->agi/8; //cap_value(stat,1,SHRT_MAX);
+		status->flee = status->agi/4; //cap_value(stat,1,SHRT_MAX);
 	} else if (bl->type == BL_HOM) {
 		status->hit = cap_value(level + status->dex + 150,1,SHRT_MAX); // base level + dex + 150
 		status->flee = cap_value(level + status->agi + level/10,1,SHRT_MAX); // base level + agi + base level/10
@@ -2229,9 +2236,9 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 		//Flee
 		//stat = status->flee;
 		//stat += level + status->agi + status->luk/5 + 100; // base level + ( every 1 agi = +1 flee ) + (every 5 luk = +1 flee) + 100
-		status->flee = status->agi/8;//cap_value(stat,1,SHRT_MAX);
+		status->flee = status->agi/4;//cap_value(stat,1,SHRT_MAX);
 	}
-	status->matk_min = status->matk_max = (10+level)+((10+level)*status->int_)/100;//status_base_matk(status, level);
+	status->matk_min = status->matk_max = (10+level)+((10+level)*status->int_)/50;//status_base_matk(status, level);
 	//Def2
 	//stat = status->def2;
 	//stat += (int)(((float)level + status->vit)/2 + ((float)status->agi/5)); // base level + (every 2 vit = +1 def) + (every 5 agi = +1 def)
@@ -2264,7 +2271,7 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 	//Critical
 	if( bl->type&battle_config.enable_critical ) {
       stat = status->cri+10;
-      stat += (status->dex*2);//cap_value(stat,1,SHRT_MAX);
+      stat += (status->dex*3);//cap_value(stat,1,SHRT_MAX);
       status->cri = cap_value(stat,0,SHRT_MAX);
 	}
 	else
@@ -2628,12 +2635,15 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 		//Only for BL_PC
 		if (bl->type == BL_PC) {
 			struct map_session_data *sd = map_id2sd(bl->id);
+			int skill;
 			bonus += sd->hprate;
 			bonus -= 100; //Default hprate is 100, so it should be add 0%
 
 			//+200% for top ranking Taekwons over level 90.
 			if (pc_is_taekwon_ranker(sd))
 				bonus += 200;
+			if((skill=pc_checkskill(sd,ALL_ENDURANCE))>0)
+        bonus += skill;
 		}
 
 		//Bonus by SC
@@ -2720,6 +2730,8 @@ static int status_get_spbonus(struct block_list *bl, enum e_status_bonus type) {
 				bonus += 200 + 20 * i;
 			if ((i = pc_checkskill(sd,WM_LESSON)) > 0)
 				bonus += 30 * i;
+			if ((i = pc_checkskill(sd,ALL_CLARITY)) > 0)
+				bonus += 3 * i;
 		}
 
 		//Bonus by SC
@@ -2791,13 +2803,13 @@ static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned
 	level = max(sd->status.base_level,1);
 
 	if (isHP) { //Calculates MaxHP
-		max = job_info[idx].base_hp[level-1] * (1 + (max(stat,0) * 0.033)) * ((sd->class_&JOBL_UPPER)?1.25:1); // +3.33% BHP per VIT [ADGTH]
+		max = job_info[idx].base_hp[level-1] * (1 + (max(stat,0) * 0.066)) * ((sd->class_&JOBL_UPPER)?1.25:1); // +6.66% BHP per VIT [ADGTH]
 		max += status_get_hpbonus(&sd->bl,STATUS_BONUS_FIX);
 		max += (int64)(max * status_get_hpbonus(&sd->bl,STATUS_BONUS_RATE) / 100); //Aegis accuracy
 	}
 	else { //Calculates MaxSP
 		//max = job_info[idx].base_sp[level-1] * (1 + (max(stat,1) * 0.01)) * ((sd->class_&JOBL_UPPER)?1.25:1);
-		max = job_info[idx].base_sp[level-1] + ((max(stat,1)*.5)); // 1 SP per 2 INT [ADGTH]
+		max = job_info[idx].base_sp[level-1] + (max(stat,0)); // 1 SP per INT [ADGTH]
 		max += status_get_spbonus(&sd->bl,STATUS_BONUS_FIX);
 		max += (int64)(max * status_get_spbonus(&sd->bl,STATUS_BONUS_RATE) / 100); //Aegis accuracy
 	}
@@ -2837,7 +2849,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	pc_calc_skilltree(sd);	// SkillTree calculation
 
 	//sd->max_weight = job_info[pc_class2idx(sd->status.class_)].max_weight_base+sd->status.str*300;
-	sd->max_weight = 1500 + (sd->status.str*10); // New weight limit formula [ADGTH]
+	sd->max_weight = 1500 + (sd->status.str*20); // New weight limit formula [ADGTH]
 
 	if (opt&SCO_FIRST) {
 		// Load Hp/SP from char-received data.
@@ -3036,7 +3048,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 			/*if(r)
 				wa->atk2 = refine_info[wlv].bonus[r-1] / 100;*/
 				
-      wa->atk += ((r*wa->atk) / 10); // New refine formula [ADGTH]
+      //wa->atk += ((r*wa->atk) / 10); // New refine formula [ADGTH] // syke
       
       //TODO: MATK
 #ifdef RENEWAL
@@ -3068,8 +3080,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 			}
 		} else if(sd->inventory_data[index]->type == IT_ARMOR) {
 			int r;
-      	if ( (r = sd->status.inventory[index].refine) ) // New armor refine formula [ADGTH]
-          sd->hprate += 2*r;
+      	//if ( (r = sd->status.inventory[index].refine) ) // New armor refine formula [ADGTH]
+          //sd->hprate += 2*r;
 			/*if ( (r = sd->status.inventory[index].refine) )
 				refinedef += refine_info[REFINE_TYPE_ARMOR].bonus[r-1];*/
 			if(sd->inventory_data[index]->script && (pc_has_permission(sd,PC_PERM_USE_ALL_EQUIPMENT) || !itemdb_isNoEquip(sd->inventory_data[index],sd->bl.m))) {
@@ -3350,6 +3362,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 
 // ----- MISC CALCULATION -----
 	status_calc_misc(&sd->bl, status, sd->status.base_level);
+	if ((skill = pc_checkskill(sd,ALL_FOCUS)) > 0)
+				sd->matk_rate += 2*skill;
 
 	// Equipment modifiers for misc settings
 	if(sd->matk_rate < 0)
@@ -3384,7 +3398,31 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		sd->critical_rate = 0;
 	if(sd->critical_rate != 100)
 		status->cri = cap_value(status->cri * sd->critical_rate/100,SHRT_MIN,SHRT_MAX);
-
+		
+  if((skill=pc_checkskill(sd,WR_TWINHAND))>0 && sd->weapontype1 == W_DAGGER && sd->sc.data[SC_TWINHAND]) {
+    status->watk = status->watk * (120 + skill * 5) / 100;
+    status->aspd_rate += 2*skill;
+  }
+  
+  if((skill=pc_checkskill(sd,WR_MONKEYGRIP))>0 && (sd->weapontype1 == W_2HSWORD || sd->weapontype1 == W_MACE) && sd->sc.data[SC_MONKEYGRIP]) {
+    status->watk = status->watk * (70 + skill * 5) / 100;
+  }		
+  if((skill=pc_checkskill(sd,ALL_BRUTALITY))>0) {
+		status->cri += skill*10;
+		sd->bonus.crit_atk_rate += 2*skill;
+	}
+	
+  if((skill=pc_checkskill(sd,WR_DEFTDUELIST))>0 && sd->weapontype1 == W_DAGGER) {
+		status->cri += skill*10;
+		sd->bonus.crit_atk_rate += 3*skill;
+		status->watk += status->watk * skill * 3 / 100;
+	}
+	
+  if((skill=pc_checkskill(sd,ALL_FEATHERFOOT))>0) 
+		sd->bonus.speed_add_rate -= skill*2;
+  if((skill=pc_checkskill(sd,ALL_IRONWILL))>0) 
+		status->mdef += skill*2;
+				
 	if(sd->flee2_rate < 0)
 		sd->flee2_rate = 0;
 	if(sd->flee2_rate != 100)
@@ -3425,10 +3463,12 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		status->flee += skill*(sd->class_&JOBL_2 && (sd->class_&MAPID_BASEMASK) == MAPID_THIEF? 4 : 3);
 	if((skill=pc_checkskill(sd,MO_DODGE))>0)
 		status->flee += (skill*3)>>1;
+  if((skill=pc_checkskill(sd,ALL_REFLEXES))>0)
+		status->flee += skill;
+  if((skill=pc_checkskill(sd,WR_SHIELDBEARER))>0 && sd->status.shield)
+		status->flee += skill;
 
 // ----- EQUIPMENT-DEF CALCULATION -----
-
-  status->def += status->vit/20;
 
 	// Apply relative modifiers from equipment
 	if(sd->def_rate < 0)
@@ -3440,6 +3480,9 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 
 	if(pc_ismadogear(sd) && pc_checkskill(sd, NC_MAINFRAME) > 0)
 		status->def += 20 + (pc_checkskill(sd, NC_MAINFRAME) * 20);
+		
+  if((skill=pc_checkskill(sd,WR_SHIELDBEARER))>0 && sd->status.shield)
+		status->def += skill;
 
 #ifndef RENEWAL
 	if (!battle_config.weapon_defense_type && status->def > battle_config.max_def) {
@@ -3487,6 +3530,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	else if(pc_isridingdragon(sd))
 		status->aspd_rate += 250-50*pc_checkskill(sd,RK_DRAGONTRAINING);
 #else // Needs more info
+	if((skill=pc_checkskill(sd,ALL_FINESSE))>0)
+		status->aspd_rate += 2*skill;
 	if((skill=pc_checkskill(sd,SA_ADVANCEDBOOK))>0 && sd->status.weapon == W_BOOK)
 		status->aspd_rate += 5*skill;
 	if((skill = pc_checkskill(sd,SG_DEVIL)) > 0 && !pc_nextjobexp(sd))
@@ -3906,7 +3951,7 @@ void status_calc_regen(struct block_list *bl, struct status_data *status, struct
 
 	sd = BL_CAST(BL_PC,bl);
 	//val = 1 + (status->vit/5) + (status->max_hp/200);
-	val = 1 + ((status->vit/3 + status->max_hp/50) / 10); // Base HP regen Forumula [ADGTH]
+	val = 1 + (status->vit/10) + (status->max_hp/200); // Base HP regen Forumula [ADGTH]
 
 	if( sd && sd->hprecov_rate != 100 )
 		val = val*sd->hprecov_rate/100;
@@ -3928,6 +3973,14 @@ void status_calc_regen(struct block_list *bl, struct status_data *status, struct
 
 	if( sd ) {
 		struct regen_data_sub *sregen;
+		if( (skill=pc_checkskill(sd,ALL_ENDURANCE)) > 0 ) {
+			val = regen->hp*(1000+25*skill)/1000;
+			regen->hp = cap_value(val, 1, SHRT_MAX);
+		}
+		if( (skill=pc_checkskill(sd,ALL_CLARITY)) > 0 ) {
+			val = regen->sp*(1000+25*skill)/1000;
+			regen->sp = cap_value(val, 1, SHRT_MAX);
+		}
 		if( (skill=pc_checkskill(sd,HP_MEDITATIO)) > 0 ) {
 			val = regen->sp*(100+3*skill)/100;
 			regen->sp = cap_value(val, 1, SHRT_MAX);
@@ -4549,7 +4602,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 				amotion = amotion*status->aspd_rate/1000;
 #else
 			/// aspd = baseaspd + floor(sqrt((agi^2/2) + (dex^2/5))/4 + (potskillbonus*agi/200))
-			amotion -= (int)(sqrt((pow(status->agi, 2))) / 12 + (status_calc_aspd(bl, sc, 1) * status->agi / 200)) * 10; // [ADGTH]
+			amotion -= (int)(sqrt((pow(status->agi, 2))) / 10 + (status_calc_aspd(bl, sc, 1) * status->agi / 100)) * 10; // [ADGTH]
 
 			if( (status_calc_aspd(bl, sc, 2) + status->aspd_rate2) != 0 ) // RE ASPD percertage modifier
 				amotion -= ( amotion - pc_maxaspd(sd) )
@@ -4687,7 +4740,7 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_ca
 		}
 		if(b_status.luk != status->luk)
 			clif_updatestatus(sd,SP_LUK);
-		if(b_status.hit != 125+sd->bonus.crit_atk_rate+(sd->battle_status.dex/2)) {//status->hit) [ADGTH] 
+		if(b_status.hit != 125+sd->bonus.crit_atk_rate+(sd->battle_status.dex)) {//status->hit) [ADGTH] 
 			clif_updatestatus(sd,SP_ATK1);
 			clif_updatestatus(sd,SP_HIT);
 		}
@@ -5735,6 +5788,8 @@ static defType status_calc_def(struct block_list *bl, struct status_change *sc, 
 	if(!sc || !sc->count)
 		return (defType)cap_value(def,DEFTYPE_MIN,DEFTYPE_MAX);
 
+  if(sc->data[SC_SHATTER])
+		return 0;
 	if(sc->data[SC_BERSERK])
 		return 0;
 	if(sc->data[SC_SKA])
@@ -6084,7 +6139,6 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				val = max( val, sc->data[SC_MELON_BOMB]->val1 );
 			if( sc->data[SC_B_TRAP] )
 				val = max( val, sc->data[SC_B_TRAP]->val3 );
-
 			if( sd && sd->bonus.speed_rate + sd->bonus.speed_add_rate > 0 ) // Permanent item-based speedup
 				val = max( val, sd->bonus.speed_rate + sd->bonus.speed_add_rate );
 		}
@@ -8816,6 +8870,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case WWI_EXHAUST: 
 		case WII_EXHAUST: 
 		case IFW_EXHAUST: 
+		case SC_SHATTER:
 			val4 = tick;
 			if (!val4) val4 = 1;
 			tick_time = tick;
@@ -10582,9 +10637,12 @@ int status_change_clear(struct block_list* bl, int type)
 
 		if(type == 0)
 			switch (i) { // Type 0: PC killed -> Place here statuses that do not dispel on death.
+
 			case SC_ELEMENTALCHANGE: // Only when its Holy or Dark that it doesn't dispell on death
 				if( sc->data[i]->val2 != ELE_HOLY && sc->data[i]->val2 != ELE_DARK )
 					break;
+			case SC_TWINHAND:
+			case SC_MONKEYGRIP: //[adgth]
 			case SC_WEIGHT50:
 			case SC_WEIGHT90:
 			case SC_EDP:
