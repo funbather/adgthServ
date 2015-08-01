@@ -6083,6 +6083,51 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			}
 		}
 		break;
+
+    case ALL_PENGUIN: 
+    if(!sd->sc.data[SC_PENGUINACTIVE]){
+			struct mob_data *md;
+			
+      status_change_end(src, SC_PENGUINACTIVE, INVALID_TIMER);
+      sc_start(src,src,SC_PENGUINACTIVE,100,1,-1);
+      
+        md = mob_once_spawn_sub(src, src->m, -1, -1, "Penguin Buddy", 1391, "", SZ_SMALL, AI_FLORA);
+        if (md) {
+          md->master_id = src->id;
+          md->special_state.ai = 1;
+          if( md->deletetimer != INVALID_TIMER )
+            delete_timer(md->deletetimer, mob_timer_delete);
+          md->deletetimer = add_timer(gettick()+3000, mob_timer_delete, md->bl.id, 0);
+          md->status.hp = 1;
+          mob_spawn (md);
+          md->level = sd->status.base_level;
+          md->status.max_hp = 100;
+          md->status.hp = md->status.max_hp;
+          md->status.batk = 0;
+          md->status.rhw.atk = 0;
+          md->status.rhw.atk2 = 0;
+        }
+		}
+		break;
+		
+	case ALL_COMINRIGHTUP:
+		status_heal(bl, dstsd->status.max_hp * 10 / 100, 20, 2);
+		if(dstsd) {
+			unsigned char eflag;
+			struct item item_tmp;
+			struct block_list tbl;
+			memset(&item_tmp,0,sizeof(item_tmp));
+			memset(&tbl,0,sizeof(tbl)); // [MouseJstr]
+			item_tmp.nameid = 55000;
+			item_tmp.identify = 1;
+			tbl.id = 0;
+			eflag = pc_additem(dstsd,&item_tmp,1,LOG_TYPE_PRODUCE);
+			if(eflag) {
+				clif_additem(dstsd,0,0,eflag);
+				map_addflooritem(&item_tmp,1,dstsd->bl.m,dstsd->bl.x,dstsd->bl.y,0,0,0,0);
+			}
+		}
+	break;
     
 	case SA_ABRACADABRA:
 		if (!skill_abra_count) {

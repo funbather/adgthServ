@@ -1,0 +1,125 @@
+//id,range,hit,inf,element,nk,splash,max,list_num,castcancel,cast_defence_rate,inf2,maxcount,skill_type,blow_count,inf3,name,description
+// 01 ID
+// 02 range (combo skills do not check for range when used,
+//           if range is < 5, the skill is considered melee-range)
+// 03 hit (8- repeated hitting, 6- single-hit)
+// 04 inf (0- passive, 1- enemy, 2- place, 4- self, 16- friend, 32- trap)
+// 05 element (0 - neutral, 1 - water, 2 - earth, 3 - fire, 4 - wind, 5 - poison,
+//             6 - holy, 7 - dark, 8 - ghost, 9 - undead, -1 - use weapon element
+//             -2 - use endowed element, -3 - use random element.)
+// 06 nk (skill damage properties):
+//    0x01 - No damage skill
+//    0x02 - Has splash area
+//    0x04 - Damage should be split among targets
+//    0x08 - Skill ignores caster's % damage cards (misc type always ignores)
+//    0x10 - Skill ignores elemental adjustments
+//    0x20 - Skill ignores target's defense (misc type always ignores)
+//    0x40 - Skill ignores target's flee (magic type always ignores)
+//    0x80 - Skill ignores target's def cards
+// 07 splash/effect range (-1 for screen-wide)
+// 08 MaxLv
+// 09 Number of hits (when positive, damage is increased by hits, 
+//    negative values just show number of hits without increasing total damage)
+// 10 Cast interrupted when hit?
+// 11 defense-reduction rate during cast.
+// 12 inf2 (skill information 2):
+//    0x00001 - quest skill
+//    0x00002 - npc skill
+//    0x00004 - wedding skill
+//    0x00008 - spirit skill
+//    0x00010 - guild skill
+//    0x00020 - song/dance
+//    0x00040 - ensemble skill
+//    0x00080 - trap
+//    0x00100 - skill that damages/targets yourself
+//    0x00200 - cannot be casted on self (if inf = 4, auto-select target skill)
+//    0x00400 - usable only on party-members (and enemies if skill is offensive)
+//    0x00800 - usable only on guild-mates (and enemies if skill is offensive)
+//    0x01000 - disable usage on enemies (for non-offensive skills).
+//    0x02000 - free
+//    0x04000 - chorus skill
+//    0x08000 - skill that ignore bg reduction
+//    0x10000 - skill that ignore gvg reduction
+//    0x20000 - makes 'self'/'place' skill cannot be casted/placed when near NPC (see 'db/skill_nonearnpc_db.txt' for more options)
+// 13 maxcount: max amount of skill instances to place on the ground when
+//    player_land_skill_limit/monster_land_skill_limit is enabled. For skills
+//    that attack using a path, this is the path length to be used.
+// 14 attack type (none, weapon, magic, misc)
+// 15 Blowcount (amount of tiles skill knockbacks)
+// 16 inf3 (skill information 3):
+//    0x00001 - skill ignores land protector (e.g. arrow shower)
+//    0x00002 - skill that doesn't end camouflage
+//    0x00004 - usable skills while hiding
+//    0x00008 - skill that can be use while in dancing state
+//    0x00010 - skill that could hit emperium
+//    0x00020 - skill blocked by statis
+//    0x00040 - skill blocked by kagehumi
+//    0x00080 - skill range affected by AC_VULTURE
+//    0x00100 - skill range affected by GS_SNAKEEYE
+//    0x00200 - skill range affected by NJ_SHADOWJUMP
+//    0x00400 - skill range affected by WL_RADIUS
+//    0x00800 - skill range affected by RA_RESEARCHTRAP
+//    0x01000 - skill that does not affect user that has NC_HOVERING active
+//    0x02000 - skill that can be using while riding warg
+//    0x04000 - skill that can't be used while in mado
+//    0x08000 - skill that can be used to target while under SC__MANHOLE effect
+//    0x10000 - skill that affects hidden targets
+//    0x20000 - skill that affects SC_GLOOMYDAY_SK
+// 17 Name
+// 18 Description
+
+// SORCERER
+4000,0,6,4,0,0x1,0,1 ,1,yes,0,0,0,magic,0,0,      SC_INVOKE    ,Invoke
+4001,0,6,4,0,0x1,0,50,1,no,0,0,0,weapon,0,0,      SC_ICESPIRIT ,Summon Ice Spirit
+4002,0,6,4,0,0x1,0,50,1,no,0,0,0,weapon,0,0,      SC_FIRESPIRIT,Summon Fire Spirit
+4003,0,6,4,0,0x1,0,50,1,no,0,0,0,weapon,0,0,      SC_WINDSPIRIT,Summon Wind Spirit
+4004,15,6,16,0,0x1,0,1,1,no,0,0,0,magic,0,0,       SC_REJUVENATE,Rejuvenate
+4005,0,6,4,0,0x3,-1,1,1,no,0,0,0,magic,0,0,       SC_INVIGORATE,Invigorate
+4006,0,6,4,0,0x1,0,1,1,no,0,0,0,weapon,0,0,       SC_CALLSENTINEL,Call Sentinel
+4007,15,6,1,0,0,0,1,1,no,0,0,0,magic,0,0x0,        SC_ARCANECANNON,Arcane Cannon
+4008,15,6,1,0,0,0,1,1,no,0,0,0,magic,0,0x0,        SC_SURGE,Surge
+4009,15,6,2,0,0,0,1,1,no,0,0x2000,0,magic,0,0x0,	  SC_PLASMAFIELD,Plasma Field
+4010,15,6,2,0,0,0,1,1,no,0,0x2000,0,magic,1,0x0,	  SC_ARCANEVORTEX,Arcane Vortex
+4011,0,6,4,0,0x2,5,1,1,no,0,0x2000,0,magic,0,0x0,	  SC_FLASHFREEZE,Flash Freeze
+4012,0,6,4,0,0x3,-1,1,1,no,0,0,0,magic,0,0,       SC_ENERGIZE,Energize
+4013,45,6,2,0,0x1,0,1,1,no,0,0,0,none,0,0,         SC_PHASEWALK,Phase Walk
+
+// RECRUIT
+4014,2 ,6,16,0,0x1,0,1 ,1,no,0,0,0,magic,0,0,  ALL_FIRSTAID,First Aid
+4015,0 ,6,0 ,0,0x1,0,10,1,no,0,0,0,none ,0,0,  ALL_TENACITY,Tenacity
+4016,0 ,6,0 ,0,0x1,0,10,1,no,0,0,0,none ,0,0,  ALL_BRUTALITY,Brutality
+4017,0 ,6,0 ,0,0x1,0,10,1,no,0,0,0,none ,0,0,  ALL_POWER,Power
+4018,0 ,6,0 ,0,0x1,0,10,1,no,0,0,0,none ,0,0,  ALL_FOCUS,Focus
+4019,0 ,6,0 ,0,0x1,0,10,1,no,0,0,0,none ,0,0,  ALL_REFLEXES,Reflexes
+4020,0 ,6,0 ,0,0x1,0,10,1,no,0,0,0,none ,0,0,  ALL_FINESSE,Finesse
+4021,0 ,6,0 ,0,0x1,0,10,1,no,0,0,0,none ,0,0,  ALL_IRONWILL,Iron Will
+4022,0 ,6,0 ,0,0x1,0,10,1,no,0,0,0,none ,0,0,  ALL_ENDURANCE,Endurance
+4023,0 ,6,0 ,0,0x1,0,10,1,no,0,0,0,none ,0,0,  ALL_CLARITY,Clarity
+4024,0 ,6,0 ,0,0x1,0,10,1,no,0,0,0,none ,0,0,  ALL_FEATHERFOOT,Featherfoot
+
+27,9,6,2,0,0x1,0,1,1,yes,0,0,3,magic,0,0x20,		AL_WARP,Warp Portal
+54,2,6,16,6,0x1,0,4,1,yes,0,0,0,magic,0,0x20,		ALL_RESURRECTION,Resurrection
+2215,11,6,1,0,0,0,5,1,no,0,0,0,magic,0,0x0,		WL_CHAINLIGHTNING_ATK,Chain Lightning Attack
+
+// WARRIOR
+4027,0,6,4,0,0x1,0,10,1,no,0,0,0,weapon,0,0,      WR_MONKEYGRIP ,Monkey Grip
+4028,0,6,4,0,0x1,0,10,1,no,0,0,0,weapon,0,0,      WR_TWINHAND ,Twinhand
+
+
+4030,-2,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x0,        WR_SUNDER,Sunder
+4031,-2,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x0,        WR_HILTBASH,Hilt Bash
+4032,-2,6,1,-1,0x2,3,5,1,no,0,0,0,weapon,0,0x0,        WR_CLEAVE,Cleave
+4033,-2,6,1,-1,0,0,5,-2,no,0,0,0,weapon,0,0x0,        WR_PILEBUNKER,Pile Bunker
+4034,-2,6,1,-1,0,0,5,-5,no,0,0,0,weapon,0,0x0,        WR_ECHOBLADE,Echo Blade
+
+62,-2,6,1,-1,0x2,1,5,1,no,0,0,0,weapon,7,0x0,	KN_BOWLINGBASH,Bowling Bash
+6,9,6,4,0,0x3,-1,5,1,no,0,0,0,none,0,0x0,		SM_PROVOKE,Provoke
+255,15,6,16,0,0x1,0,5,1,yes,0,0x600,0,none,0,0x0,	CR_DEVOTION,Sacrifice
+
+4035,12,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x0,        WR_BULWARKBOOMERANG,Bulwark Boomerang
+4036,12,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x0,        WR_BULWARKBLITZ,Bulwark Blitz
+4037,0,6,4,-1,0x2,5,5,-3,no,0,0,0,weapon,0,0x0,        WR_BULWARKBASH,Bulwark Bash
+
+
+4038,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,0,      ALL_PENGUIN ,Call Penguin
+4039,15,6,16,0,0x1,0,1,1,no,0,0,0,none,0,0,       ALL_COMINRIGHTUP,Comin Right Up

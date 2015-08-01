@@ -1906,6 +1906,15 @@ int mob_timer_delete(int tid, unsigned int tick, int id, intptr_t data)
 
 	if( md )
 	{
+    if( md->master_id > 0 && map_id2sd(md->master_id)) {
+      struct map_session_data* msd = map_id2sd(md->master_id);
+      
+      if(msd->sc.data[SC_PENGUINACTIVE]) {
+        md->deletetimer = add_timer(gettick() + 1000, mob_timer_delete, md->bl.id, 0);
+        return 0;
+      }
+		} 
+	
 		if( md->deletetimer != tid )
 		{
 			ShowError("mob_timer_delete: Timer mismatch: %d != %d\n", tid, md->deletetimer);

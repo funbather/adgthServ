@@ -1,0 +1,270 @@
+// Who should have a baseatk value (makes str affect damage)? (Note 3)
+enable_baseatk: 15
+
+// Who can have perfect flee? (Note 3)
+enable_perfect_flee: 0
+
+// Who can have critical attacks? (Note 3)
+// (Note that there are some skills that always do critical hit regardless of this)
+enable_critical: 15
+
+// Damaged delay rate for players (Note 2)
+// (Setting to no/0  will be like always endure)
+player_damage_delay_rate: 1
+
+// Type of penalty that is applied to FLEE when more than agi_penalty_count monsters are targetting player
+// 0 = no penalty is applied
+// 1 = agi_penalty_num is reduced from FLEE as a %
+// 2 = agi_penalty_num is reduced from FLEE as an exact amount
+agi_penalty_type: 0
+
+// Type of penalty that is applied to both equipment and vit DEF when more than vit_penalty_count monsters are targetting player
+// 0 = no penalty is applied
+// 1 = vit_penalty_num is reduced from DEF as a %
+// 2 = vit_penalty_num is reduced from DEF as an exact amount
+vit_penalty_type: 0
+
+// Are arrows/ammo consumed when used on a bow/gun?
+// 0 = No
+// 1 = Yes
+// 2 = Yes even for skills that do not specify arrow consumption when said 
+//     skill is weapon-based and used with ranged weapons (auto-guesses which 
+//     skills should consume ammo when it's acquired via a card or plagiarize)
+arrow_decrement: 0
+
+// If both the attacker and the target are on the same tile, should the target be knocked back to the left?
+// Official behavior is "yes", setting this to "no" will knock the target back behind the attacker.
+knockback_left: no
+
+// Visible area size (how many squares away from a player they can see)
+area_size: 21
+
+// Maximum walk path (how many cells a player can walk going to cursor)
+max_walk_path: 21
+
+// Units types affected by max_lv and aura_lv settings. (Note 3)
+// Note: If an unit type, which normally does not show an aura, is
+//       set it will obtain an aura when it meets the level requirement.
+// Default: 0 (none)
+client_limit_unit_lv: 15
+
+// Sorts the character and guild storage before it is sent to the client.
+// Official servers do not sort storage. (Note 1)
+// NOTE: Enabling this option degrades performance.
+client_sort_storage: yes
+
+// How long does it take for an item to disappear from the floor after it is dropped? (in milliseconds)
+flooritem_lifetime: 600000
+
+// When a player dies, how should we penalize them?
+// 0 = No penalty.
+// 1 = Lose % of current level when killed.
+// 2 = Lose % of total experience when killed.
+death_penalty_type: 0
+
+// Atcommand suggestions (Note 1)
+// If one type incomplete atcommand, it will suggest the complete ones.
+feature.atcommand_suggestions: on
+
+// When making a guild, an Emperium is consumed? (Note 1)
+guild_emperium_check: no
+
+// Maximum tax limit on a guild member.
+guild_exp_limit: 99
+
+// Can you name a homunculus more then once? (Note 1)
+hom_rename: yes
+
+// Do produced items have the maker's name on them? (Note 3)
+// 0x01: Produced Weapons
+// 0x02: Produced Potions
+// 0x04: Produced Arrows
+// 0x08: Produced Holy Water/Ancilla
+// 0x10: Produced Deadly Potions
+// 0x80: Other produced items.
+produce_item_name_input: 0
+
+// Enable autospell card effects to stack?
+// NOTE: Different cards that grant the same skill will both 
+// always work independently of each other regardless of setting.
+autospell_stacking: yes
+
+// Define duration in msec of the day (default: 7200000 = 2 hours)
+// Set to 0 to disable day cycle (but not @day GM command).
+// Except 0, minimum is 60000 (1 minute)
+day_duration: 7200000
+
+// Define duration in msec of the night (default: 1800000 = 30 min)
+// Set to 0 to disable night cycle (but not @night GM command).
+// Except 0, minimum is 60000 (1 minute)
+night_duration: 1800000
+
+// Defines various mob AI related settings. (Note 3)
+// 0x001: When enabled mobs will update their target cell every few iterations
+//        (normally they never update their target cell until they reach it while
+//        chasing)
+// 0x002: Makes mob use their "rude attack" skill (usually warping away) if they
+//        are attacked and they can't attack back regardless of how they were
+//        attacked (eg: GrimTooth), otherwise, their rude attack" is only activated
+//        if they can't melee reach the target (eg: sniping)
+// 0x004: If not set, mobs that can change target only do so when melee attacked
+//        (distance player/mob < 3), otherwise mobs may change target and chase 
+//        ranged attackers. This flag also overrides the 'provoke' target.
+// 0x008: When set, mobs scatter as soon as they lose their target. Use this mode
+//        to make it much harder to mob-train by hiding and collecting them on a
+//        single spot (ie: GrimTooth training)
+// 0x010: If set, mob skills defined for friends will also trigger on themselves.
+// 0x020: When set, the monster ai is executed for all monsters in maps that 
+//        have players on them, instead of only for mobs who are in the vicinity
+//        of players.
+// 0x040: When set, when the mob's target changes map, the mob will walk towards
+//        any npc-warps in it's sight of view (use with mob_warp below)
+// 0x100: When set, a mob will pick a random skill from it's list and start from
+//        that instead of checking skills in orders (when unset, if a mob has too
+//        many skills, the ones near the end will rarely get selected)
+// 0x200: When set, a mob's skill re-use delay will not be applied to all entries of
+//        the same skill, instead, only to that particular entry (eg: Mob has heal
+//        on six lines in the mob_skill_db, only the entry that is actually used
+//        will receive the delay). This will make monsters harder, especially MvPs.
+// 0x400: Set this to make mobs have a range of 9 for all skills. Otherwise, they 
+//        will obey the normal skill range rules.
+// Example: 0x140 -> Chase players through warps + use skills in random order.
+monster_ai: 0x9
+
+// How often should a monster rethink its chase?
+// 0: Every 100ms (MIN_MOBTHINKTIME)
+// 1: Every cell moved
+// 2: Every 2 cells moved
+// 3: Every 3 cells moved (official)
+// x: Every x cells moved
+// Regardless of this setting, a monster will always rethink its chase if it has 
+// reached its target. Increase this value if you want to make monsters continue
+// moving after they lost their target (hide, no line of sight, etc.).
+monster_chase_refresh: 0
+
+// Should mobs not spawn within the viewing range of players?
+// 0 is disabled, otherwise it is the number of retries before giving up 
+// and spawning the mob within player-view anyway, unless the max (100) is used,
+// in which case the mob will not be spawned, and it'll be retried again in
+// 5 seconds.
+// NOTE: This has no effect on mobs that always spawn on the very same cell
+// (like ant eggs) except if you set it to the max.
+no_spawn_on_player: 100
+
+// Do summon slaves have the same walking speed as their master?
+// NOTE: The default is 3 for official servers.
+// 0: Never.
+// 1: If the master can walk
+// 2: If the master can't walk (even motionless mobs have a speed
+//    entry in their mob_db)
+// 3: Always
+slaves_inherit_speed: 0
+
+// When a mob is attacked by another monster, will the mob retaliate against the master of said mob instead of the mob itself?
+// NOTE: Summoned mobs are both those acquired via @summon and summoned by Alchemists
+retaliate_to_master: no
+
+// If monster's class is changed will it fully recover HP? (Note 1)
+monster_class_change_full_recover: no
+
+// Display some mob info next to their name? (add as needed)
+// (does not works on guardian or Emperium)
+// 1: Display mob HP (Hp/MaxHp format)
+// 2: Display mob HP (Percent of full life format)
+// 4: Display mob's level
+show_mob_info: 6
+
+// Zeny from mobs
+zeny_from_mobs: no
+
+// Interval before updating the party-member map mini-dots (milliseconds)
+party_update_interval: 100
+
+// Display party name regardless if player is in a guild.
+// Official servers do not display party name unless the user is in a guild. (Note 1)
+display_party_name: yes
+
+// You must have basic skills to be able to sit, trade, form a party or create a chatroom? (Note 1)
+basic_skill_check: no
+
+// The time interval for HP to restore naturally. (in milliseconds)
+natural_healhp_interval: 100
+
+// The time interval for SP to restore naturally. (in milliseconds)
+natural_healsp_interval: 100
+
+// The maximum weight for a character to carry when the character stops healing naturally. (in %)
+natural_heal_weight_rate: 100
+
+// Maximum atk speed. (Default 190, Highest allowed 199)
+max_aspd: 193
+
+// Max armor def/mdef
+// NOTE: This setting have no effect if server is run on Renewal Mode (RENEWAL) 
+// NOTE: does not affects skills and status effects like Mental Strength
+// If weapon_defense_type is non-zero, it won't apply to max def.
+// If magic_defense_type is non-zero, it won't apply to max mdef.
+max_def: 90
+
+// Prevent logout of players after being hit for how long (in ms, 0 disables)?
+prevent_logout: 1000
+
+// At what dex does the cast time become zero (instacast)?
+castrate_dex_scale: 99999
+
+// Restrictions applied to the Alchemist's Summon Flora skill (add as necessary)
+// 1: Enable players to damage the floras outside of versus grounds.
+// 2: Disable having different types out at the same time
+//    (eg: forbid summoning anything except hydras when there's already 
+//     one hydra out)
+summon_flora_setting: 2
+
+// When cloaking, Whether the wall is checked or not. (Note 1)
+// Note: When the skill does not checks for walls, you will always be considered
+//  as if you had a wall-next to you (you always get the wall-based speed). 
+//  Add the settings as required, being hit always uncloaks you.
+// 
+// 0 = doesn't check for walls
+// 1 = Check for walls
+// 2 = Cloaking is not cancelled when attacking.
+// 4 = Cloaking is not cancelled when using skills
+player_cloak_check_type: 0
+monster_cloak_check_type: 4
+
+// Max Level Difference for Devotion
+devotion_level_difference: 100
+
+// Remove trap type
+// 0 = Aegis system : Returns 1 'Trap' item
+// 1 = Athena system : Returns all items used to deploy the trap
+skill_removetrap_type: 1
+
+// Does using bow to do a backstab give a 50% damage penalty? (Note 1)
+backstab_bow_penalty: no
+
+// Skill Trap Type
+// On official servers if a unit is completely immune to knockback, it will still walk to the last target tile before
+// stopping when inflicted by a stopping status effect (including traps like Ankle Snare and Spiderweb). All traps on
+// the way will be activated.
+// This does NOT include being immune to knock back from equip. This bonus only helps against knockback skills.
+// 0: (official)
+// 1: Stop effects in GvG/WoE make units stop immediately.
+// 2: Stop effects make monsters immune to knockback / bosses stop immediately.
+// 3: 1+2
+skill_trap_type: 2
+
+// Area of Bowling Bash chain reaction
+// 0: Use official gutter line system
+// 1: Gutter line system without demi gutter bug
+// 2-20: Area around caster (2 = 5x5, 3 = 7x7, 4 = 9x9, ..., 20 = 41x41)
+// Note: If you knock the target out of the area it will only be hit once and won't do splash damage
+bowling_bash_area: 20
+
+max_parameter: 999
+
+// Delay time after casting (Note 2)
+delay_rate: 10
+
+// Minimum allowed delay for ANY skills after casting (in milliseconds) (Note 1)
+// Note: Setting this to anything above 0 can stop speedhacks.
+min_skill_delay_limit: 10

@@ -1,0 +1,14 @@
+// Job-specific Values Database
+//
+// Structure of Database:
+// JobID,Weight,HPFactor,HPMultiplicator,SPFactor,Unarmed,Dagger,1HSword,2HSword,1HSpear,2HSpear,1HAxe,2HAxe,1HMace,2HMace(unused),Rod,Bow,Knuckle,Instrument,Whip,Book,Katar,Revolver,Rifle,Gatling Gun,Shotgun,Grenade Launcher,Fuuma Shuriken,2HStaff,Shield
+//   1     2        3          4            5        6      7       8       9       10      11     12    13    14       15          16  17   18        19      20   21    22    23      24        25        26         27             28           29      30                   
+
+
+//    2      3    4     5     6     7     8      9    10    11   12     13   14     15   16     17    18    19    20    21    22    23   24    25    26    27    28    29    30
+// Trainee
+0,	20000,50    ,200  ,100  ,270  ,300  ,400  ,400 ,2000 ,2000 ,540  ,2000 ,540  ,540  ,690  ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,690  ,540
+// Sorcerer
+30,	20000,50    ,200  ,100  ,270  ,300  ,610  ,2000 ,2000 ,2000 ,540  ,2000 ,540  ,540  ,690  ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,690  ,540
+// Warrior
+31,	20000,50    ,200  ,100  ,270  ,300  ,350  ,350  ,2000 ,2000 ,540  ,2000 ,375  ,375  ,690  ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,2000 ,690  ,540

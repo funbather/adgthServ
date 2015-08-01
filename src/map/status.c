@@ -1126,7 +1126,7 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_SPIRIT_3] |= SCB_STR|SCB_INT|SCB_ASPD|SCB_SPEED;
   StatusChangeFlagTable[SC_INVIG]    |= SCB_ALL;
   StatusChangeFlagTable[SC_ENERG]    |= SCB_ASPD|SCB_SPEED;
-
+  StatusChangeFlagTable[SC_JAMES]    |= SCB_ALL;
 #ifdef RENEWAL
 	// renewal EDP increases your weapon atk
 	StatusChangeFlagTable[SC_EDP] |= SCB_WATK;
@@ -2185,11 +2185,7 @@ static unsigned short status_base_atk(const struct block_list *bl, const struct 
  */
 unsigned int status_weapon_atk(struct weapon_atk wa, struct status_data *status)
 {
-	float str = status->str;
-	if (wa.range > 3)
-		str = status->dex;
-	// wa.at2 = refinement, wa.atk = base equip atk, wa.atk*str/200 = bonus str
-	return wa.atk;// + wa.atk2 + (int)(wa.atk * (str/200));
+	return wa.atk;
 }
 #endif
 
@@ -2218,25 +2214,21 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 #ifdef RENEWAL // Renewal formula
 	if (bl->type == BL_MOB) {
 		//Hit
-		//stat = status->hit;
-		//stat += level + status->dex + 175;
 		status->hit = 0; //cap_value(stat,1,SHRT_MAX); // I'm messing with a whole bunch of this junk [ADGTH]
 		//Flee
-		//stat = status->flee;
-		//stat += level + status->agi + 100;
-		status->flee = status->agi/4; //cap_value(stat,1,SHRT_MAX);
+		stat = status->flee;
+		stat += status->agi/4;
+		status->flee = cap_value(stat,1,90);
 	} else if (bl->type == BL_HOM) {
 		status->hit = cap_value(level + status->dex + 150,1,SHRT_MAX); // base level + dex + 150
 		status->flee = cap_value(level + status->agi + level/10,1,SHRT_MAX); // base level + agi + base level/10
 	} else {
 		//Hit
-		//stat = status->hit;
-		//stat += level + status->dex + status->luk/3 + 175; // base level + ( every 1 dex = +1 hit ) + (every 3 luk = +1 hit) + 175
-		status->hit = 0;//cap_value(stat,1,SHRT_MAX);
+		status->hit = 0; // Hit should ALWAYS be 0
 		//Flee
-		//stat = status->flee;
-		//stat += level + status->agi + status->luk/5 + 100; // base level + ( every 1 agi = +1 flee ) + (every 5 luk = +1 flee) + 100
-		status->flee = status->agi/4;//cap_value(stat,1,SHRT_MAX);
+		stat = status->flee;
+		stat += status->agi/4;
+		status->flee = cap_value(stat,0,90); // I'm dumb as hell!!! [adgth]
 	}
 	status->matk_min = status->matk_max = (10+level)+((10+level)*status->int_)/50;//status_base_matk(status, level);
 	//Def2
@@ -3467,6 +3459,9 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		status->flee += skill;
   if((skill=pc_checkskill(sd,WR_SHIELDBEARER))>0 && sd->status.shield)
 		status->flee += skill;
+	
+	if(status->flee > 90)
+    status->flee = 90;
 
 // ----- EQUIPMENT-DEF CALCULATION -----
 
@@ -4367,7 +4362,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 			)
 			status->flee = status_calc_flee(bl, sc, b_status->flee);
 		else
-			status->flee = status_calc_flee(bl, sc, b_status->flee +(status->agi - b_status->agi)
+			status->flee = status_calc_flee(bl, sc, b_status->flee + (status->agi/4 - b_status->agi/4)
 #ifdef RENEWAL
 			//+ (status->luk/5 - b_status->luk/5)
 #endif
@@ -4885,6 +4880,9 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 		str -= sc->data[SC_HARMONIZE]->val2;
 		return (unsigned short)cap_value(str,0,USHRT_MAX);
 	}
+	if(sc->data[SC_JAMES])
+    if(sc->data[SC_JAMES]->val1 == 1)
+      str += 100;
 	if(sc->data[SC_INCALLSTATUS])
 		str += sc->data[SC_INCALLSTATUS]->val1;
 	if(sc->data[SC_CHASEWALK2])
@@ -4967,6 +4965,9 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 		agi -= sc->data[SC_HARMONIZE]->val2;
 		return (unsigned short)cap_value(agi,0,USHRT_MAX);
 	}
+	if(sc->data[SC_JAMES])
+    if(sc->data[SC_JAMES]->val1 == 2)
+      agi += 100;
 	if(sc->data[SC_CONCENTRATE] && !sc->data[SC_QUAGMIRE])
 		agi += (agi-sc->data[SC_CONCENTRATE]->val3)*sc->data[SC_CONCENTRATE]->val2/100;
 	if(sc->data[SC_INCALLSTATUS])
@@ -5031,6 +5032,9 @@ static unsigned short status_calc_vit(struct block_list *bl, struct status_chang
 		vit -= sc->data[SC_HARMONIZE]->val2;
 		return (unsigned short)cap_value(vit,0,USHRT_MAX);
 	}
+  	if(sc->data[SC_JAMES])
+    if(sc->data[SC_JAMES]->val1 == 3)
+      vit += 100;
 	if(sc->data[SC_INCALLSTATUS])
 		vit += sc->data[SC_INCALLSTATUS]->val1;
 	if(sc->data[SC_INCVIT])
@@ -5089,6 +5093,9 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 		int_ -= sc->data[SC_HARMONIZE]->val2;
 		return (unsigned short)cap_value(int_,0,USHRT_MAX);
 	}
+	if(sc->data[SC_JAMES])
+    if(sc->data[SC_JAMES]->val1 == 4)
+      int_ += 100;
 	if(sc->data[SC_INCALLSTATUS])
 		int_ += sc->data[SC_INCALLSTATUS]->val1;
 	if(sc->data[SC_INCINT])
@@ -5172,6 +5179,9 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 		dex -= sc->data[SC_HARMONIZE]->val2;
 		return (unsigned short)cap_value(dex,0,USHRT_MAX);
 	}
+	if(sc->data[SC_JAMES])
+    if(sc->data[SC_JAMES]->val1 == 5)
+      dex += 100;
 	if(sc->data[SC_CONCENTRATE] && !sc->data[SC_QUAGMIRE])
 		dex += (dex-sc->data[SC_CONCENTRATE]->val4)*sc->data[SC_CONCENTRATE]->val2/100;
 	if(sc->data[SC_INCALLSTATUS])
@@ -8875,6 +8885,18 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if (!val4) val4 = 1;
 			tick_time = tick;
 			break;
+		case SC_JAMES:
+        tick_time = 10000 + rnd()%20000;
+        val1 = (floor(rnd()%100) / 20) + 1;
+        
+        switch(val1) {
+          case 1: clif_talkiebox(bl, "James: Bein' a skull ain't so bad. (STR)"); break;
+          case 2: clif_talkiebox(bl, "James: Hey, not so rough buddy. (AGI)"); break;
+          case 3: clif_talkiebox(bl, "James: Got any grapes? (VIT)"); break;
+          case 4: clif_talkiebox(bl, "James: Time for a break, eh? (INT)"); break;
+          case 5: clif_talkiebox(bl, "James: Slow down ya crum bum. (PRE)"); break;
+        }
+		break;
 		case SC_S_LIFEPOTION:
 		case SC_L_LIFEPOTION:
 			if( val1 == 0 ) return 0;

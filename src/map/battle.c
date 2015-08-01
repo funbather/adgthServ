@@ -1694,6 +1694,9 @@ static int battle_calc_base_weapon_attack(struct block_list *src, struct status_
 		atkmin = max(0, atkmin - variance);
 		atkmax = min(UINT16_MAX, atkmax + variance);
 
+    if(sd->status.weapon == W_STAFF)
+      atkmin = atkmax = (sd->battle_status.matk_max - sd->battle_status.batk);
+      
 		if (sc && sc->data[SC_MAXIMIZEPOWER])
 			damage = atkmax;
 		else
@@ -1776,6 +1779,7 @@ static int64 battle_calc_base_damage(struct status_data *status, struct weapon_a
 
 	if (sd) {
 		//rodatazone says the range is 0~arrow_atk-1 for non crit
+		
 		if (flag&2 && sd->bonus.arrow_atk)
 			damage += ( (flag&1) ? sd->bonus.arrow_atk : rnd()%sd->bonus.arrow_atk );
 
@@ -3030,6 +3034,7 @@ struct Damage battle_calc_skill_base_damage(struct Damage wd, struct block_list 
 					default:
 						i |= 16; // for ex. shuriken must not be influenced by DEX
 				}
+
 			wd.damage = battle_calc_base_damage(sstatus, &sstatus->rhw, sc, tstatus->size, sd, i);
 			if (is_attack_left_handed(src, skill_id))
 				wd.damage2 = battle_calc_base_damage(sstatus, &sstatus->lhw, sc, tstatus->size, sd, i);
@@ -5080,6 +5085,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 		ratio = battle_calc_skill_constant_addition(wd, src, target, skill_id, skill_lv); // other skill bonuses
 
 		ATK_ADD(wd.damage, wd.damage2, ratio);
+      
 		RE_ALLATK_ADD(wd, ratio);
 
 #ifdef RENEWAL
@@ -5319,10 +5325,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 	wd = battle_calc_weapon_final_atk_modifiers(wd, src, target, skill_id, skill_lv);
 
   strMod = (85+rnd()%30)+(mystatus->str);
+	wd.damage = (wd.damage * strMod) / 100;
+	
   if(pc_checkskill(sd, ALL_POWER))
-    strMod += pc_checkskill(sd, ALL_POWER);
-  strMod = (wd.damage * strMod) / 100;
-	wd.damage = strMod;
+    wd.damage += wd.damage * (sd, ALL_POWER) / 100;
 
 	battle_do_reflect(BF_WEAPON,&wd, src, target, skill_id, skill_lv); //WIP [lighta]
 	return wd;
