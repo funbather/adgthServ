@@ -743,7 +743,8 @@ void clif_charselectok(int id, uint8 ok)
 void clif_dropflooritem(struct flooritem_data* fitem)
 {
 #if PACKETVER >= 20130000
-	uint8 buf[19];
+//	uint8 buf[19];
+  uint8 buf[21];
 	uint32 header=0x84b;
 #else
 	uint8 buf[17];
@@ -775,8 +776,10 @@ void clif_dropflooritem(struct flooritem_data* fitem)
 	WBUFB(buf, offset+13) = fitem->subx;
 	WBUFB(buf, offset+14) = fitem->suby;
 	WBUFW(buf, offset+15) = fitem->item.amount;
+	WBUFB(buf, offset+17) = fitem->item.refine;
+	WBUFB(buf, offset+18) = fitem->item.attribute;
 
-	clif_send(buf, packet_len(header), &fitem->bl, AREA);
+	clif_send(buf, packet_len(header)+2, &fitem->bl, AREA);
 }
 
 
@@ -4511,7 +4514,14 @@ void clif_changemapcell(int fd, int16 m, int x, int y, int type, enum send_targe
 void clif_getareachar_item(struct map_session_data* sd,struct flooritem_data* fitem)
 {
 	int view,fd;
+	int rarity = 1;
+	int i = 0;
 	fd=sd->fd;
+
+	
+	for(i = 0; i < 4; i++) {
+    if(fitem->item.card[i] > 0) { rarity++; }
+	}
 
 	WFIFOHEAD(fd,packet_len(0x9d));
 	WFIFOW(fd,0)=0x9d;
@@ -4520,13 +4530,15 @@ void clif_getareachar_item(struct map_session_data* sd,struct flooritem_data* fi
 		WFIFOW(fd,6)=view;
 	else
 		WFIFOW(fd,6)=fitem->item.nameid;
-	WFIFOB(fd,8)=fitem->item.identify;
+	WFIFOB(fd,8)=rarity;//fitem->item.identify;
 	WFIFOW(fd,9)=fitem->bl.x;
 	WFIFOW(fd,11)=fitem->bl.y;
 	WFIFOW(fd,13)=fitem->item.amount;
 	WFIFOB(fd,15)=fitem->subx;
 	WFIFOB(fd,16)=fitem->suby;
-	WFIFOSET(fd,packet_len(0x9d));
+	WFIFOB(fd,17)=fitem->item.refine;
+	WFIFOB(fd,18)=fitem->item.attribute;
+	WFIFOSET(fd,packet_len(0x9d)+2);
 }
 
 /// Notifes client about Graffiti
@@ -8879,7 +8891,7 @@ void clif_charnameack (int fd, struct block_list *bl)
 				{
 					*(str_p-3) = '\0'; //Remove trailing space + pipe.
 					memcpy(WBUFP(buf,30), mobhp, NAME_LENGTH);
-					WBUFB(buf,54) = 0;
+					memcpy(WBUFP(buf,54), "X", NAME_LENGTH);
 					WBUFB(buf,78) = 0;
 				}
 			}

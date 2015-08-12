@@ -7685,6 +7685,12 @@ int pc_readparam(struct map_session_data* sd,int type)
 #else
 			val = sd->castrate; break;
 #endif
+		case SP_STR2:             val = sd->battle_status.str; break;
+		case SP_AGI2:             val = sd->battle_status.agi; break;
+		case SP_VIT2:             val = sd->battle_status.vit; break;
+		case SP_INT2:             val = sd->battle_status.int_; break;
+		case SP_DEX2:             val = sd->battle_status.dex; break;
+		case SP_LUK2:             val = sd->battle_status.luk; break;
 	}
 
 	return val;

@@ -6687,6 +6687,95 @@ BUILDIN_FUNC(getitem2)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+// [adgth]
+// The same as getitem2, except it drops the item to the floor
+// Yes this is necessary okay!!
+BUILDIN_FUNC(getitem3)
+{
+	int amount;
+	unsigned short nameid;
+	int iden, ref, attr;
+	unsigned short c1, c2, c3, c4;
+	struct item_data *item_data = NULL;
+	struct item item_tmp;
+	TBL_PC *sd;
+	struct script_data *data;
+	const char* command = script_getfuncname(st);
+
+	sd = script_rid2sd(st); // Attached player
+
+	if( sd == NULL ) // no target
+		return SCRIPT_CMD_SUCCESS;
+
+	data = script_getdata(st,2);
+	get_val(st,data);
+	if( data_isstring(data) ) {
+		const char *name = conv_str(st,data);
+		if( (item_data = itemdb_searchname(name)) == NULL ){
+			ShowError("buildin_getitem3: Nonexistant item %s requested (by conv_str).\n", name);
+			return SCRIPT_CMD_FAILURE; //No item created.
+		}
+		nameid = item_data->nameid;
+	} else {
+		nameid = conv_num(st,data);
+		if( (item_data = itemdb_exists(nameid)) == NULL ){
+			ShowError("buildin_getitem3: Nonexistant item %d requested (by conv_num).\n", nameid);
+			return SCRIPT_CMD_FAILURE; //No item created.
+		}
+	}
+
+	amount = script_getnum(st,3);
+	iden = script_getnum(st,4);
+	ref = script_getnum(st,5);
+	attr = script_getnum(st,6);
+	c1 = (unsigned short)script_getnum(st,7);
+	c2 = (unsigned short)script_getnum(st,8);
+	c3 = (unsigned short)script_getnum(st,9);
+	c4 = (unsigned short)script_getnum(st,10);
+
+	if( item_data ) {
+		int get_count = 0, i;
+		memset(&item_tmp,0,sizeof(item_tmp));
+		if( item_data->type == IT_WEAPON || item_data->type == IT_ARMOR || item_data->type == IT_SHADOWGEAR ) {
+			if(ref > MAX_REFINE)
+				ref = MAX_REFINE;
+		}
+		else if( item_data->type == IT_PETEGG ) {
+			iden = 1;
+			ref = 0;
+		}
+		else {
+			iden = 1;
+			ref = attr = 0;
+		}
+
+		item_tmp.nameid = nameid;
+		item_tmp.identify = iden;
+		item_tmp.refine = ref;
+		item_tmp.attribute = attr;
+		item_tmp.card[0] = c1;
+		item_tmp.card[1] = c2;
+		item_tmp.card[2] = c3;
+		item_tmp.card[3] = c4;
+
+		//Check if it's stackable.
+		if (!itemdb_isstackable2(item_data))
+			get_count = 1;
+		else
+			get_count = amount;
+
+		for (i = 0; i < amount; i += get_count)
+		{
+			// if not pet egg
+			if (!pet_create_egg(sd, nameid))
+			{
+        map_addflooritem(&item_tmp,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+			}
+		}
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
 /** Gives rental item to player
  * rentitem <item id>,<seconds>
  * rentitem "<item name>",<seconds>
@@ -19325,6 +19414,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(rentitem,"vi"),
 	BUILDIN_DEF(rentitem2,"viiiiiiii"),
 	BUILDIN_DEF(getitem2,"viiiiiiii?"),
+	BUILDIN_DEF(getitem3,"viiiiiiii?"),
 	BUILDIN_DEF(getnameditem,"vv"),
 	BUILDIN_DEF2(grouprandomitem,"groupranditem","i?"),
 	BUILDIN_DEF(makeitem,"visii"),

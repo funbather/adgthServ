@@ -1822,7 +1822,7 @@ packet_ver: 34
 0x0849,16 //clif_cashshop_result
 0x0848,-1,cashshopbuy,2:6:4:10
 0x084a,2,cashshopclose,0
-0x084b,19 //fallitem4
+0x084b,21 //fallitem4
 0x085a,90,useskilltoposinfo,2:4:6:8:10
 0x085d,18,bookingregreq,2:4:6
 0x0868,-1,itemlistwindowselected,2:4:8:12

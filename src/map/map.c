@@ -1560,6 +1560,8 @@ int map_addflooritem(struct item *item,int amount,int16 m,int16 x,int16 y,int fi
 
 	memcpy(&fitem->item,item,sizeof(*item));
 	fitem->item.amount=amount;
+	fitem->item.refine=item->refine;
+	fitem->item.attribute=item->attribute;
 	fitem->subx=(r&3)*3+3;
 	fitem->suby=((r>>2)&3)*3+3;
 	fitem->cleartimer=add_timer(gettick()+battle_config.flooritem_lifetime,map_clearflooritem_timer,fitem->bl.id,0);

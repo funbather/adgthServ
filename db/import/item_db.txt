@@ -51,9 +51,43 @@
 
 // 53K - UNIQUE WEAPONS
 // 54K - ENCHANTMENTS
-54000,_strength4,Lesser Strength,6,20,,10,,,,,,,,,,,,,{ bonus bStr,4; },{},{}
-54001,_agility4,Lesser Agility,6,20,,10,,,,,,,,,,,,,{ bonus bAgi,2; },{},{}
+54000,_str,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bStr,5; },{},{}
+54001,_agi,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bAgi,5; },{},{}
+54002,_vit,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bVit,5; },{},{}
+54003,_int,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bInt,5; },{},{}
+54004,_pre,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bDex,5; },{},{}
+54005,_luk,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bLuk,15; },{},{}
+54006,_hp,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bMaxHPrate,4; },{},{}
+54007,_sp,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bMaxSP,10; },{},{}
+54008,_def,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bDef,1; },{},{}
+54009,_mdef,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bMdef,2; },{},{}
+54010,_crit,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bCritical,3; },{},{}
+54011,_cd,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bCritAtkRate,7; },{},{}
+54012,_aspd,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bAspdRate,4; },{},{}
+54013,_eva,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bFlee,3; },{},{}
+54014,_cel,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bSpeedAddRate,4; },{},{}
+54015,_hpregen,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bHPrecovRate,10; },{},{}
+54016,_spregen,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bSPrecovRate,10; },{},{}
+54017,_lifesteal,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus2 bHPDrainRate,1000,7; },{},{}
+54018,_spsteal,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bSPGainValue,7; bonus bMagicSPGainValue,7; },{},{}
 // 54.1K - SEALS
+54100,_hp2,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bMaxHPrate,15; },{},{}
+54101,_sp2,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bMaxSPrate,25; },{},{}
+54102,_critcd,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bCritical,7; bonus bCritAtkRate,15;},{},{}
+54103,_spdown,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bUseSPrate,-15; },{},{}
+54104,_physdef,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bNoWeaponDamage,10; },{},{}
+54105,_magdef,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bMagicAtkDef,20; },{},{}
+54106,_faith,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bHealPower,25; bonus bHealPower2,25;},{},{}
+54107,_physpierce,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus2 bIgnoreDefRaceRate,RC_All,33; bonus2 bIgnoreDefRaceRate,RC_All,33; },{},{}
+54108,_magpierce,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus2 bIgnoreMdefRaceRate,RC_All,33; bonus2 bIgnoreMdefRaceRate,RC_All,33; },{},{}
+54109,_stun,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus2 bAddEff,Eff_Stun,700; bonus2 bAddEffWhenHit,Eff_Stun,700; },{},{}
+54110,_poison,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus2 bAddEff,Eff_Poison,700; bonus2 bAddEffWhenHit,Eff_Poison,700; },{},{}
+54111,_freeze,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus2 bAddEff,Eff_Freeze,700; bonus2 bAddEffWhenHit,Eff_Freeze,700; },{},{}
+54112,_double,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bDoubleAddRate,20; },{},{}
+54113,_wrsunder,enchantment,6,20,,10,,,,,,,,,,,,,{ skill "WR_SUNDER",1,2; },{},{}
+54114,_wrcleave,enchantment,6,20,,10,,,,,,,,,,,,,{ skill "WR_CLEAVE",1,2; },{},{}
+54115,_wrecho,enchantment,6,20,,10,,,,,,,,,,,,,{ skill "WR_ECHOBLADE",1,2; },{},{}
+54116,_fortune,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bLuk,50; bonus2 bAddGetZenyNum,-1,100; },{},{}
 // 55K - CONSUMABLES 
 55000,_fruitjuice,Fruit Juice,0,1,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 0,20; percentheal 0,10;},{},{}
 

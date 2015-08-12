@@ -2387,7 +2387,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		dlist->third_charid = (third_sd ? third_sd->status.char_id : 0);
 		dlist->item = NULL;
 
-		for (i = 0; i < MAX_MOB_DROP; i++) {
+		for (i = 100; i < MAX_MOB_DROP; i++) { // turn off mob drops...
 			if (md->db->dropitem[i].nameid <= 0)
 				continue;
 			if ( !(it = itemdb_exists(md->db->dropitem[i].nameid)) )
