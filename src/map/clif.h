@@ -404,6 +404,7 @@ enum e_damage_type {
 	DMG_CRITICAL,			/// critical hit
 	DMG_LUCY_DODGE,			/// lucky dodge
 	DMG_TOUCH,				/// (touch skill?)
+	DMG_MULTICRIT = 20,    /// [adgth] double attack crit
 };
 
 int clif_setip(const char* ip);

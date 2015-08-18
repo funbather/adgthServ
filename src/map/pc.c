@@ -5599,6 +5599,7 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_OKTOBERFEST:           return MAPID_OKTOBERFEST;
 		case JOB_SORC_:                 return MAPID_SORC_;
 		case JOB_WARRIOR:               return MAPID_WARRIOR;
+		case JOB_TERRAMANCER:           return MAPID_TERRAMANCER;
 	//2-1 Jobs
 		case JOB_SUPER_NOVICE:          return MAPID_SUPER_NOVICE;
 		case JOB_KNIGHT:                return MAPID_KNIGHT;
@@ -5745,6 +5746,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_OKTOBERFEST:           return JOB_OKTOBERFEST;
 		case MAPID_SORC_:                 return JOB_SORC_;
 		case MAPID_WARRIOR:               return JOB_WARRIOR;
+		case MAPID_TERRAMANCER:           return JOB_TERRAMANCER;
 	//2-1 Jobs
 		case MAPID_SUPER_NOVICE:          return JOB_SUPER_NOVICE;
 		case MAPID_KNIGHT:                return JOB_KNIGHT;
@@ -5917,7 +5919,9 @@ const char* job_name(int class_)
 	case JOB_SORC_:
 		return msg_txt(NULL,2000);
 	case JOB_WARRIOR:
-    return msg_txt(NULL,2001);
+    return msg_txt(NULL,2001);	
+  case JOB_TERRAMANCER:
+    return msg_txt(NULL,2002);
 
 	case JOB_NOVICE_HIGH:
 	case JOB_SWORDMAN_HIGH:

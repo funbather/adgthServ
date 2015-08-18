@@ -106,13 +106,13 @@
 4028,0,6,4,0,0x1,0,10,1,no,0,0,0,weapon,0,0,      WR_TWINHAND ,Twinhand
 
 
-4030,-2,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x0,        WR_SUNDER,Sunder
-4031,-2,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x0,        WR_HILTBASH,Hilt Bash
-4032,-2,6,1,-1,0x2,3,5,1,no,0,0,0,weapon,0,0x0,        WR_CLEAVE,Cleave
-4033,-2,6,1,-1,0,0,5,-2,no,0,0,0,weapon,0,0x0,        WR_PILEBUNKER,Pile Bunker
-4034,-2,6,1,-1,0,0,5,-5,no,0,0,0,weapon,0,0x0,        WR_ECHOBLADE,Echo Blade
+4030,2,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x0,        WR_SUNDER,Sunder
+4031,2,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,0x0,        WR_HILTBASH,Hilt Bash
+4032,2,6,1,-1,0x2,3,5,1,no,0,0,0,weapon,0,0x0,        WR_CLEAVE,Cleave
+4033,2,6,1,-1,0,0,5,-2,no,0,0,0,weapon,0,0x0,        WR_PILEBUNKER,Pile Bunker
+4034,2,6,1,-1,0,0,5,-5,no,0,0,0,weapon,0,0x0,        WR_ECHOBLADE,Echo Blade
 
-62,-2,6,1,-1,0x2,1,5,1,no,0,0,0,weapon,7,0x0,	KN_BOWLINGBASH,Bowling Bash
+62,2,6,1,-1,0x2,1,5,1,no,0,0,0,weapon,7,0x0,	KN_BOWLINGBASH,Bowling Bash
 6,9,6,4,0,0x3,-1,5,1,no,0,0,0,none,0,0x0,		SM_PROVOKE,Provoke
 255,15,6,16,0,0x1,0,5,1,yes,0,0x600,0,none,0,0x0,	CR_DEVOTION,Sacrifice
 
@@ -123,3 +123,20 @@
 
 4038,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,0,      ALL_PENGUIN ,Call Penguin
 4039,15,6,16,0,0x1,0,1,1,no,0,0,0,none,0,0,       ALL_COMINRIGHTUP,Comin Right Up
+
+4042,1,6,4,0,0x1,0,1,1,no,0,0x100,0,none,0,0,       TR_STONESTANCE,Stonestance
+4043,15,6,16,0,0x1,0,1,1,no,0,0,0,none,0,0,       TR_NATURALCURE,Natural Cure
+4044,15,6,16,0,0x1,0,1,1,no,0,0,0,none,0,0,       TR_POISONIMPRINT,Poison Imprint
+4045,15,6,16,0,0x1,0,1,1,no,0,0,0,none,0,0,       TR_EARTHENSHIELD,Earthen Shield
+
+4046,9,6,1,5,0,0,5,1,no,0,0,0,magic,0,0x0,        TR_SLUDGEBOMB,Sludge Bomb
+4047,9,6,2,5,0x2,3,5,1,no,0,0x2000,0,magic,0,0x0,        TR_POISONBLOW,Poison Blow
+4048,9,6,2,5,0x3,3,5,1,no,0,0,0,none,0,0x0,        TR_TOXICDELUGE,Toxic Deluge
+4049,9,6,1,5,0,0,10,1,no,0,0,0,magic,0,0x0,        TR_EXPUNGE,Expunge
+
+4050,9,6,1,2,0x2,1,5,1,no,0,0,17,magic,0,0x0,        TR_TERRASPINE,Terraspine
+4051,9,6,2,2,0x2,3,5,1,no,0,0x2000,0,magic,0,0x0,        TR_HEAVENSDRIVE,Heaven's Drive
+4052,9,6,2,2,0,0,5,1,no,0,0,0,magic,0,0x0,        TR_GROUNDRIFT,Ground Rift
+4053,9,6,4,2,0x2,9,10,1,no,0,0,0,magic,0,0x0,        TR_EARTHSHUDDER,Earth Shudder
+
+4054,9,6,1,5,0x2,7,10,1,no,0,0,0,magic,0,0x0, TR_EXPUNGE_SPLASH, Expunge Splash

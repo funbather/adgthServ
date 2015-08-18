@@ -54,7 +54,7 @@ client_limit_unit_lv: 15
 client_sort_storage: yes
 
 // How long does it take for an item to disappear from the floor after it is dropped? (in milliseconds)
-flooritem_lifetime: 600000
+flooritem_lifetime: 180000
 
 // When a player dies, how should we penalize them?
 // 0 = No penalty.
@@ -149,7 +149,7 @@ monster_chase_refresh: 0
 // 5 seconds.
 // NOTE: This has no effect on mobs that always spawn on the very same cell
 // (like ant eggs) except if you set it to the max.
-no_spawn_on_player: 100
+no_spawn_on_player: 99
 
 // Do summon slaves have the same walking speed as their master?
 // NOTE: The default is 3 for official servers.
@@ -175,7 +175,7 @@ monster_class_change_full_recover: no
 show_mob_info: 4
 
 // Zeny from mobs
-zeny_from_mobs: no
+zeny_from_mobs: yes
 
 // Interval before updating the party-member map mini-dots (milliseconds)
 party_update_interval: 100
@@ -207,7 +207,7 @@ max_aspd: 193
 max_def: 90
 
 // Prevent logout of players after being hit for how long (in ms, 0 disables)?
-prevent_logout: 1000
+prevent_logout: 0
 
 // At what dex does the cast time become zero (instacast)?
 castrate_dex_scale: 99999

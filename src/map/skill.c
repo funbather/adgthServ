@@ -784,7 +784,7 @@ struct s_skill_unit_layout *skill_get_unit_layout(uint16 skill_id, uint16 skill_
 		return &skill_unit_layout [firewall_unit_pos + dir];
 	else if (skill_id == WZ_ICEWALL)
 		return &skill_unit_layout [icewall_unit_pos + dir];
-	else if( skill_id == WL_EARTHSTRAIN )
+	else if( skill_id == WL_EARTHSTRAIN || skill_id == TR_GROUNDRIFT )
 		return &skill_unit_layout [earthstrain_unit_pos + dir];
 	else if( skill_id == RL_FIRE_RAIN )
 		return &skill_unit_layout[firerain_unit_pos + dir];
@@ -985,6 +985,8 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 					if((sce=sc->data[SC_EDP]))
 						sc_start4(src,bl,SC_DPOISON,sce->val2, sce->val1,src->id,0,0,
 							skill_get_time2(ASC_EDP,sce->val1));
+					if((sce=sc->data[SC_POISONIMPRINT])) //Don't use sc_start since chance comes in 1/10000 rate.
+						status_change_start(src,bl,SC_POISON,sce->val2, sce->val1,src->id,0,0,30000,SCSTART_NONE);
 				}
 			}
 			break;
@@ -1037,6 +1039,15 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
     sc_start(src,bl,SC_FREEZE,100,skill_lv,3000);
     break;
     
+  case TR_EXPUNGE:
+		if(tsc)
+			if(tsc->data[SC_POISON]) {
+				status_change_end(bl, SC_POISON, INVALID_TIMER);
+				skill_castend_damage_id(src, bl, TR_EXPUNGE_SPLASH, skill_lv, tick,SD_ANIMATION);
+				clif_skill_nodamage(src,bl,TR_EXPUNGE,skill_lv,1);
+			}
+		break;
+    
   case WR_HILTBASH: //[ADGTH]
     sc_start(src,bl,SC_STUN,100,skill_lv,1500+skill_lv*500);
     break;
@@ -1048,6 +1059,11 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
   case WR_BULWARKBASH: //[ADGTH]
     sc_start(src,bl,SC_STUN,100,skill_lv,3000);
     break;
+    
+  case TR_POISONBLOW:
+	case TR_SLUDGEBOMB:
+		sc_start(src,bl,SC_POISON,20+10*skill_lv,skill_lv,30000);
+		break;
            
 	case WZ_STORMGUST:
 		// Storm Gust counter was dropped in renewal
@@ -2682,6 +2698,9 @@ static void skill_do_copy(struct block_list* src,struct block_list *bl, uint16 s
 
 		// Copy Referal: dummy skills should point to their source upon copying
 		switch (skill_id) {
+			case TR_EXPUNGE_SPLASH:
+				skill_id = TR_EXPUNGE;
+				break;
 			case AB_DUPLELIGHT_MELEE:
 			case AB_DUPLELIGHT_MAGIC:
 				skill_id = AB_DUPLELIGHT;
@@ -3931,6 +3950,7 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 						int dummy = 1, i = skill_get_unit_range(skl->skill_id,skl->skill_lv);
 						map_foreachinarea(skill_cell_overlap, src->m, skl->x-i, skl->y-i, skl->x+i, skl->y+i, BL_SKILL, skl->skill_id, &dummy, src);
 					}
+				case TR_GROUNDRIFT:
 				case WL_EARTHSTRAIN:
 					skill_unitsetting(src,skl->skill_id,skl->skill_lv,skl->x,skl->y,(skl->type<<16)|skl->flag);
 					break;
@@ -4292,6 +4312,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 
 	case NC_FLAMELAUNCHER:
 		if (sd) pc_overheat(sd,1);
+	case TR_TERRASPINE:
 	case SN_SHARPSHOOTING:
 	case MA_SHARPSHOOTING:
 	case NJ_KAMAITACHI:
@@ -4402,6 +4423,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 		break;
 
 	//Splash attack skills.
+	case TR_EXPUNGE_SPLASH:
 	case WR_CLEAVE:
 	case WR_BULWARKBASH:
 	case AS_GRIMTOOTH:
@@ -4619,29 +4641,14 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 		{
 			int min_x,max_x,min_y,max_y,i,c,dir,tx,ty;
 			// Chain effect and check range gets reduction by recursive depth, as this can reach 0, we don't use blowcount
-			c = (5-(flag&0xFFF)+1)/2;
-			// Determine the Bowling Bash area depending on configuration
-			if (battle_config.bowling_bash_area == 0) {
-				// Gutter line system
-				min_x = ((src->x)-c) - ((src->x)-c)%40;
-				if(min_x < 0) min_x = 0;
-				max_x = min_x + 39;
-				min_y = ((src->y)-c) - ((src->y)-c)%40;
-				if(min_y < 0) min_y = 0;
-				max_y = min_y + 39;
-			} else if (battle_config.bowling_bash_area == 1) {
-				// Gutter line system without demi gutter bug
-				min_x = src->x - (src->x)%40;
-				max_x = min_x + 39;
-				min_y = src->y - (src->y)%40;
-				max_y = min_y + 39;
-			} else {
+			c = (10-(flag&0xFFF)+1)/2;
+
 				// Area around caster
 				min_x = src->x - battle_config.bowling_bash_area;
 				max_x = src->x + battle_config.bowling_bash_area;
 				min_y = src->y - battle_config.bowling_bash_area;
 				max_y = src->y + battle_config.bowling_bash_area;
-			}
+
 			// Initialization, break checks, direction
 			if((flag&0xFFF) > 0) {
 				// Ignore monsters outside area
@@ -4656,7 +4663,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 				// Create an empty list of already hit targets
 				db_clear(bowling_db);
 				// Direction is walkpath
-				dir = (unit_getdir(src)+4)%8;
+				dir = (unit_getdir(bl))%8;
 			}
 			// Add current target to the list of already hit targets
 			idb_put(bowling_db, bl->id, bl);
@@ -4670,24 +4677,21 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 				// If target cell is a wall then break
 				if(map_getcell(bl->m,tx,ty,CELL_CHKWALL))
 					break;
-				skill_blown(src,bl,3,dir,0);
+				skill_blown(src,bl,(flag&0xFFF)>0?2:5,dir,0);
 				// Splash around target cell, but only cells inside area; we first have to check the area is not negative
-				if((max(min_x,tx-1) <= min(max_x,tx+1)) &&
-					(max(min_y,ty-1) <= min(max_y,ty+1)) &&
-					(map_foreachinarea(skill_area_sub, bl->m, max(min_x,tx-1), max(min_y,ty-1), min(max_x,tx+1), min(max_y,ty+1), splash_target(src), src, skill_id, skill_lv, tick, flag|BCT_ENEMY, skill_area_sub_count))) {
+				if((max(min_x,tx-2) <= min(max_x,tx+2)) &&
+					(max(min_y,ty-2) <= min(max_y,ty+2)) &&
+					(map_foreachinarea(skill_area_sub, bl->m, max(min_x,tx-2), max(min_y,ty-2), min(max_x,tx+2), min(max_y,ty+2), splash_target(src), src, skill_id, skill_lv, tick, flag|BCT_ENEMY, skill_area_sub_count))) {
 					// Recursive call
-					map_foreachinarea(skill_area_sub, bl->m, max(min_x,tx-1), max(min_y,ty-1), min(max_x,tx+1), min(max_y,ty+1), splash_target(src), src, skill_id, skill_lv, tick, (flag|BCT_ENEMY)+1, skill_castend_damage_id);
+					map_foreachinarea(skill_area_sub, bl->m, max(min_x,tx-2), max(min_y,ty-2), min(max_x,tx+2), min(max_y,ty+2), splash_target(src), src, skill_id, skill_lv, tick, (flag|BCT_ENEMY)+1, skill_castend_damage_id);
 					// Self-collision
-					if(bl->x >= min_x && bl->x <= max_x && bl->y >= min_y && bl->y <= max_y)
-						skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,(flag&0xFFF)>0?SD_ANIMATION:0);
+					//if(bl->x >= min_x && bl->x <= max_x && bl->y >= min_y && bl->y <= max_y)
+						//skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,(flag&0xFFF)>0?SD_ANIMATION:0);
 					break;
 				}
 			}
-			// Original hit or chain hit depending on flag
 			
-			if(!(flag&1))
-        skill_blown(src,bl,7,dir,0);
-        
+			// Original hit or chain hit depending on flag
 			skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,(flag&0xFFF)>0?SD_ANIMATION:0);
 		}
 		break;
@@ -4738,7 +4742,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 			break;
 		skill_attack(BF_MAGIC,src,src,bl,skill_id,skill_lv,tick,flag);
 		break;
-
+		
+	case TR_EXPUNGE:
+	case TR_SLUDGEBOMB:		
 	case MG_SOULSTRIKE:
 	case NPC_DARKSTRIKE:
 	case MG_COLDBOLT:
@@ -5971,6 +5977,31 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
       pc_unequipitem(sd,sd->equip_index[EQI_HAND_R],3);
     }
     break;
+    
+  case TR_STONESTANCE:
+		sc_start4(src,src,(enum sc_type)SC_STONESTANCE,100,skill_lv+5,pc_checkskill(sd,TR_STONESTANCE)*3,1,1,5000);
+		break;
+		
+  case TR_NATURALCURE:
+		if(battle_check_target(src,bl,BCT_PARTY|BCT_SELF|BCT_ENEMY)>0) { // can't use on random people
+			status_change_end(bl, SC_POISON, INVALID_TIMER);
+			status_change_end(bl, SC_BLEEDING, INVALID_TIMER);
+			status_change_end(bl, SC_SILENCE, INVALID_TIMER);
+			status_change_end(bl, SC_BLIND, INVALID_TIMER);
+			sc_start4(src,bl,(enum sc_type)SC_NATURALCURE,100,sd->status.max_hp * (skill_lv * 15 + 50) / 1000,1,1,1,4000);
+			sc_start(src,bl,(enum sc_type)SC_HIDING,100,skill_lv,4000);
+		}
+		break;
+		
+	case TR_POISONIMPRINT:
+		status_change_end(bl, SC_POISONIMPRINT, INVALID_TIMER);
+		sc_start(src,bl,(enum sc_type)SC_POISONIMPRINT,100,skill_lv,30000);
+		break;
+
+	case TR_EARTHENSHIELD:
+		status_change_end(bl, SC_EARTHENSHIELD, INVALID_TIMER);
+		sc_start2(src,bl,SC_EARTHENSHIELD,100,skill_lv,(sd->battle_status.matk_max * (skill_lv * 25 + 100)) / 100,-1);
+		break;
 		
   // Invoke [ADGTH]
   case SC_INVOKE: { 
@@ -6759,6 +6790,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				lv = -lv;
 			if( lv > battle_config.devotion_level_difference || // Level difference requeriments
 				(dstsd->sc.data[type] && dstsd->sc.data[type]->val1 != src->id) || // Cannot Devote a player devoted from another source
+				(sd->sc.data[type]) || // Cannot devote if you yourself are devoted
 				(skill_id == ML_DEVOTION && (!mer || mer != dstsd->md)) || // Mercenary only can devote owner
 				(dstsd->class_&MAPID_UPPERMASK) == MAPID_CRUSADER || // Crusader Cannot be devoted
 				(dstsd->sc.data[SC_HELLPOWER])) // Players affected by SC_HELLPOWERR cannot be devoted.
@@ -6953,6 +6985,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
   case SC_FLASHFREEZE: // [ADGTH]
     status_damage(src, src, 0,55,0,1);
     sc_start(src,src,WWI_EXHAUST,100,10,12000 - pc_checkskill(sd,SC_WINDSPIRIT) * 200);
+  case TR_EARTHSHUDDER:
 	case NJ_HYOUSYOURAKU:
 	case NJ_RAIGEKISAI:
 	case WZ_FROSTNOVA:
@@ -11422,6 +11455,9 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
       status_damage(src, src, 0,55,0,1);
       sc_start(src,src,WWW_EXHAUST,100,10,21000-pc_checkskill(sd,SC_WINDSPIRIT)*333);
     }
+  case TR_TOXICDELUGE:
+  case TR_POISONBLOW:
+  case TR_HEAVENSDRIVE:
 	case MG_SAFETYWALL:
 	case MG_FIREWALL:
 	case MG_THUNDERSTORM:
@@ -11833,9 +11869,10 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
 		map_foreachinarea(skill_area_sub,src->m,x-i,y-i,x+i,y+i,splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_ANIMATION|1,skill_castend_damage_id);
 		break;
 
+	case TR_GROUNDRIFT:
 	case WL_EARTHSTRAIN:
 		{
-			int w, wave = skill_lv + 4, dir = map_calc_dir(src,x,y);
+			int w, wave = 10, dir = map_calc_dir(src,x,y);
 			int sx = x = src->x, sy = y = src->y; // Store first caster's location to avoid glitch on unit setting
 
 			for( w = 1; w <= wave; w++ )
@@ -12983,8 +13020,10 @@ static int skill_unit_onplace(struct skill_unit *unit, struct block_list *bl, un
 			break;
 
 		case UNT_QUAGMIRE:
-			if( !sce && battle_check_target(&sg->unit->bl,bl,sg->target_flag) > 0 )
+			if( !sce && battle_check_target(&sg->unit->bl,bl,sg->target_flag) > 0 ) {
 				sc_start4(ss, bl,type,100,sg->skill_lv,sg->group_id,0,0,sg->limit);
+				sc_start(ss, bl, SC_POISON, 100, sg->skill_lv,30000);
+				}
 			break;
 
 		case UNT_VOLCANO:
@@ -13969,6 +14008,10 @@ int skill_unit_onleft(uint16 skill_id, struct block_list *bl, unsigned int tick)
 		case WZ_QUAGMIRE:
 			if (bl->type==BL_MOB)
 				break;
+			if (sce)
+				status_change_end(bl, type, INVALID_TIMER);
+			break;
+		case TR_TOXICDELUGE:
 			if (sce)
 				status_change_end(bl, type, INVALID_TIMER);
 			break;
@@ -19733,6 +19776,7 @@ void skill_init_unit_layout (void) {
 			switch (i) {
 				case MG_FIREWALL:
 				case WZ_ICEWALL:
+				case TR_GROUNDRIFT:
 				case WL_EARTHSTRAIN:
 				case RL_FIRE_RAIN:
 					// these will be handled later

@@ -1238,6 +1238,19 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 				status_change_end(bl, SC_KYRIE, INVALID_TIMER);
 		}
 
+		if((sce = sc->data[SC_EARTHENSHIELD]) && damage > 0){
+			sce->val2 -= (int)cap_value(damage,INT_MIN,INT_MAX);;
+			
+			if(sce->val2>=0)
+				damage=0;
+			else
+				damage=-sce->val2;
+				
+			if((sce->val2<=0))
+				status_change_end(bl, SC_EARTHENSHIELD, INVALID_TIMER);
+		}
+
+
 		if( sc->data[SC_MEIKYOUSISUI] && rand()%100 < 40 ) // custom value
 			damage = 0;
 
@@ -2170,7 +2183,7 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 	struct map_session_data *tsd = BL_CAST(BL_PC, target);
 
 	if (!first_call)
-		return (wd.type == DMG_CRITICAL);
+		return (wd.type == DMG_CRITICAL || wd.type == DMG_MULTICRIT);
 
 	if (skill_id == NPC_CRITICALSLASH || skill_id == LG_PINPOINTATTACK) //Always critical skills
 		return true;
@@ -2178,7 +2191,8 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 	/*if( !(wd.type&DMG_MULTI_HIT) && sstatus->cri && (!skill_id ||
 		skill_id == KN_AUTOCOUNTER || skill_id == SN_SHARPSHOOTING ||
 		skill_id == MA_SHARPSHOOTING || skill_id == NJ_KIRIKAGE))*/
-    if( !(wd.type&DMG_MULTI_HIT) && sstatus->cri)
+    //if( !(wd.type&DMG_MULTI_HIT) && sstatus->cri)
+    if(sstatus->cri)
 	{
 		short cri = sstatus->cri;
 
@@ -3240,13 +3254,13 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
       skillratio += 25*skill_lv;
       break;
     case WR_CLEAVE:
-      skillratio = 150 + 25*skill_lv;
+      skillratio = 250 + 50*skill_lv;
       break;
     case WR_PILEBUNKER:
-      skillratio = 175 + 75*skill_lv;
+      skillratio = 250 + 75*skill_lv;
       break;
     case WR_ECHOBLADE:
-      skillratio = 300 + 100*skill_lv;
+      skillratio = 500 + 300*skill_lv;
       break;
     case WR_BULWARKBOOMERANG:
       skillratio += 50*skill_lv;
@@ -3255,7 +3269,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
       skillratio += 50*skill_lv;
       break;
     case WR_BULWARKBASH:
-      skillratio = 200 + 75*skill_lv;
+      skillratio = 300 + 100*skill_lv;
       break;
 		case SM_BASH:
 		case MS_BASH:
@@ -3324,7 +3338,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		}
 		case KN_BOWLINGBASH:
 		case MS_BOWLINGBASH:
-			skillratio = 100 + 75 * skill_lv;
+			skillratio = 200 + 75 * skill_lv;
 			break;
 		case AS_GRIMTOOTH:
 			skillratio += 20*skill_lv;
@@ -5067,8 +5081,13 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 	wd = battle_calc_multi_attack(wd, src, target, skill_id, skill_lv);
 
 	// crit check is next since crits always hit on official [helvetica]
-	if (is_attack_critical(wd, src, target, skill_id, skill_lv, true))
-		wd.type = DMG_CRITICAL;
+	if (is_attack_critical(wd, src, target, skill_id, skill_lv, true)) {
+		if(wd.type == DMG_MULTI_HIT)
+      wd.type = DMG_MULTICRIT;
+    else
+      wd.type = DMG_CRITICAL;
+  }
+
 
 	// check if we're landing a hit
 	if(!is_attack_hitting(wd, src, target, skill_id, skill_lv, true))
@@ -5324,6 +5343,16 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 
 	wd = battle_calc_weapon_final_atk_modifiers(wd, src, target, skill_id, skill_lv);
 
+  if( sd && skill_id ) { // Hydrangea Sword bonus skill damage
+    short index = sd->equip_index[EQI_HAND_R];
+    if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->nameid == 53000)
+    wd.damage += (wd.damage * ((sd->status.inventory[index].attribute*2*15 / 100) + 15) * sd->status.inventory[index].refine / 100) / 100;
+  }
+  
+  if(sc && tsc)
+		if(sc->data[SC_POISONIMPRINT] && tsc->data[SC_POISON])
+			wd.damage += wd.damage * sc->data[SC_POISONIMPRINT]->val1 * 15 / 1000;
+
   strMod = (85+rnd()%30)+(mystatus->str);
 	wd.damage = (wd.damage * strMod) / 100;
 	
@@ -5459,6 +5488,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 
 		switch (skill_id)
 		{	//Calc base damage according to skill
+			case TR_EXPUNGE:
+				ad.damage = 1 + rnd()%50;
+				break;
 			case AL_HEAL:
 			case PR_BENEDICTIO:
 			case PR_SANCTUARY:
@@ -5531,6 +5563,30 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 				}
 
 				switch(skill_id){
+          case TR_SLUDGEBOMB:
+            skillratio += 50 + 25 * skill_lv;
+            break;
+          case TR_POISONBLOW:
+						skillratio += 80 + 35 * skill_lv;
+						break;
+					case TR_EXPUNGE:
+						skillratio = 0;
+						break;
+					case TR_EXPUNGE_SPLASH:
+						skillratio = 1000 + 250 * skill_lv;
+						break;
+					case TR_TERRASPINE:
+						skillratio += 50 + 50 * skill_lv;
+						break;
+					case TR_HEAVENSDRIVE:
+						skillratio += 75 + 75 * skill_lv;
+						break;
+					case TR_GROUNDRIFT:
+						skillratio += 100 + 125 * skill_lv;
+						break;
+					case TR_EARTHSHUDDER:
+						skillratio += 300 + 200 * skill_lv;
+						break;
           case SC_ARCANECANNON: { // [ADGTH]
               struct Damage wd;
               skillratio = 200+10*pc_checkskill(sd, SC_FIRESPIRIT);
@@ -6108,10 +6164,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 		MATK_ADDRATE(skill_damage);
 #endif
 
-
   if (is_attack_critical(ad, src, target, skill_id, skill_lv, (ad.type == DMG_ENDURE) ? false : true)) {
     if (sd) { //Check for player so we don't crash out, monsters don't have bonus crit rates [helvetica] // [ADGTH]
       ad.damage = (int)floor((float)((ad.damage * (125 + sd->bonus.crit_atk_rate + sd->battle_status.dex)) / 100));//(int)floor((float)((wd.damage * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
+      ad.type = DMG_CRITICAL;
     }
   }
 

@@ -744,7 +744,7 @@ void clif_dropflooritem(struct flooritem_data* fitem)
 {
 #if PACKETVER >= 20130000
 //	uint8 buf[19];
-  uint8 buf[21];
+  uint8 buf[25];
 	uint32 header=0x84b;
 #else
 	uint8 buf[17];
@@ -778,8 +778,12 @@ void clif_dropflooritem(struct flooritem_data* fitem)
 	WBUFW(buf, offset+15) = fitem->item.amount;
 	WBUFB(buf, offset+17) = fitem->item.refine;
 	WBUFB(buf, offset+18) = fitem->item.attribute;
+	WBUFB(buf, offset+19) = fitem->item.card[0];
+	WBUFB(buf, offset+20) = fitem->item.card[1];
+	WBUFB(buf, offset+21) = fitem->item.card[2];
+	WBUFB(buf, offset+22) = fitem->item.card[3];
 
-	clif_send(buf, packet_len(header)+2, &fitem->bl, AREA);
+	clif_send(buf, packet_len(header)+6, &fitem->bl, AREA);
 }
 
 

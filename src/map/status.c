@@ -807,12 +807,18 @@ void initChangeTables(void)
 
 	set_sc_with_vfx( SC_ALL_RIDING		, SC_ALL_RIDING		, SI_ALL_RIDING		, SCB_SPEED );
 	
-	/* Sorcerer [ADGTH] */
+	/* ADGTH Status Effects */
 	set_sc( SC_INVIGORATE		, SC_INVIG		, SI_INVIG		, SCB_ALL );
 	set_sc( SC_ENERGIZE		, SC_ENERG		, SI_ENERG		, SCB_ASPD|SCB_SPEED );
   add_sc( SC_PLASMAFIELD			, SC_STUN		);
   add_sc( SC_FLASHFREEZE			, SC_FREEZE		);
+  
   set_sc( WR_PILEBUNKER   , SC_SHATTER  , SI_SHATTER, SCB_DEF);
+  
+	set_sc( TR_STONESTANCE , SC_STONESTANCE, SI_BLANK, SCB_DEF|SCB_SPEED );
+	set_sc( TR_POISONIMPRINT, SC_POISONIMPRINT, SI_BLANK, SCB_ATK_ELE);
+	set_sc( TR_EARTHENSHIELD, SC_EARTHENSHIELD, SI_BLANK, SCB_NONE);
+	set_sc( TR_TOXICDELUGE		, SC_QUAGMIRE		, SI_QUAGMIRE		, SCB_SPEED );
 	
 
 	/* Storing the target job rather than simply SC_SPIRIT simplifies code later on */
@@ -1418,7 +1424,7 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 			status_change_end(target, SC_WINKCHARM, INVALID_TIMER);
 			status_change_end(target, SC_CONFUSION, INVALID_TIMER);
 			status_change_end(target, SC_TRICKDEAD, INVALID_TIMER);
-			status_change_end(target, SC_HIDING, INVALID_TIMER);
+			//status_change_end(target, SC_HIDING, INVALID_TIMER);
 			status_change_end(target, SC_CLOAKING, INVALID_TIMER);
 			status_change_end(target, SC_CHASEWALK, INVALID_TIMER);
 			status_change_end(target, SC_CAMOUFLAGE, INVALID_TIMER);
@@ -4082,15 +4088,17 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 		return;
 
 	// No HP or SP regen
-	if ((sc->data[SC_POISON] && !sc->data[SC_SLOWPOISON])
-		|| (sc->data[SC_DPOISON] && !sc->data[SC_SLOWPOISON])
+	if ((sc->data[SC_DPOISON] && !sc->data[SC_SLOWPOISON])
 		|| sc->data[SC_BERSERK]
 		|| sc->data[SC_TRICKDEAD]
-		|| sc->data[SC_BLEEDING]
 		|| sc->data[SC_MAGICMUSHROOM]
 		|| sc->data[SC_SATURDAYNIGHTFEVER]
 		|| sc->data[SC_REBOUND])
 		regen->flag = RGN_NONE;
+		
+	// Poison & Bleed - No HP Regen [adgth]
+	if(sc->data[SC_POISON] || sc->data[SC_BLEEDING])
+		regen->flag &= ~RGN_HP;
 
 	// No natural SP regen
 	if (sc->data[SC_DANCING] ||
@@ -4988,8 +4996,8 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 		agi += 4; // Added based on skill updates [Reddozen]
 	if(sc->data[SC_DECREASEAGI])
 		agi -= sc->data[SC_DECREASEAGI]->val2;
-	if(sc->data[SC_QUAGMIRE])
-		agi -= sc->data[SC_QUAGMIRE]->val2;
+	/*if(sc->data[SC_QUAGMIRE])
+		agi -= sc->data[SC_QUAGMIRE]->val2;*/
 	if(sc->data[SC_SUITON] && sc->data[SC_SUITON]->val3)
 		agi -= sc->data[SC_SUITON]->val2;
 	if(sc->data[SC_MARIONETTE])
@@ -5198,8 +5206,8 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 		dex += sc->data[SC_HAWKEYES]->val1;
 	if(sc->data[SC_TRUESIGHT])
 		dex += 5;
-	if(sc->data[SC_QUAGMIRE])
-		dex -= sc->data[SC_QUAGMIRE]->val2;
+	/*if(sc->data[SC_QUAGMIRE])
+		dex -= sc->data[SC_QUAGMIRE]->val2;*/
 	if(sc->data[SC_BLESSING]) {
 		if (sc->data[SC_BLESSING]->val2)
 			dex += sc->data[SC_BLESSING]->val2;
@@ -5798,6 +5806,7 @@ static defType status_calc_def(struct block_list *bl, struct status_change *sc, 
 	if(!sc || !sc->count)
 		return (defType)cap_value(def,DEFTYPE_MIN,DEFTYPE_MAX);
 
+
   if(sc->data[SC_SHATTER])
 		return 0;
 	if(sc->data[SC_BERSERK])
@@ -5823,6 +5832,10 @@ static defType status_calc_def(struct block_list *bl, struct status_change *sc, 
 	if(sc->data[SC_DEFENCE])
 		def += sc->data[SC_DEFENCE]->val2 ;
 #endif
+	if(sc->data[SC_POISON])
+		def /= 2;
+	if(sc->data[SC_STONESTANCE])
+		def += sc->data[SC_STONESTANCE]->val2;
 	if(sc->data[SC_INCDEFRATE])
 		def += def * sc->data[SC_INCDEFRATE]->val1/100;
 	if(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 2)
@@ -5919,8 +5932,6 @@ static signed short status_calc_def2(struct block_list *bl, struct status_change
 	if(sc->data[SC_CONCENTRATION])
 		def2 -= def2 * sc->data[SC_CONCENTRATION]->val4/100;
 #endif
-	if(sc->data[SC_POISON])
-		def2 -= def2 * 25/100;
 	if(sc->data[SC_DPOISON])
 		def2 -= def2 * 25/100;
 	if(sc->data[SC_SKE])
@@ -6103,7 +6114,7 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 
 			if( sc->data[SC_DECREASEAGI] || sc->data[SC_ADORAMUS] )
 				val = max( val, 25 );
-			if( sc->data[SC_QUAGMIRE] || sc->data[SC_HALLUCINATIONWALK_POSTDELAY] || (sc->data[SC_GLOOMYDAY] && sc->data[SC_GLOOMYDAY]->val4) )
+			if( sc->data[SC_HALLUCINATIONWALK_POSTDELAY] || (sc->data[SC_GLOOMYDAY] && sc->data[SC_GLOOMYDAY]->val4) )
 				val = max( val, 50 );
 			if( sc->data[SC_DONTFORGETME] )
 				val = max( val, sc->data[SC_DONTFORGETME]->val3 );
@@ -6234,6 +6245,12 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 	if(sc->data[SC_SPIRIT_3] && sc->data[SC_SPIRIT_3]->val1 == SCS_WIND) {
     speed -= 16*sc->data[SC_SPIRIT_3]->val3/50;
 	}*/
+	
+	if(sc->data[SC_STONESTANCE])
+		speed *= 2;
+		
+	if(sc->data[SC_QUAGMIRE])
+		speed += speed * (20 + 10 * sc->data[SC_QUAGMIRE]->val1 * 3) / 100;
 
 	return (unsigned short)cap_value(speed, MIN_WALK_SPEED, MAX_WALK_SPEED);
 }
@@ -6701,7 +6718,7 @@ unsigned char status_calc_attack_element(struct block_list *bl, struct status_ch
 	if(sc->data[SC_WINDWEAPON]
 		|| (sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 2) )
 		return ELE_WIND;
-	if(sc->data[SC_ENCPOISON])
+	if(sc->data[SC_ENCPOISON] || sc->data[SC_POISONIMPRINT])
 		return ELE_POISON;
 	if(sc->data[SC_ASPERSIO])
 		return ELE_HOLY;
@@ -7340,25 +7357,6 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 		sc = NULL;
 
 	switch (type) {
-		case SC_POISON:
-		case SC_DPOISON:
-			sc_def = status->vit*100;
-			sc_def2 = status->luk*10 + status_get_lv(bl)*10 - status_get_lv(src)*10;
-			if (sd) {
-				// For players: 60000 - 450*vit - 100*luk
-				tick_def = status->vit*75;
-				tick_def2 = status->luk*100;
-			} else {
-				// For monsters: 30000 - 200*vit
-				tick>>=1;
-				tick_def = (status->vit*200)/3;
-			}
-			break;
-		case SC_STUN:
-			sc_def = status->vit*100;
-			sc_def2 = status->luk*10 + status_get_lv(bl)*10 - status_get_lv(src)*10;
-			tick_def2 = status->luk*10;
-			break;
 		case SC_SILENCE:
 #ifndef RENEWAL
 			sc_def = status->vit*100;
@@ -7369,35 +7367,10 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 #endif
 			tick_def2 = status->luk*10;
 			break;
-		case SC_BLEEDING:
-#ifndef RENEWAL
-			sc_def = status->vit*100;
-			sc_def2 = status->luk*10 + status_get_lv(bl)*10 - status_get_lv(src)*10;
-#else
-			sc_def = status->agi*100;
-			sc_def2 = status->luk*10 + status_get_lv(bl)*10 - status_get_lv(src)*10;
-#endif
-			tick_def2 = status->luk*10;
-			break;
-		case SC_SLEEP:
-#ifndef RENEWAL
-			sc_def = status->int_*100;
-			sc_def2 = status->luk*10 + status_get_lv(bl)*10 - status_get_lv(src)*10;
-#else
-			sc_def = status->agi*100;
-			sc_def2 = (status->int_ + status->luk) * 5 + status_get_lv(bl)*10 - status_get_lv(src)*10;
-#endif
-			tick_def2 = status->luk*10;
-			break;
 		case SC_STONE:
 			sc_def = status->mdef*100;
 			sc_def2 = status->luk*10 + status_get_lv(bl)*10 - status_get_lv(src)*10;
 			tick_def = 0; // No duration reduction
-			break;
-		case SC_FREEZE:
-			sc_def = status->mdef*100;
-			sc_def2 = status->luk*10 + status_get_lv(bl)*10 - status_get_lv(src)*10;
-			tick_def2 = status_src->luk*-10; // Caster can increase final duration with luk
 			break;
 		case SC_CURSE:
 			// Special property: immunity when luk is zero
@@ -7406,11 +7379,6 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 			sc_def = status->luk*100;
 			sc_def2 = status->luk*10 - status_get_lv(src)*10; // Curse only has a level penalty and no resistance
 			tick_def = status->vit*100;
-			tick_def2 = status->luk*10;
-			break;
-		case SC_BLIND:
-			sc_def = (status->vit + status->int_)*50;
-			sc_def2 = status->luk*10 + status_get_lv(bl)*10 - status_get_lv(src)*10;
 			tick_def2 = status->luk*10;
 			break;
 		case SC_CONFUSION:
@@ -8645,6 +8613,10 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				val3 = (val1 / 2 + 5);
 			}
 			break;
+		case SC_EARTHENSHIELD:
+			if(val2 <= 0)
+				val2 = 1;
+		break;
 		case SC_MAGICPOWER:
 			// val1: Skill lv
 			val2 = 1; // Lasts 1 invocation
@@ -8657,6 +8629,8 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			break;
 		case SC_ENCPOISON:
 			val2= 250+50*val1; // Poisoning Chance (2.5+0.5%) in 1/10000 rate
+		case SC_POISONIMPRINT:
+			val2 = val1 * 500 + 2500;
 		case SC_ASPERSIO:
 		case SC_FIREWEAPON:
 		case SC_WATERWEAPON:
@@ -8849,10 +8823,15 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if(val3 < 1) val3 = 1;
 			tick_time = 1000; // [GodLesZ] tick time
 			// val4: HP damage
-			if (bl->type == BL_PC)
-				val4 = (type == SC_DPOISON) ? 2 + status->max_hp/50 : 2 + status->max_hp*3/200;
+			if (bl->type == BL_PC && sd) {
+				if(pc_checkskill(sd,TR_IMMUNITY)) {
+					val4 = status->max_hp * ((pc_checkskill(sd,TR_IMMUNITY) * 25) + 75) / 10000;
+				} else {
+					val4 = 1 + status->max_hp/50;
+				}
+			}
 			else
-				val4 = (type == SC_DPOISON) ? 2 + status->max_hp/100 : 2 + status->max_hp/200;
+				val4 = 1 + status->max_hp/50;
 			break;
 
 		case SC_CONFUSION:
@@ -8863,6 +8842,19 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val4 = tick/10000;
 			if (!val4) val4 = 1;
 			tick_time = 10000; // [GodLesZ] tick time
+			break;
+			
+		case SC_STONESTANCE:
+			val3 = status->max_hp * val1 / 100;
+			if( (val4 = tick/1000) < 1 )
+				val4 = 1;
+			tick_time = 1000;
+			break;
+			
+		case SC_NATURALCURE:
+			if( (val4 = tick/1000) < 1 )
+				val4 = 1;
+			tick_time = 1000;
 			break;
 			
 		case SC_ENERG:
@@ -8922,10 +8914,10 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			}
 			break;
 		case SC_HIDING:
-			val2 = tick/1000;
+			/*val2 = tick/1000;
 			tick_time = 1000; // [GodLesZ] tick time
 			val3 = 0; // Unused, previously speed adjustment
-			val4 = val1+3; // Seconds before SP substraction happen.
+			val4 = val1+3; // Seconds before SP substraction happen.*/
 			break;
 		case SC_CHASEWALK:
 			val2 = tick>0?tick:10000; // Interval at which SP is drained.
@@ -11624,14 +11616,14 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		break;
 
 	case SC_HIDING:
-		if(--(sce->val2)>0) {
+		/*if(--(sce->val2)>0) {
 
 			if(sce->val2 % sce->val4 == 0 && !status_charge(bl, 0, 1))
 				break; // Fail if it's time to substract SP and there isn't.
 
 			sc_timer_next(1000+tick, status_change_timer,bl->id, data);
 			return 0;
-		}
+		}*/
 	break;
 
 	case SC_SIGHT:
@@ -11688,8 +11680,11 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 						mob_log_damage((TBL_MOB*)bl,src,sce->val4);
 				}
 				map_freeblock_lock();
-				if(status->hp >= max(status->max_hp>>2, sce->val4)) // Stop damaging after 25% HP left.
+				if(sd && pc_checkskill(sd,TR_IMMUNITY))
+					status_heal(bl, sce->val4, 0, 1);
+				else
 					status_zap(bl, sce->val4, 0);
+					
 				if (sc->data[type]) { // Check if the status still last ( can be dead since then ).
 					sc_timer_next(1000 + tick, status_change_timer, bl->id, data );
 				}
@@ -11750,7 +11745,23 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			return 0;
 		}
 		break;
-
+		
+	case SC_STONESTANCE:
+		if( sd && --(sce->val4) >= 0 ) {
+			status_heal(bl, sce->val3, 0, 2);
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+		
+	case SC_NATURALCURE:
+		if( sd && --(sce->val4) >= 0 ) {
+			status_heal(bl, sce->val1, 0, 2);
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+		
 	case SC_BOSSMAPINFO:
 		if( sd && --(sce->val4) >= 0 ) {
 			struct mob_data *boss_md = map_id2boss(sce->val1);
@@ -12836,12 +12847,10 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 	{ // Apply sitting regen bonus.
 		sregen = regen->ssregen;
 		if(flag&(RGN_SHP)) { // Sitting HP regen
-			rate = (int)(natural_heal_diff_tick * (sregen->rate.hp / 10.));
+			rate = (int)(natural_heal_diff_tick * (sregen->rate.hp / 100.));
 			
-			/*if (regen->state.overweight)
-				rate >>= 1; // Half as fast when overweight.*/
-				
-      //rate *= 10; // [ADGTH]
+			if (regen->state.overweight)
+				rate >>= 1; // Half as fast when overweight.
       
 			sregen->tick.hp += rate;
 			while(sregen->tick.hp >= (unsigned int)battle_config.natural_heal_skill_interval) {
@@ -12885,7 +12894,7 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 		if(!vd)
 			vd = status_get_viewdata(bl);
 		if(vd && vd->dead_sit == 2)
-			bonus += 100;
+			bonus += 900;
 		if(regen->state.gc)
 			bonus += 100;
 	}
@@ -12894,13 +12903,14 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 	if (flag&RGN_HP) {
 		rate = (int)(natural_heal_diff_tick * (regen->rate.hp/100. + bonus/100.));
 		if (ud && ud->walktimer != INVALID_TIMER)
-			rate /= 2;
+			rate /= 2;		
+			
 		// Homun HP regen fix (they should regen as if they were sitting (twice as fast)
 		if(bl->type == BL_HOM)
 			rate *= 2;
 			
-    if(bl->type == BL_PC) // Very slow standing HP regen. [ADGTH]
-			rate = rate / 2;
+		if(bl->type == BL_PC)
+			rate /= 10;
 			
 		regen->tick.hp += rate;
 
@@ -12917,9 +12927,9 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 
 	// Natural SP regen
 	if(flag&RGN_SP) {
-		rate = (int)(natural_heal_diff_tick * (regen->rate.sp/100. + bonus/100.));
+		rate = (int)(natural_heal_diff_tick * (regen->rate.sp/100. + bonus/1000.));
 		// Homun SP regen fix (they should regen as if they were sitting (twice as fast)
-		if(bl->type==BL_PC) // Regerate SP 10 times as slowly [ADGTH]
+		if(bl->type==BL_PC) // Regerate SP 20 times as slowly [ADGTH]
 			rate /= 10;
 		if(bl->type==BL_HOM)
 			rate *= 2;
@@ -12934,6 +12944,9 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 			int val = 0;
 			do {
 				val += regen->sp;
+				if (sd && pc_checkskill(sd,TR_LEYLINEWALKER) && ud && ud->walktimer != INVALID_TIMER) {
+					val += val * (pc_checkskill(sd,TR_LEYLINEWALKER) * 10) / 100;
+				}
 				regen->tick.sp -= battle_config.natural_healsp_interval;
 			} while(regen->tick.sp >= (unsigned int)battle_config.natural_healsp_interval);
 			if (status_heal(bl, 0, val, 1) < val)
