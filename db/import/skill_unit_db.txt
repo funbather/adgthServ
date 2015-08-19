@@ -31,6 +31,6 @@
 4010,0x86,    ,  0, 5,2000,enemy, 0x010	//SC_ARCANEVORTEX
 4047,0x86,    ,  0, 3,2000,enemy, 0x010 //TR_POISONBLOW
 4048,0x8e,    ,  3, 0,-1  ,enemy, 0x010 //TR_TOXICDELUGE
-4051,0x86,    ,  0, 4,2000,enemy, 0x010 //TR_HEAVENSDRIVE
+4051,0x86,    ,  3, 0,2000,enemy, 0x010 //TR_HEAVENSDRIVE
 4052,0xcb,    , -1, 2,2000,enemy, 0x018	//WL_EARTHSTRAIN
-4049,0x86,    ,  5, 1,2000,enemy, 0x010 //TR_HEAVENSDRIVE
+4049,0x86,    ,  5, 1,2000,enemy, 0x010 //TR_EXPUNGE
