@@ -71,7 +71,7 @@
   }
   
   OnNPCKillEvent:
-    HeyAnItemDrop(8,getmonsterinfo(killedrid,1)); // Three chances, starting at a base of 8%, 4%, 2%
-    HeyAnItemDrop(4,getmonsterinfo(killedrid,1));
-    HeyAnItemDrop(2,getmonsterinfo(killedrid,1));
+    HeyAnItemDrop(20,getmonsterinfo(killedrid,1)); // Three chances, starting at a base of 20%, 10%, 5%
+    HeyAnItemDrop(10,getmonsterinfo(killedrid,1));
+    HeyAnItemDrop(5,getmonsterinfo(killedrid,1));
 }

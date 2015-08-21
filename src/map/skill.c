@@ -3951,6 +3951,7 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 						map_foreachinarea(skill_cell_overlap, src->m, skl->x-i, skl->y-i, skl->x+i, skl->y+i, BL_SKILL, skl->skill_id, &dummy, src);
 					}
 				case TR_GROUNDRIFT:
+					clif_specialeffect(src, 2004, AREA);
 				case WL_EARTHSTRAIN:
 					skill_unitsetting(src,skl->skill_id,skl->skill_lv,skl->x,skl->y,(skl->type<<16)|skl->flag);
 					break;
@@ -5980,6 +5981,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
     
   case TR_STONESTANCE:
 		sc_start4(src,src,(enum sc_type)SC_STONESTANCE,100,skill_lv+5,pc_checkskill(sd,TR_STONESTANCE)*3,1,1,5000);
+    clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
 		break;
 		
   case TR_NATURALCURE:
@@ -5990,17 +5992,20 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			status_change_end(bl, SC_BLIND, INVALID_TIMER);
 			sc_start4(src,bl,(enum sc_type)SC_NATURALCURE,100,sd->status.max_hp * (skill_lv * 15 + 50) / 1000,1,1,1,4000);
 			sc_start(src,bl,(enum sc_type)SC_HIDING,100,skill_lv,4000);
+      clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
 		}
 		break;
 		
 	case TR_POISONIMPRINT:
 		status_change_end(bl, SC_POISONIMPRINT, INVALID_TIMER);
 		sc_start(src,bl,(enum sc_type)SC_POISONIMPRINT,100,skill_lv,30000);
+    clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
 		break;
 
 	case TR_EARTHENSHIELD:
 		status_change_end(bl, SC_EARTHENSHIELD, INVALID_TIMER);
 		sc_start2(src,bl,SC_EARTHENSHIELD,100,skill_lv,(sd->battle_status.matk_max * (skill_lv * 25 + 100)) / 100,-1);
+    clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
 		break;
 		
   // Invoke [ADGTH]
@@ -6986,6 +6991,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
     status_damage(src, src, 0,55,0,1);
     sc_start(src,src,WWI_EXHAUST,100,10,12000 - pc_checkskill(sd,SC_WINDSPIRIT) * 200);
   case TR_EARTHSHUDDER:
+  	if(sd && skill_id == TR_EARTHSHUDDER)
+			clif_specialeffect(src, 2006, AREA);
 	case NJ_HYOUSYOURAKU:
 	case NJ_RAIGEKISAI:
 	case WZ_FROSTNOVA:
@@ -11456,8 +11463,12 @@ int skill_castend_pos2(struct block_list* src, int x, int y, uint16 skill_id, ui
       sc_start(src,src,WWW_EXHAUST,100,10,21000-pc_checkskill(sd,SC_WINDSPIRIT)*333);
     }
   case TR_TOXICDELUGE:
+  	if(sd && skill_id == TR_TOXICDELUGE)
+			clif_specialeffect(src, 2005, AREA);
   case TR_POISONBLOW:
   case TR_HEAVENSDRIVE:
+  	if(sd && skill_id == TR_HEAVENSDRIVE)
+			clif_specialeffect(src, 2003, AREA);
 	case MG_SAFETYWALL:
 	case MG_FIREWALL:
 	case MG_THUNDERSTORM:
@@ -13221,6 +13232,7 @@ int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *bl, uns
 
 	switch (sg->unit_id) {
 		// Units that deals simple attack
+		case UNT_POISONBLOW:
 		case UNT_GRAVITATION:
 		case UNT_EARTHSTRAIN:
 		case UNT_FIREWALK:
@@ -19989,13 +20001,13 @@ void skill_init_unit_layout (void) {
 	earthstrain_unit_pos = pos;
 	for( i = 0; i < 8; i++ )
 	{ // For each Direction
-		skill_unit_layout[pos].count = 15;
+		skill_unit_layout[pos].count = 9;
 		switch( i )
 		{
 		case 0: case 1: case 3: case 4: case 5: case 7:
 			{
-				int dx[] = {-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7};
-				int dy[] = { 0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0};
+				int dx[] = {-4, -3, -2, -1, 0, 1, 2, 3, 4};
+				int dy[] = { 0,  0,  0,  0, 0, 0, 0, 0, 0};
 				memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
 				memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
 			}
@@ -20003,8 +20015,8 @@ void skill_init_unit_layout (void) {
 		case 2:
 		case 6:
 			{
-				int dx[] = { 0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0};
-				int dy[] = {-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7};
+				int dx[] = { 0,  0,  0,  0, 0, 0, 0, 0, 0};
+				int dy[] = {-4, -3, -2, -1, 0, 1, 2, 3, 4};
 				memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
 				memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
 			}

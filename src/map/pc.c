@@ -3890,6 +3890,15 @@ int pc_skill(TBL_PC* sd, int id, int level, int flag)
 			if( !skill_get_inf(id) ) //Only recalculate for passive skills.
 				status_calc_pc(sd, SCO_NONE);
 			break;
+		case 8: //Add to skill, but do not grant it
+			if( sd->status.skill[id].id == id ) {
+				if( sd->status.skill[id].flag == SKILL_FLAG_PERMANENT )
+					sd->status.skill[id].flag = SKILL_FLAG_REPLACED_LV_0 + sd->status.skill[id].lv; // Store previous level.
+			} else {
+				return 0;
+			}
+			sd->status.skill[id].lv += level;
+			break;
 		default: //Unknown flag?
 			return 0;
 	}
