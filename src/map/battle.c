@@ -2187,13 +2187,24 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 
 	if (skill_id == NPC_CRITICALSLASH || skill_id == LG_PINPOINTATTACK) //Always critical skills
 		return true;
+		
+	if(sd && sd->bonus.nocrits) {
+		if((sd->bonus.nocrits & 1) && !skill_id) //Flag 1 - No basic attack critical hits
+			return false;
+		if((sd->bonus.nocrits & 2) && skill_id)  //Flag 2 - No skill critical hits
+			return false;
+	}
+	
+	if(sd && sd->bonus.critvssc) {
+		if(tsc && tsc->data[SC_FREEZE] && (sd->bonus.critvssc & 2)) // SC_FREEZE
+			return true;
+	}
 
 	/*if( !(wd.type&DMG_MULTI_HIT) && sstatus->cri && (!skill_id ||
 		skill_id == KN_AUTOCOUNTER || skill_id == SN_SHARPSHOOTING ||
 		skill_id == MA_SHARPSHOOTING || skill_id == NJ_KIRIKAGE))*/
     //if( !(wd.type&DMG_MULTI_HIT) && sstatus->cri)
-    if(sstatus->cri)
-	{
+    if(sstatus->cri) {
 		short cri = sstatus->cri;
 
 		if (sd) {
@@ -5168,7 +5179,11 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 #ifdef RENEWAL
 	if (is_attack_critical(wd, src, target, skill_id, skill_lv, false)) {
 		if (sd) { //Check for player so we don't crash out, monsters don't have bonus crit rates [helvetica] // [ADGTH]
-			wd.damage = (int)floor((float)((wd.damage * (125 + sd->bonus.crit_atk_rate + mystatus->dex)) / 100));//(int)floor((float)((wd.damage * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
+			wd.damage = (int)floor((float)((wd.damage * (125 + sd->bonus.crit_atk_rate + mystatus->dex)) / 100));
+			if(sd->bonus.sccrit & 1) { // SC_IGNITE
+				sc_start(src,target,SC_IGNITE,100,1,5000);
+			}
+			
 			if (is_attack_left_handed(src, skill_id))
 				wd.damage2 = (int)floor((float)((wd.damage2 * (125 + sd->bonus.crit_atk_rate + mystatus->dex)) / 100));//(int)floor((float)((wd.damage2 * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
 		} else
@@ -5343,10 +5358,20 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 
 	wd = battle_calc_weapon_final_atk_modifiers(wd, src, target, skill_id, skill_lv);
 
-  if( sd && skill_id ) { // Hydrangea Sword bonus skill damage
-    short index = sd->equip_index[EQI_HAND_R];
-    if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->nameid == 53000)
-    wd.damage += (wd.damage * ((sd->status.inventory[index].attribute*2*15 / 100) + 15) * sd->status.inventory[index].refine / 100) / 100;
+  if( sd && skill_id ) { // Actually did some effort instead of hardcoding skill damage bonus
+    wd.damage += wd.damage * sd->bonus.skilldamage / 100;
+  }
+  
+  if( sd && sd->bonus.backstab ) {
+			uint8 dir = map_calc_dir(src, target->x, target->y), t_dir = unit_getdir(target);
+			if ((!check_distance_bl(src, target, 0) && !map_check_dir(dir, t_dir)) || target->type == BL_SKILL) {
+				wd.damage += wd.damage * sd->bonus.backstab / 100;
+			}
+  }
+  
+  if( sd && sd->bonus.duelbonus ) {
+		if(unit_counttargeted(src) == 1)
+			wd.damage += wd.damage * sd->bonus.duelbonus / 100;
   }
   
   if(sc && tsc)
@@ -5356,8 +5381,17 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
   strMod = (85+rnd()%30)+(mystatus->str);
 	wd.damage = (wd.damage * strMod) / 100;
 	
-  if(pc_checkskill(sd, ALL_POWER))
+  if(sd && pc_checkskill(sd, ALL_POWER))
     wd.damage += wd.damage * (sd, ALL_POWER) / 100;
+    
+  if( sd && sd->bonus.executioner ) { // Absolute last check, gib target
+	  struct status_data *tstatus = status_get_status_data(target);
+	  
+		if((tstatus->hp * 100) / tstatus->max_hp <= sd->bonus.executioner) {
+			wd.damage = 1000000 + rnd()%2000000;
+			wd.type = DMG_CRITICAL;
+		}
+  }
 
 	battle_do_reflect(BF_WEAPON,&wd, src, target, skill_id, skill_lv); //WIP [lighta]
 	return wd;
@@ -5624,12 +5658,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case MG_FIREBOLT:
 					case MG_COLDBOLT:
 					case MG_LIGHTNINGBOLT:
-						if ( sc && sc->data[SC_SPELLFIST] && mflag&BF_SHORT )  {
-							skillratio += (sc->data[SC_SPELLFIST]->val4 * 100) + (sc->data[SC_SPELLFIST]->val1 * 50) - 100;// val4 = used bolt level, val2 = used spellfist level. [Rytech]
-							ad.div_ = 1;// ad mods, to make it work similar to regular hits [Xazax]
-							ad.flag = BF_WEAPON|BF_SHORT;
-							ad.type = DMG_NORMAL;
-						}
+						skillratio = 125 + 25 * skill_lv;
+						break;
+					case WZ_EARTHSPIKE:
+						skillratio = 150 + 50 * skill_lv;
 						break;
 					case MG_THUNDERSTORM:
 						// in Renewal Thunder Storm boost is 100% (in pre-re, 80%)

@@ -2932,6 +2932,27 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 			if (sd->state.lr_flag != 2)
 				sd->max_weight += val;
 			break;
+		case SP_SKILLDAMAGE: 
+			sd->bonus.skilldamage += val;
+			break;
+		case SP_NOCRITS: 
+			sd->bonus.nocrits += val;
+			break;
+		case SP_BACKSTAB:
+			sd->bonus.backstab += val;
+			break;
+		case SP_SCCRIT:
+			sd->bonus.sccrit += val;
+			break;
+		case SP_CRITVSSC:
+			sd->bonus.critvssc += val;
+			break;
+		case SP_DUELBONUS:
+			sd->bonus.duelbonus += val;
+			break;
+		case SP_EXECUTIONER:
+			sd->bonus.executioner += val;
+			break;
 		default:
 			ShowWarning("pc_bonus: unknown type %d %d !\n",type,val);
 			break;

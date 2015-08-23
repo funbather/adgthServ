@@ -268,3 +268,8 @@ delay_rate: 10
 // Minimum allowed delay for ANY skills after casting (in milliseconds) (Note 1)
 // Note: Setting this to anything above 0 can stop speedhacks.
 min_skill_delay_limit: 10
+
+// Should the equipped weapon's range override the skill's range defined in the skill_db for most weapon-based skills? (Note 3)
+// NOTE: Skills affected by this option are those whose range in the skill_db are negative. By default always the skill range is used.
+// Note that if you want all monster skills to have a range of 9 you need to set monster_ai&0x400.
+skillrange_from_weapon: 1

@@ -639,6 +639,13 @@ bVit2 3002
 bInt2 3003
 bDex2 3004
 bLuk2 3005
+bSkillDamage 3006
+bNoCrits 3007
+bBackstab 3008
+bSCCrit 3009
+bCritVSSC 3010
+bDuelBonus 3011
+bExecutioner 3012
 
 EQI_HEAD_TOP	1
 EQI_ARMOR	2
@@ -689,6 +696,7 @@ Eff_Bleeding	9
 Eff_DPoison	10
 Eff_Fear	309
 Eff_Burning	310
+Eff_Ignite 652
 
 Ele_Neutral	0
 Ele_Water	1

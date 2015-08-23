@@ -423,6 +423,13 @@ struct map_session_data {
 		int add_fixcast, add_varcast; // in milliseconds
 		int ematk; // matk bonus from equipment
 		int eatk; // atk bonus from equipment
+		int skilldamage;
+		unsigned short nocrits;
+		int backstab;
+		unsigned int sccrit;
+		unsigned int critvssc;
+		unsigned int duelbonus;
+		unsigned int executioner;
 	} bonus;
 	// zeroed vars end here.
 

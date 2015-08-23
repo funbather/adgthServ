@@ -732,8 +732,9 @@ typedef enum sc_type {
 	SC_POISONIMPRINT,
 	SC_EARTHENSHIELD,
 	
-	SC_PENGUINACTIVE = 650, // 619
+	SC_PENGUINACTIVE = 650,
 	SC_JAMES,
+	SC_IGNITE,
 
 #ifdef RENEWAL
 	SC_EXTREMITYFIST2, //! NOTE: This SC should be right before SC_MAX, so it doesn't disturb if RENEWAL is disabled
@@ -1647,6 +1648,7 @@ enum sc_opt2 {
 	OPT2_BLEEDING		= 0x0040,
 	OPT2_DPOISON		= 0x0080,
 	OPT2_FEAR		= 0x0100,
+	OPT2_IGNITE = 0x0200,
 };
 
 ///opt3: (SHOW_EFST_*)
@@ -1808,11 +1810,12 @@ enum e_bonus_script_flags {
 	BSF_REM_ON_MADOGEAR			= 0x080, ///Removed when Madogear is activated or deactivated
 	BSF_REM_ON_DAMAGED			= 0x100, ///Removed when receive damage
 	BSF_PERMANENT				= 0x200, ///Cannot be removed by sc_end SC_ALL
+	BSF_MONSTER_TRANSFORM		= 0x400, ///< Also will be cleared when SC_MONSTER_TRANSFORM is ended.
 
 	// These flags better in the last of everything
 	BSF_REM_BUFF	= 0x1000,	///Remove positive buff
 	BSF_REM_DEBUFF	= 0x2000,	///Remove negative buff
-
+	
 	BSF_ALL = 0x0FFF|BSF_REM_BUFF|BSF_REM_DEBUFF,
 	BSF_CLEARALL = BSF_ALL&~BSF_PERMANENT,
 };

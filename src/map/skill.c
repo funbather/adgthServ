@@ -1064,7 +1064,19 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 	case TR_SLUDGEBOMB:
 		sc_start(src,bl,SC_POISON,20+10*skill_lv,skill_lv,30000);
 		break;
-           
+		
+	case MG_FIREBOLT:
+		sc_start(src,bl,SC_IGNITE,20,skill_lv,5000);
+		break;
+		
+	case MG_COLDBOLT:
+		sc_start(src,bl,SC_FREEZE,20,skill_lv,10000);
+		break;
+		
+	case MG_LIGHTNINGBOLT:
+		sc_start(src,bl,SC_STUN,20,skill_lv,2500);
+		break;
+		           
 	case WZ_STORMGUST:
 		// Storm Gust counter was dropped in renewal
 #ifdef RENEWAL

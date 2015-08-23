@@ -8838,14 +8838,23 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				val4 = 1 + status->max_hp/50;
 			break;
 
+		case SC_IGNITE:
+			val3 = tick/1000; // Damage iterations
+			if(val3 < 1) val3 = 1;
+			tick_time = 1000;
+			val4 = 1 + status->max_hp/16;
+			break;
+			
+		case SC_BLEEDING:
+			val3 = tick/1000; // Damage iterations
+			if(val3 < 1) val3 = 1;
+			tick_time = 1000;
+			val4 = 1 + status->max_hp/32;
+			break;
+			
 		case SC_CONFUSION:
 			if (!val4)
 				clif_emotion(bl,E_WHAT);
-			break;
-		case SC_BLEEDING:
-			val4 = tick/10000;
-			if (!val4) val4 = 1;
-			tick_time = 10000; // [GodLesZ] tick time
 			break;
 			
 		case SC_STONESTANCE:
@@ -9140,9 +9149,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if( val3 && bl->type == BL_MOB ) {
 				struct block_list* src2 = map_id2bl(val3);
 				if( src2 )
-					mob_log_damage((TBL_MOB*)bl,src2,status->hp - 1);
+					mob_log_damage((TBL_MOB*)bl,src2,status->hp);
 			}
-			status_zap(bl, status->hp-1, val2?0:status->sp);
+			status_zap(bl, status->hp, val2?0:status->sp);
 			return 1;
 			break;
 		case SC_TINDER_BREAKER2:
@@ -10343,6 +10352,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_WHITEIMPRISON:  sc->opt1 = OPT1_IMPRISON;	break;
 		case SC_CRYSTALIZE:	sc->opt1 = OPT1_CRYSTALIZE;	break;
 		// OPT2
+		case SC_IGNITE:       sc->opt2 |= OPT2_IGNITE;		break;
 		case SC_POISON:       sc->opt2 |= OPT2_POISON;		break;
 		case SC_CURSE:        sc->opt2 |= OPT2_CURSE;		break;
 		case SC_SILENCE:      sc->opt2 |= OPT2_SILENCE;		break;
@@ -11113,6 +11123,8 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_MONSTER_TRANSFORM:
 			if (sce->val2)
 				status_change_end(bl, (sc_type)sce->val2, INVALID_TIMER);
+			if (sd)
+				pc_bonus_script_clear(sd, BSF_MONSTER_TRANSFORM);
 			break;
 
 		/* 3rd Stuff */
@@ -11323,7 +11335,10 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	case SC_SIGNUMCRUCIS:
 		sc->opt2 &= ~OPT2_SIGNUMCRUCIS;
 		break;
-
+	case SC_IGNITE:
+		sc->opt2 &= ~OPT2_IGNITE;
+		break;
+		
 	case SC_HIDING:
 		sc->option &= ~OPTION_HIDE;
 		opt_flag |= 2|4; // Check for warp trigger + AoE trigger
@@ -11699,6 +11714,25 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 
 		break;
 
+  case SC_BLEEDING:
+	case SC_IGNITE:
+		if (--(sce->val3) > 0) {
+				if( sce->val2 && bl->type == BL_MOB ) {
+					struct block_list* src = map_id2bl(sce->val2);
+					if( src )
+						mob_log_damage((TBL_MOB*)bl,src,sce->val4);
+				}
+				map_freeblock_lock();
+				status_damage(bl, bl, sce->val4, 0, clif_damage(bl,bl,tick,status_get_amotion(bl),status_get_dmotion(bl)+500,sce->val4,1,DMG_NORMAL,0), 1);
+					
+				if (sc->data[type]) { // Check if the status still last ( can be dead since then ).
+					sc_timer_next(1000 + tick, status_change_timer, bl->id, data );
+				}
+				map_freeblock_unlock();
+			return 0;
+		}
+		break;
+		
 	case SC_TENSIONRELAX:
 		if(status->max_hp > status->hp && --(sce->val3) > 0) {
 			sc_timer_next(sce->val4+tick, status_change_timer, bl->id, data);
@@ -11713,26 +11747,6 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			bl->m == sd->feel_map[2].m)
 		{	// Timeout will be handled by pc_setpos
 			sce->timer = INVALID_TIMER;
-			return 0;
-		}
-		break;
-
-	case SC_BLEEDING:
-		if (--(sce->val4) >= 0) {
-			int hp =  rnd()%600 + 200;
-			struct block_list* src = map_id2bl(sce->val2);
-			if( src && bl && bl->type == BL_MOB )
-				mob_log_damage( (TBL_MOB*)bl, src, sd || hp < status->hp ? hp : status->hp - 1 );
-			map_freeblock_lock();
-			status_fix_damage(src, bl, sd||hp<status->hp?hp:status->hp-1, 1);
-			if( sc->data[type] ) {
-				if( status->hp == 1 ) {
-					map_freeblock_unlock();
-					break;
-				}
-				sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
-			}
-			map_freeblock_unlock();
 			return 0;
 		}
 		break;
@@ -12779,9 +12793,6 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 				data.tick = sc->data[i]->val4 * 4000;
 				break;
 			case SC_TOXIN:
-			case SC_BLEEDING:
-				data.tick = sc->data[i]->val4 * 10000;
-				break;
 			default:
 				continue;
 				break;

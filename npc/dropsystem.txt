@@ -22,15 +22,19 @@
       set .@random,rand(1,10000);
       
       if(.@random >= 9750-(.@magicfind * 5 / 2)) { // Check for unique - 2.5% base
-        set .@item,52000 + rand(0,1); // Fix later, only two uniques so far
-      } else {
+        switch(gettimetick(0) % 3) { // 0 - Armor, 1 - Accessory, 2 - Weapon
+          case 0: set .@item,52000+rand(0,34); break;
+          case 1: set .@item,53000+rand(0,9); break;
+          case 2: set .@item,54000+rand(0,34); break;
+        }
+      } else { // Common Item
         switch(gettimetick(0) % 2) { // 0 - Armor, 1 - Weapon
           case 0: set .@item,50000+rand(0,17); break;
           case 1: set .@item,51000+rand(0,11); break;
         }
       }
       
-      if(.@item != 52000 && .@item != 52001) { // FIX LATER!!!! Accessory check. They don't get quality/ilvl
+      if(.@item < 53000 || .@item > 53999) { // FIX LATER!!!!  I hate it. Accessory check. They don't get quality/ilvl
         if(BaseLevel > .@monlvl) { set .@ilvl,rand(.@monlvl,BaseLevel); }
         else if(.@monlvl > BaseLevel) { set .@ilvl,rand(BaseLevel,.@monlvl); }
         else { set .@ilvl,BaseLevel; }
@@ -48,20 +52,20 @@
       
       set .@random,rand(1,10000);
       
-      if(.@random >= 9500-(.@magicfind * 5)) {
-        set .@socket1,rand(54000,54018);
-        set .@socket2,rand(54000,54018);
-        set .@socket3,rand(54000,54018);
-        set .@socket4,rand(54100,54116);
+      if(.@random >= 9500-(.@magicfind * 5)) { // there's probably a less shitty way to do this but w/e lol
+        set .@socket1,rand(55000,55018);
+        set .@socket2,rand(55000,55018);
+        set .@socket3,rand(55000,55018);
+        set .@socket4,rand(55100,55118);
       } else if (.@random >= 8500-(.@magicfind * 10)) {
-        set .@socket1,rand(54000,54018);
-        set .@socket2,rand(54000,54018);
-        set .@socket3,rand(54000,54018);      
+        set .@socket1,rand(55000,55018);
+        set .@socket2,rand(55000,55018);
+        set .@socket3,rand(55000,55018);      
       } else if (.@random >= 7000-(.@magicfind * 15)) {
-        set .@socket1,rand(54000,54018);
-        set .@socket2,rand(54000,54018);     
+        set .@socket1,rand(55000,55018);
+        set .@socket2,rand(55000,55018);     
       } else if(.@random >= 4000-(.@magicfind * 30)) {
-        set .@socket1,rand(54000,54018);
+        set .@socket1,rand(55000,55018);
       } 
        
        
