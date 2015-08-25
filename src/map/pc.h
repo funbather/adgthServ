@@ -352,6 +352,10 @@ struct map_session_data {
 	struct s_addeffect addeff[MAX_PC_BONUS], addeff2[MAX_PC_BONUS];
 	struct s_addeffectonskill addeff3[MAX_PC_BONUS];
 
+	struct { // Critical Dodge courtesy of Epoque
+		short rate, hp;
+	} critical_dodge;
+
 	struct s_skill_bonus { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
 		unsigned short id;
 		short val;
@@ -425,11 +429,17 @@ struct map_session_data {
 		int eatk; // atk bonus from equipment
 		int skilldamage;
 		unsigned short nocrits;
-		int backstab;
-		unsigned int sccrit;
-		unsigned int critvssc;
-		unsigned int duelbonus;
-		unsigned int executioner;
+		unsigned short backstab;
+		unsigned short sccrit;
+		unsigned short critvssc;
+		unsigned short duelbonus;
+		unsigned short executioner;
+		unsigned short skillcrit;
+		unsigned short magiccounter;
+		unsigned int   desperate;
+		unsigned short raisedead;
+		unsigned short healevade;
+		unsigned short bravery;
 	} bonus;
 	// zeroed vars end here.
 

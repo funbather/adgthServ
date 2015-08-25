@@ -646,6 +646,13 @@ bSCCrit 3009
 bCritVSSC 3010
 bDuelBonus 3011
 bExecutioner 3012
+bSkillCrit 3013
+bMagicCounter 3014
+bDesperate 3015
+bRaiseDead 3016
+bHealEvade 3017
+bCriticalDodge 3018
+bBrave 3019
 
 EQI_HEAD_TOP	1
 EQI_ARMOR	2

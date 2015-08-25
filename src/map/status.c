@@ -1461,6 +1461,20 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 			pc_bonus_script_clear(BL_CAST(BL_PC,target),BSF_REM_ON_DAMAGED);
 		unit_skillcastcancel(target, 2);
 	}
+	
+	if (target->type == BL_PC && hp == status->hp)
+	{
+		struct map_session_data* tsd = (struct map_session_data*)target;
+ 
+		//if (tsd->special_state.last_stand > rand()%100)
+		//	hp--;
+
+		if (tsd->critical_dodge.hp > 0 && tsd->critical_dodge.rate > 0)
+		{
+			if (tsd->critical_dodge.hp >= (status->hp * 100 / status->max_hp) && tsd->critical_dodge.rate > rand()%100)
+				return 0;
+		}
+	}
 
 	status->hp-= hp;
 	status->sp-= sp;
@@ -2968,6 +2982,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->addeff)
 		+ sizeof(sd->addeff2)
 		+ sizeof(sd->addeff3)
+		+ sizeof(sd->critical_dodge)
 		+ sizeof(sd->skillatk)
 		+ sizeof(sd->skillusesprate)
 		+ sizeof(sd->skillusesp)
@@ -3496,6 +3511,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	}
 #endif
 
+	if(status->def > 90)
+    status->def = 90;
 // ----- EQUIPMENT-MDEF CALCULATION -----
 
 	// Apply relative modifiers from equipment
@@ -3512,6 +3529,9 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		status->mdef = (signed char)battle_config.max_def;
 	}
 #endif
+
+	if(status->mdef > 90)
+    status->mdef = 90;
 
 // ----- ASPD CALCULATION -----
 
@@ -3695,6 +3715,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		if( sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 3 )
 			sd->magic_addele[ELE_EARTH] += 25;
 	}
+	
 	status_cpy(&sd->battle_status, status);
 
 // ----- CLIENT-SIDE REFRESH -----
@@ -7361,16 +7382,6 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 		sc = NULL;
 
 	switch (type) {
-		case SC_SILENCE:
-#ifndef RENEWAL
-			sc_def = status->vit*100;
-			sc_def2 = status->luk*10 + status_get_lv(bl)*10 - status_get_lv(src)*10;
-#else
-			sc_def = status->int_*100;
-			sc_def2 = (status->vit + status->luk) * 5 + status_get_lv(bl)*10 - status_get_lv(src)*10;
-#endif
-			tick_def2 = status->luk*10;
-			break;
 		case SC_STONE:
 			sc_def = status->mdef*100;
 			sc_def2 = status->luk*10 + status_get_lv(bl)*10 - status_get_lv(src)*10;

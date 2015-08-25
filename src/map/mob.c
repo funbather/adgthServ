@@ -2688,6 +2688,24 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		delete_timer(md->deletetimer,mob_timer_delete);
 		md->deletetimer = INVALID_TIMER;
 	}
+	
+	if( sd && sd->bonus.raisedead) {
+		if(sd->bonus.raisedead & 1 && (rnd()%100 < 25)) {// Flag 1 - Create copy of monster, 25% chance
+			struct mob_data *md2;
+			md2 = mob_once_spawn_sub(src, src->m, -1, -1, md->name, md->mob_id, "", SZ_SMALL, AI_FLORA);
+			
+			if (md2) {
+				md2->master_id = src->id;
+				md2->special_state.ai = 1;
+				
+				if( md2->deletetimer != INVALID_TIMER )
+					delete_timer(md2->deletetimer, mob_timer_delete);
+					
+				md2->deletetimer = add_timer(gettick()+30000, mob_timer_delete, md2->bl.id, 0);
+				mob_spawn (md2);
+			}
+		}
+	}
 	/**
 	 * Only loops if necessary (e.g. a poring would never need to loop)
 	 **/

@@ -5139,7 +5139,7 @@ ACMD_FUNC(effect)
 	}
 
 	clif_specialeffect(&sd->bl, type, (send_target)flag);
-	clif_displaymessage(fd, msg_txt(sd,229)); // Your effect has changed.
+	//clif_displaymessage(fd, msg_txt(sd,229)); // Your effect has changed.
 	return 0;
 }
 

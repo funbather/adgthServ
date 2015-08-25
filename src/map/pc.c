@@ -2953,6 +2953,24 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 		case SP_EXECUTIONER:
 			sd->bonus.executioner += val;
 			break;
+		case SP_SKILLCRIT:
+			sd->bonus.skillcrit += val;
+			break;
+		case SP_MAGICCOUNTER:
+			sd->bonus.magiccounter += val;
+			break;
+		case SP_DESPERATE:
+			sd->bonus.desperate |= val;
+			break;
+		case SP_RAISEDEAD:
+			sd->bonus.raisedead |= val;
+			break;
+		case SP_HEALEVADE:
+			sd->bonus.healevade += val;
+			break;
+		case SP_BRAVERY:
+			sd->bonus.bravery += val;
+			break;
 		default:
 			ShowWarning("pc_bonus: unknown type %d %d !\n",type,val);
 			break;
@@ -3618,6 +3636,10 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			sd->skillusesp[i].val = val;
 		}
 		break;
+	case SP_CRITICALDODGE:
+		sd->critical_dodge.hp = max(type2, sd->critical_dodge.hp);
+		sd->critical_dodge.rate = max(val, sd->critical_dodge.rate);
+		break;
 	default:
 		ShowWarning("pc_bonus2: unknown type %d %d %d!\n",type,type2,val);
 		break;
@@ -3709,7 +3731,7 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 			break;
 		}
 		if(sd->state.lr_flag != 2)
-			pc_bonus_addeff(sd->addeff2, ARRAYLENGTH(sd->addeff2), (sc_type)type2, type3, 0, val);
+			pc_bonus_addeff(sd->addeff2, ARRAYLENGTH(sd->addeff2), (sc_type)type2, type3, 0, val|ATF_MAGIC);
 		break;
 
 	case SP_ADDEFF_ONSKILL: // bonus3 bAddEffOnSkill,sk,eff,n;

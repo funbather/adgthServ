@@ -2244,8 +2244,14 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 				cri += 250 + 50*skill_lv;
 				break;
 		}
+		
+		if(sd && sd->bonus.skillcrit && skill_id) {
+			cri += sd->bonus.skillcrit;
+		}	
+		
 		if(tsd && tsd->bonus.critical_def)
 			cri = cri * ( 100 - tsd->bonus.critical_def ) / 100;
+
 		return (rnd()%1000 < cri);
 	}
 	return 0;
@@ -2322,6 +2328,7 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 	struct status_change *sc = status_get_sc(src);
 	struct status_change *tsc = status_get_sc(target);
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
+	struct map_session_data *tsd = BL_CAST(BL_PC, target);
 	int nk = battle_skill_get_damage_properties(skill_id, wd.miscflag);
 	short flee, hitrate;
 
@@ -2363,6 +2370,14 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 			if(flee < 1)
 				flee = 1;
 		}
+	}
+	
+	if(tsd) {
+		unsigned char attacker_count = unit_counttargeted(target); 
+		flee += attacker_count * tsd->bonus.bravery;
+			
+		if(flee > 90)
+			flee = 90;
 	}
 
 	hitrate += sstatus->hit - flee;
@@ -5103,7 +5118,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 	// check if we're landing a hit
 	if(!is_attack_hitting(wd, src, target, skill_id, skill_lv, true))
 		wd.dmg_lv = ATK_FLEE;
-	else if(!is_infinite_defense(target, wd.flag)) { //no need for math against plants
+	// Need to do damage math even if the attack misses for bHealEvade
+	if(!is_infinite_defense(target, wd.flag)) { //no need for math against plants
 		int ratio, i = 0;
 
 		wd = battle_calc_skill_base_damage(wd, src, target, skill_id, skill_lv); // base skill damage
@@ -5383,6 +5399,13 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 	
   if(sd && pc_checkskill(sd, ALL_POWER))
     wd.damage += wd.damage * (sd, ALL_POWER) / 100;
+    
+  if(tsd && tsd->bonus.healevade && wd.dmg_lv == ATK_FLEE) {	
+			status_heal(target, wd.damage * tsd->bonus.healevade / 100, 0, 3);
+  }
+    
+  if(wd.dmg_lv == ATK_FLEE) // Because we gotta calc even missed attacks now
+		wd.damage = 0;          // Purposefully behind the gib check :P
     
   if( sd && sd->bonus.executioner ) { // Absolute last check, gib target
 	  struct status_data *tstatus = status_get_status_data(target);

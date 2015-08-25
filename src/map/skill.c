@@ -348,6 +348,11 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
 	tsc = status_get_sc(target);
 
 	switch( skill_id ) {
+		case AL_HEAL: {
+			struct status_data *status = status_get_status_data(src);
+			hp = status->matk_max * 2;
+     }
+     break;
     case SC_REJUVENATE: { // [ADGTH]
       struct status_data *status = status_get_status_data(src);
       double hp2;
@@ -423,7 +428,7 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
 	// Note: in this part matk bonuses from items or skills are not applied
 	switch( skill_id ) {
 		case BA_APPLEIDUN:	case PR_SANCTUARY:
-		case NPC_EVILLAND:	case SC_REJUVENATE: break;
+		case NPC_EVILLAND:	case SC_REJUVENATE: case AL_HEAL: break;
 		default:
 			{
 				struct status_data *status = status_get_status_data(src);
@@ -3074,6 +3079,13 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	//Skill hit type
 	type = (skill_id == 0) ? 5 : skill_get_hit(skill_id);
 	type = dmg.type;
+
+	if( skill_id ) {
+		if(tsd && tsd->bonus.magiccounter) {
+			if(tsd->bonus.magiccounter & 1) // Flag 1 - Silence when casted on
+				sc_start(src,src,SC_SILENCE,10000,1,8000);
+		}
+	}
 
 	switch( skill_id ) {
 		case SC_TRIANGLESHOT:
@@ -6999,12 +7011,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			skill_castend_damage_id);
 		break;
 
-  case SC_FLASHFREEZE: // [ADGTH]
-    status_damage(src, src, 0,55,0,1);
-    sc_start(src,src,WWI_EXHAUST,100,10,12000 - pc_checkskill(sd,SC_WINDSPIRIT) * 200);
   case TR_EARTHSHUDDER:
-  	if(sd && skill_id == TR_EARTHSHUDDER)
-			clif_specialeffect(src, 2006, AREA);
+		clif_specialeffect(src, 2006, AREA);
 	case NJ_HYOUSYOURAKU:
 	case NJ_RAIGEKISAI:
 	case WZ_FROSTNOVA:
@@ -7014,6 +7022,33 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			skill_get_splash(skill_id, skill_lv), splash_target(src),
 			BF_MAGIC, src, src, skill_id, skill_lv, tick, flag, BCT_ENEMY);
 		break;
+
+  case SC_FLASHFREEZE: // [ADGTH]
+		if(skill_lv == 1) { // Regular Cast - Ignore for autocasts
+			status_damage(src, src, 0,55,0,1);
+			sc_start(src,src,WWI_EXHAUST,100,10,12000 - pc_checkskill(sd,SC_WINDSPIRIT) * 200);
+			
+			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+			skill_area_temp[1] = 0;
+			map_foreachinrange(skill_attack_area, src,
+			skill_get_splash(skill_id, skill_lv), splash_target(src),
+			BF_MAGIC, src, src, skill_id, skill_lv, tick, flag, BCT_ENEMY);
+		} else {
+			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+			skill_area_temp[1] = 0;
+			map_foreachinrange(skill_attack_area, src,
+			skill_get_splash(skill_id, skill_lv), splash_target(src),
+			BF_MAGIC, src, src, skill_id, skill_lv, tick, flag, BCT_ENEMY);
+			
+			switch(rnd()%30 / 10) {
+				case 0: clif_talkiebox(src,"Scatter your chilly sharp blades!"); break;
+				case 1: clif_talkiebox(src,"Drifting breeze, come down with fury!"); break;
+				case 2: clif_talkiebox(src,"Freezing wind, speak of forgotten truths!"); break;
+				case 3: clif_talkiebox(src,"Effortless water, break your silence, attack!"); break;
+			}
+		}
+		break;
+		
 
 	case HVAN_EXPLOSION:	//[orn]
 	case NPC_SELFDESTRUCTION:
