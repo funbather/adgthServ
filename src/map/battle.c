@@ -1299,6 +1299,11 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 
 		if( sc->data[SC__DEADLYINFECT] && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT && damage > 0 && rnd()%100 < 30 + 10 * sc->data[SC__DEADLYINFECT]->val1 )
 			status_change_spread(bl, src); // Deadly infect attacked side
+			
+		    
+		if(sc->data[SC_MARKED]) {
+			DAMAGE_ADDRATE(sc->data[SC_MARKED]->val1);
+		}
 
 	} //End of target SC_ check
 

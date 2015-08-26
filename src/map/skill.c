@@ -1844,6 +1844,29 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 			}
 		}
 	}
+	
+	if (skill_id > 0 && dstsd && src && !status_isdead(src) &&
+		dstsd->special_state.copycat > rand()%100 &&
+		!skill_isNotOk(skill_id,dstsd) && battle_check_range(bl,src,skill_get_range2(bl,skill_id,skill_lv))
+		)
+	{
+		dstsd->state.autocast = 1;
+ 
+		switch (skill_get_casttype(skill_id))
+		{
+			case CAST_GROUND:
+				skill_castend_pos2(bl, src->x, src->y, skill_id, skill_lv, tick, 0);
+				break;
+			case CAST_NODAMAGE:
+				skill_castend_nodamage_id(bl, src, skill_id, skill_lv, tick, 0);
+				break;
+			case CAST_DAMAGE:
+				skill_castend_damage_id(bl, src, skill_id, skill_lv, tick, 0);
+				break;
+		}
+
+		dstsd->state.autocast = 0;
+	}
 
 	// Autospell when attacking
 	if( sd && !status_isdead(bl) && sd->autospell[0].id )
@@ -1952,6 +1975,46 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 				  ((sd->autobonus[i].atk_type)&attack_type)&BF_SKILLMASK))
 				continue; // one or more trigger conditions were not fulfilled
 			pc_exeautobonus(sd,&sd->autobonus[i]);
+		}
+	}
+	
+	if (sd && sd->clone_aid[0].rate > 0)
+	{
+		int i, mob_id;
+		short aid_flag;
+ 
+		for (i = 0; i < ARRAYLENGTH(sd->clone_aid); i++)
+		{	
+			if (sd->clone_aid[i].rate == 0)
+				continue;
+
+			aid_flag = sd->clone_aid[i].flag;
+
+			if ((aid_flag&(ATF_WEAPON|ATF_MAGIC|ATF_MISC)) != (ATF_WEAPON|ATF_MAGIC|ATF_MISC))
+			{
+				if ((aid_flag&ATF_WEAPON && attack_type&BF_WEAPON) ||
+					(aid_flag&ATF_MAGIC && attack_type&BF_MAGIC) ||
+					(aid_flag&ATF_MISC && attack_type&BF_MISC) ) ;
+				else
+					continue; 
+			}
+
+			if ((aid_flag&(ATF_LONG|ATF_SHORT)) != (ATF_LONG|ATF_SHORT) )
+			{
+				if((aid_flag&ATF_LONG && !(attack_type&BF_LONG)) ||
+				   (aid_flag&ATF_SHORT && !(attack_type&BF_SHORT)))
+					continue;
+			}
+
+			if (rand()%1000 > sd->clone_aid[i].rate)
+				continue;
+
+			// Spawn a clone
+			if ((mob_id = mob_clone_spawn(sd,sd->bl.m,sd->bl.x,sd->bl.y,"",sd->bl.id,0,2,sd->clone_aid[i].duration)) > 0)
+			{
+				sd->state.clone_aid = mob_id;
+				break;
+			}
 		}
 	}
 
@@ -5828,7 +5891,46 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 
 	map_freeblock_lock();
 	switch(skill_id)
-	{	
+	{		
+	case ALL_DOMINATE:
+    if(sd && bl->type == BL_MOB && dstmd && !(dstmd->status.mode&MD_BOSS)){
+			struct mob_data *md2;
+      
+        md2 = mob_once_spawn_sub(src, src->m, -1, -1, dstmd->name, dstmd->mob_id, "", SZ_SMALL, AI_FLORA);
+        if (md2) {
+          md2->master_id = src->id;
+          md2->special_state.ai = 1;
+          if( md2->deletetimer != INVALID_TIMER )
+            delete_timer(md2->deletetimer, mob_timer_delete);
+          md2->deletetimer = add_timer(gettick()+60000, mob_timer_delete, md2->bl.id, 0);
+          mob_spawn (md2);
+          
+          status_zap(bl,dstmd->status.hp,0);
+        }
+		}	
+	break;
+	case ALL_REST:
+		sc_start(src,src,SC_SLEEP,100,1,10000);
+		break;
+	case ALL_BOOSTER:
+		sc_start(src,src,SC_BOOSTER,100,100,2500);
+		break;
+	case ALL_MANABATTERY: {
+		struct status_change *sc;
+		sc = status_get_sc(src);
+		
+			if(sc && sc->data[SC_MANABATTERY]) {
+				status_heal(src,0,sc->data[SC_MANABATTERY]->val1,3);
+				status_change_end(src,SC_MANABATTERY,INVALID_TIMER);
+			} else {
+				sc_start2(src,src,SC_MANABATTERY,100,0,1,-1);
+				clif_skill_nodamage (src, bl, ALL_BEGINCHARGE, 0, 0);
+				break;
+			}
+		}
+		break;
+	case ALL_BEGINCHARGE:
+		break;
 	case SC_REJUVENATE:
     status_damage(src, src, 0,35,0,1);
     sc_start(src,src,III_EXHAUST,100,10,3000);
@@ -6145,16 +6247,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		break;
 
     case ALL_PENGUIN: 
-    if(!sd->sc.data[SC_PENGUINACTIVE]){
+    if(sd){
 			struct mob_data *md;
-			
-      status_change_end(src, SC_PENGUINACTIVE, INVALID_TIMER);
-      sc_start(src,src,SC_PENGUINACTIVE,100,1,-1);
       
-        md = mob_once_spawn_sub(src, src->m, -1, -1, "Penguin Buddy", 1391, "", SZ_SMALL, AI_FLORA);
+        md = mob_once_spawn_sub(src, src->m, -1, -1, "Penguin", 1391, "", SZ_SMALL, AI_FLORA);
         if (md) {
           md->master_id = src->id;
-          md->special_state.ai = 1;
           if( md->deletetimer != INVALID_TIMER )
             delete_timer(md->deletetimer, mob_timer_delete);
           md->deletetimer = add_timer(gettick()+3000, mob_timer_delete, md->bl.id, 0);
@@ -6172,19 +6270,27 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		
 	case ALL_COMINRIGHTUP:
 		status_heal(bl, dstsd->status.max_hp * 10 / 100, 20, 2);
+		
 		if(dstsd) {
+			int count = 0;
 			unsigned char eflag;
 			struct item item_tmp;
 			struct block_list tbl;
 			memset(&item_tmp,0,sizeof(item_tmp));
 			memset(&tbl,0,sizeof(tbl)); // [MouseJstr]
-			item_tmp.nameid = 55000;
-			item_tmp.identify = 1;
-			tbl.id = 0;
-			eflag = pc_additem(dstsd,&item_tmp,1,LOG_TYPE_PRODUCE);
-			if(eflag) {
-				clif_additem(dstsd,0,0,eflag);
-				map_addflooritem(&item_tmp,1,dstsd->bl.m,dstsd->bl.x,dstsd->bl.y,0,0,0,0);
+
+			for( i = 0; i < MAX_INVENTORY; i++ )
+				if( dstsd->status.inventory[i].nameid == 56000 )
+					count += dstsd->status.inventory[i].amount;
+			if( count < 5 ) {
+				item_tmp.nameid = 56000;
+				item_tmp.identify = 1;
+				tbl.id = 0;
+				eflag = pc_additem(dstsd,&item_tmp,1,LOG_TYPE_PRODUCE);
+				if(eflag) {
+					clif_additem(dstsd,0,0,eflag);
+					map_addflooritem(&item_tmp,1,dstsd->bl.m,dstsd->bl.x,dstsd->bl.y,0,0,0,0);
+				}
 			}
 		}
 	break;
@@ -14449,7 +14555,7 @@ static int skill_check_condition_mob_master_sub(struct block_list *bl, va_list a
 	c=va_arg(ap,int *);
 
 	ai = (unsigned)(skill == AM_SPHEREMINE?AI_SPHERE:skill == KO_ZANZOU?AI_ZANZOU:skill == MH_SUMMON_LEGION?AI_LEGION:skill == NC_SILVERSNIPER?AI_FAW:skill == NC_MAGICDECOY?AI_FAW:AI_FLORA);
-	if( md->master_id != src_id || md->special_state.ai != ai)
+	if( md->master_id != src_id)
 		return 0; //Non alchemist summoned mobs have nothing to do here.
 
 	if(md->mob_id==mob_class)
@@ -15445,6 +15551,15 @@ bool skill_check_condition_castend(struct map_session_data* sd, uint16 skill_id,
 	switch( skill_id ) {
 		case PR_BENEDICTIO:
 			skill_check_pc_partner(sd, skill_id, &skill_lv, 1, 1);
+			break;
+		case ALL_PENGUIN: {
+				int c=0;
+				i = map_foreachinmap(skill_check_condition_mob_master_sub, sd->bl.m, BL_MOB, sd->bl.id, 1391, skill_id, &c);
+				if(c > 0 || c != i)	{
+						clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
+						return false;
+				}
+			}
 			break;
 		case AM_CANNIBALIZE:
 		case AM_SPHEREMINE: {
@@ -19597,6 +19712,9 @@ int skill_blockpc_start(struct map_session_data *sd, int skill_id, int tick) {
 	nullpo_retr(-1, sd);
 
 	if (!skill_id || tick < 1)
+		return -1;
+
+	if( sd->bonus.skipcooldown > rnd()%100)
 		return -1;
 
 	ARR_FIND(0, MAX_SKILLCOOLDOWN, i, sd->scd[i] && sd->scd[i]->skill_id == skill_id);

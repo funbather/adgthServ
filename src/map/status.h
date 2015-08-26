@@ -735,6 +735,9 @@ typedef enum sc_type {
 	SC_PENGUINACTIVE = 650,
 	SC_JAMES,
 	SC_IGNITE,
+	SC_MARKED,
+	SC_BOOSTER,
+	SC_MANABATTERY,
 
 #ifdef RENEWAL
 	SC_EXTREMITYFIST2, //! NOTE: This SC should be right before SC_MAX, so it doesn't disturb if RENEWAL is disabled
@@ -1574,6 +1577,7 @@ enum si_type {
 	SI_STONESTANCE = 835,
 	SI_POISONIMPRINT = 836,
 	SI_EARTHENSHIELD = 837,
+	SI_MANABATTERY = 838,
 	SI_MAX,
 };
 
@@ -1649,6 +1653,7 @@ enum sc_opt2 {
 	OPT2_DPOISON		= 0x0080,
 	OPT2_FEAR		= 0x0100,
 	OPT2_IGNITE = 0x0200,
+	OPT2_MARKED = 0x0400,
 };
 
 ///opt3: (SHOW_EFST_*)

@@ -67,7 +67,7 @@ death_penalty_type: 0
 feature.atcommand_suggestions: on
 
 // When making a guild, an Emperium is consumed? (Note 1)
-guild_emperium_check: no
+guild_emperium_check: yes
 
 // Maximum tax limit on a guild member.
 guild_exp_limit: 99

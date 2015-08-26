@@ -1020,6 +1020,7 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_STONESTANCE] = SI_STONESTANCE;
 	StatusIconChangeTable[SC_POISONIMPRINT] = SI_POISONIMPRINT;
 	StatusIconChangeTable[SC_EARTHENSHIELD] = SI_EARTHENSHIELD;
+	StatusIconChangeTable[SC_MANABATTERY] = SI_MANABATTERY;
 
 	/* Other SC which are not necessarily associated to skills */
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
@@ -1137,6 +1138,8 @@ void initChangeTables(void)
   StatusChangeFlagTable[SC_INVIG]    |= SCB_ALL;
   StatusChangeFlagTable[SC_ENERG]    |= SCB_ASPD|SCB_SPEED;
   StatusChangeFlagTable[SC_JAMES]    |= SCB_ALL;
+  StatusChangeFlagTable[SC_SLEEP]    |= SCB_REGEN;
+  StatusChangeFlagTable[SC_BOOSTER]  |= SCB_SPEED;
 #ifdef RENEWAL
 	// renewal EDP increases your weapon atk
 	StatusChangeFlagTable[SC_EDP] |= SCB_WATK;
@@ -1466,8 +1469,8 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 	{
 		struct map_session_data* tsd = (struct map_session_data*)target;
  
-		//if (tsd->special_state.last_stand > rand()%100)
-		//	hp--;
+		if (tsd->special_state.last_stand > rand()%100)
+			hp--;
 
 		if (tsd->critical_dodge.hp > 0 && tsd->critical_dodge.rate > 0)
 		{
@@ -2983,6 +2986,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->addeff2)
 		+ sizeof(sd->addeff3)
 		+ sizeof(sd->critical_dodge)
+		+ sizeof(sd->clone_aid)
 		+ sizeof(sd->skillatk)
 		+ sizeof(sd->skillusesprate)
 		+ sizeof(sd->skillusesp)
@@ -3595,10 +3599,10 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 
 	sd->cart_weight_max = battle_config.max_cart_weight + (pc_checkskill(sd, GN_REMODELING_CART)*5000);
 
-	if (pc_checkskill(sd,SM_MOVINGRECOVERY)>0)
+	/*if (pc_checkskill(sd,SM_MOVINGRECOVERY)>0)
 		sd->regen.state.walk = 1;
 	else
-		sd->regen.state.walk = 0;
+		sd->regen.state.walk = 0;*/
 
 	// Skill SP cost
 	if((skill=pc_checkskill(sd,HP_MANARECHARGE))>0 )
@@ -4140,6 +4144,13 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 		sc->data[SC_OBLIVIONCURSE] || sc->data[SC_VITALITYACTIVATION])
 		regen->flag &= ~RGN_SP;
 
+	if(sc->data[SC_SLEEP]) {
+		const struct status_change_entry *sce = sc->data[SC_SLEEP];
+		if(sce->val2) {
+			regen->rate.hp += sce->val2;
+			regen->hp *= 2;
+		}
+	}
 	if(sc->data[SC_TENSIONRELAX]) {
 		regen->rate.hp += 200;
 		if (regen->sregen)
@@ -6270,6 +6281,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 	if(sc->data[SC_SPIRIT_3] && sc->data[SC_SPIRIT_3]->val1 == SCS_WIND) {
     speed -= 16*sc->data[SC_SPIRIT_3]->val3/50;
 	}*/
+	if(sc->data[SC_BOOSTER])
+		speed -= sc->data[SC_BOOSTER]->val1;
 	
 	if(sc->data[SC_STONESTANCE])
 		speed *= 2;
@@ -8901,6 +8914,17 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if (!val4) val4 = 1;
 			tick_time = tick;
 			break;
+			
+		case SC_MARKED:
+			val1 = 25;
+			tick_time = 10000;
+			break;
+		case SC_SLEEP:
+			if( sd && sd->bonus.sleepytime )
+				val2 = sd->bonus.sleepytime;
+			else
+				val2 = 0;
+		break;
 		case SC_JAMES:
         tick_time = 10000 + rnd()%20000;
         val1 = (floor(rnd()%100) / 20) + 1;
@@ -8913,6 +8937,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
           case 5: clif_talkiebox(bl, "James: Slow down ya crum bum. (PRE)"); break;
         }
 		break;
+		case SC_MANABATTERY:
+			tick_time = 1000; // [GodLesZ] tick time	
+			break;
 		case SC_S_LIFEPOTION:
 		case SC_L_LIFEPOTION:
 			if( val1 == 0 ) return 0;
@@ -10363,6 +10390,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_WHITEIMPRISON:  sc->opt1 = OPT1_IMPRISON;	break;
 		case SC_CRYSTALIZE:	sc->opt1 = OPT1_CRYSTALIZE;	break;
 		// OPT2
+		case SC_MARKED:       sc->opt2 |= OPT2_MARKED;   break;
 		case SC_IGNITE:       sc->opt2 |= OPT2_IGNITE;		break;
 		case SC_POISON:       sc->opt2 |= OPT2_POISON;		break;
 		case SC_CURSE:        sc->opt2 |= OPT2_CURSE;		break;
@@ -10859,6 +10887,11 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	vd = status_get_viewdata(bl);
 	calc_flag = StatusChangeFlagTable[type];
 	switch(type) {
+		case SC_BOOSTER:
+			if(sce->val1 > 0) {
+				sc_start(&sd->bl,&sd->bl,SC_BOOSTER,100,sce->val1 - 2,100);	
+			}
+			break;
 		case SC_GRANITIC_ARMOR:
 			{
 				int damage = status->max_hp*sce->val3/100;
@@ -11349,6 +11382,10 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	case SC_IGNITE:
 		sc->opt2 &= ~OPT2_IGNITE;
 		break;
+	case SC_MARKED:
+		sc->opt2 &= ~OPT2_MARKED;
+		break;
+		
 		
 	case SC_HIDING:
 		sc->option &= ~OPTION_HIDE;
@@ -11790,6 +11827,17 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			return 0;
 		}
 		break;
+		
+	case SC_MANABATTERY:
+		if( sd ) {
+			if(sce->val1 < 200) {
+				status_zap(&sd->bl,0,5);
+				sce->val1 += 10;
+			}	
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;			
 		
 	case SC_BOSSMAPINFO:
 		if( sd && --(sce->val4) >= 0 ) {
@@ -12911,6 +12959,10 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 		flag &= ~(RGN_SHP|RGN_SSP);
 		if(!regen->state.walk)
 			flag &= ~RGN_HP;
+		else {
+			if(sd->bonus.walkregen)
+				bonus += sd->bonus.walkregen * 100;
+		}
 	}
 
 	if (!flag)

@@ -653,6 +653,13 @@ bRaiseDead 3016
 bHealEvade 3017
 bCriticalDodge 3018
 bBrave 3019
+bSleepyTime 3020
+bRegenWalk 3021
+bSummon 3022
+bCloneAid 3023
+bCopyCat 3024
+bLastStand 3025
+bSkipCooldown 3026
 
 EQI_HEAD_TOP	1
 EQI_ARMOR	2
@@ -704,6 +711,7 @@ Eff_DPoison	10
 Eff_Fear	309
 Eff_Burning	310
 Eff_Ignite 652
+Eff_Marked 653
 
 Ele_Neutral	0
 Ele_Water	1

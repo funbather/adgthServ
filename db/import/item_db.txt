@@ -77,24 +77,24 @@
 52024,_midnightmantle,Midnight Mantle,      4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus2 bHPDrainRate,1000,(((getilvl()*2*10 / 100) + 10) * getrefine() / 100); bonus bDef,(((getilvl()*2*1*3 / 100) + 1) * getrefine() / 100); bonus bFlee,(((getilvl()*2*5 / 100) + 5) * getrefine() / 100);},{},{}
 52025,_pathofbravery,Path of Bravery,       4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bBrave,2; bonus bDef,(((getilvl()*2*4*3 / 100) + 4) * getrefine() / 100); bonus bFlee,(((getilvl()*2*2 / 100) + 2) * getrefine() / 100);},{},{}
 52026,_felinesguile,Feline's Guile,         4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bSpeedAddRate,(((getilvl()*2*3*2 / 100) + 3) * getrefine() / 100); bonus bFlee,(((getilvl()*2*8 / 100) + 8) * getrefine() / 100);},{},{}
-52027,_assassinsscarf,Assassin's Scarf,     4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{/* TODO */ bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bFlee,(((getilvl()*2*5 / 100) + 5) * getrefine() / 100);},{},{}
-52028,_tyrantscape,Tyrant's Cape,           4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{/* TODO */ bonus bDef,(((getilvl()*2*3*3 / 100) + 3) * getrefine() / 100); bonus bFlee,(((getilvl()*2*3 / 100) + 3) * getrefine() / 100);},{},{}
+52027,_assassinsscarf,Assassin's Scarf,     4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus2 bAddEff,Eff_Marked,1500; bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bFlee,(((getilvl()*2*5 / 100) + 5) * getrefine() / 100);},{},{}
+52028,_tyrantscape,Tyrant's Cape,           4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{skill 4055,1; bonus bDef,(((getilvl()*2*3*3 / 100) + 3) * getrefine() / 100); bonus bFlee,(((getilvl()*2*3 / 100) + 3) * getrefine() / 100);},{},{}
 
 52029,_felinesgrace,Feline's Grace,     4,10,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bSpeedAddRate,(((getilvl()*2*13*2 / 100) + 13) * getrefine() / 100);},{},{}
 52030,_goldenboots,Golden Boots,        4,10,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bLuk,35; bonus bMaxHP,(((getilvl()*2*10*14 / 100) + 10) * getrefine() / 100); bonus bDef,(((getilvl()*2*1*3 / 100) + 1) * getrefine() / 100); bonus bSpeedAddRate,(((getilvl()*2*5*2 / 100) + 5) * getrefine() / 100);},{},{}
 52031,_mystwalkers,Mystwalkers,         4,10,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{skill 135,1; bonus bMaxHP,(((getilvl()*2*8*14 / 100) + 8) * getrefine() / 100); bonus bDef,(((getilvl()*2*1*3 / 100) + 1) * getrefine() / 100); bonus bSpeedAddRate,(((getilvl()*2*5*2 / 100) + 5) * getrefine() / 100);},{},{}
-52032,_bunnyslippers,Bunny Slippers,    4,10,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{/* TODO */ bonus bMaxHP,(((getilvl()*2*9*14 / 100) + 9) * getrefine() / 100); bonus bDef,(((getilvl()*2*1*3 / 100) + 1) * getrefine() / 100); bonus bSpeedAddRate,(((getilvl()*2*7*2 / 100) + 7) * getrefine() / 100);},{},{}
-52033,_legaugmentation,Leg Augmentation,4,10,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{/* TODO */ bonus bDef,(((getilvl()*2*3*3 / 100) + 3) * getrefine() / 100);},{},{}
-52034,_nomadspassage,Nomad's Passage,   4,10,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{/* TODO */ bonus bMaxHP,(((getilvl()*2*12*14 / 100) + 12) * getrefine() / 100); bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bSpeedAddRate,(((getilvl()*2*5*2 / 100) + 5) * getrefine() / 100);},{},{}
+52032,_bunnyslippers,Bunny Slippers,    4,10,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{skill 4056,1; bonus bSleepyTime,900; bonus bMaxHP,(((getilvl()*2*9*14 / 100) + 9) * getrefine() / 100); bonus bDef,(((getilvl()*2*1*3 / 100) + 1) * getrefine() / 100); bonus bSpeedAddRate,(((getilvl()*2*7*2 / 100) + 7) * getrefine() / 100);},{},{}
+52033,_legaugmentation,Leg Augmentation,4,10,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{skill 4057,1; bonus bDef,(((getilvl()*2*3*3 / 100) + 3) * getrefine() / 100);},{},{}
+52034,_nomadspassage,Nomad's Passage,   4,10,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bRegenWalk,19; bonus bMaxHP,(((getilvl()*2*12*14 / 100) + 12) * getrefine() / 100); bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bSpeedAddRate,(((getilvl()*2*5*2 / 100) + 5) * getrefine() / 100);},{},{}
 
 // 53k - UNIQUE ACCESSORIES
-53000,_penguinfeather,Penguin Feather,    4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{ skill 4038,1; },{},{ sc_end 650; }
+53000,_penguinfeather,Penguin Feather,    4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{ bonus bSummon,0x1; skill 4038,1; },{},{}
 53001,_james,James,                       4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{ if(!getstatus(651)) { sc_start 651,-1,1; } },{},{ sc_end 651;}
-53002,_manabattery,Mana Battery,          4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{/* TODO */},{},{}
-53003,_temporalorb,Temporal Orb,          4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{/* TODO */},{},{}
-53004,_mirror,Mirror of a Thousand Truths,4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{/* TODO */},{},{}
-53005,_fractalshard,Fractal Shard,        4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{/* TODO */},{},{}
-53006,_resolutearmband,Resolute Armband,  4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{/* TODO */},{},{}
+53002,_manabattery,Mana Battery,          4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{ skill 4058,1; },{},{ sc_end 655; }
+53003,_temporalorb,Temporal Orb,          4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{bonus bSkipCooldown,33;},{},{}
+53004,_mirror,Mirror of a Thousand Truths,4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{bonus bCopyCat,33;},{},{}
+53005,_fractalshard,Fractal Shard,        4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{bonus3 bCloneAid,125,ATF_WEAPON,10000;},{},{}
+53006,_resolutearmband,Resolute Armband,  4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{bonus bLastStand,33;},{},{}
 53007,_bonecrusher,Bonecrusher,           4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{if(!getequipisequiped(4)){bonus bAtk,3 * (BaseLevel + 10);};},{},{}
 53008,_seraphsmercy,Seraph's Mercy,       4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{bonus bRestartFullRecover,sure;},{},{}
 53009,_bagofholding,Bag of Holding,       4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{bonus bAddMaxWeight,2000;},{},{}
@@ -166,7 +166,7 @@
 55103,_spdown,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bUseSPrate,-15; },{},{}
 55104,_physdef,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bNearAtkDef,10; bonus bLongAtkDef,10;},{},{}
 55105,_magdef,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bMagicAtkDef,20; },{},{}
-55116,_fortune,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bLuk,50; bonus2 bAddGetZenyNum,-1,100; },{},{}
+55106,_fortune,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus bLuk,50; bonus2 bAddGetZenyNum,-1,100; },{},{}
 55107,_physpierce,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus2 bIgnoreDefRaceRate,RC_All,33; bonus2 bIgnoreDefRaceRate,RC_All,33; },{},{}
 55108,_magpierce,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus2 bIgnoreMdefRaceRate,RC_All,33; bonus2 bIgnoreMdefRaceRate,RC_All,33; },{},{}
 55109,_stun,enchantment,6,20,,10,,,,,,,,,,,,,{ bonus2 bAddEff,Eff_Stun,700; bonus2 bAddEffWhenHit,Eff_Stun,700; },{},{}
@@ -181,7 +181,7 @@
 55118,_trearthshudder,enchantment,6,20,,10,,,,,,,,,,,,,{ skill "TR_EARTHSHUDDER",1,8; },{},{}
 
 // 56K - CONSUMABLES 
-56000,_fruitjuice,Fruit Juice,0,1,,0,,,,,0xFFFFFFFF,63,2,,,,,,{itemheal 0,20; percentheal 0,10;},{},{}
+56000,_fruitjuice,Fruit Juice,0,1,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 0,20; percentheal 10,0; },{},{}
 
 605,Anodyne,Anodyne,11,2000,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill 214,1; },{},{}
 

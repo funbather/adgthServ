@@ -221,6 +221,7 @@ struct map_session_data {
 		unsigned short autoloottype;
 		unsigned int autolooting : 1; //performance-saver, autolooting state for @alootid
 		unsigned int autobonus; //flag to indicate if an autobonus is activated. [Inkfish]
+		unsigned int clone_aid; // Flag to indicate bonus clone
 		unsigned int gmaster_flag : 1;
 		unsigned int prevend : 1;//used to flag wheather you've spent 40sp to open the vending or not.
 		unsigned int warping : 1;//states whether you're in the middle of a warp processing
@@ -241,6 +242,8 @@ struct map_session_data {
 		unsigned int perfect_hiding : 1; // [Valaris]
 		unsigned int no_knockback : 1;
 		unsigned int bonus_coma : 1;
+		unsigned char copycat;
+		unsigned char last_stand;
 	} special_state;
 	uint32 login_id1, login_id2;
 	unsigned short class_;	//This is the internal job ID used by the map server to simplify comparisons/queries/etc. [Skotlex]
@@ -355,7 +358,10 @@ struct map_session_data {
 	struct { // Critical Dodge courtesy of Epoque
 		short rate, hp;
 	} critical_dodge;
-
+	struct {
+		short rate, flag;
+		unsigned int duration;
+	} clone_aid[5];
 	struct s_skill_bonus { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
 		unsigned short id;
 		short val;
@@ -440,6 +446,10 @@ struct map_session_data {
 		unsigned short raisedead;
 		unsigned short healevade;
 		unsigned short bravery;
+		unsigned short sleepytime;
+		unsigned short walkregen;
+		unsigned int   summon;
+		unsigned short skipcooldown;
 	} bonus;
 	// zeroed vars end here.
 

@@ -1909,7 +1909,7 @@ int mob_timer_delete(int tid, unsigned int tick, int id, intptr_t data)
     if( md->master_id > 0 && map_id2sd(md->master_id)) {
       struct map_session_data* msd = map_id2sd(md->master_id);
       
-      if(msd->sc.data[SC_PENGUINACTIVE]) {
+      if(msd && msd->bonus.summon & 1) { // Penguin
         md->deletetimer = add_timer(gettick() + 1000, mob_timer_delete, md->bl.id, 0);
         return 0;
       }
@@ -1919,6 +1919,13 @@ int mob_timer_delete(int tid, unsigned int tick, int id, intptr_t data)
 		{
 			ShowError("mob_timer_delete: Timer mismatch: %d != %d\n", tid, md->deletetimer);
 			return 0;
+		}
+		if (md->master_id)
+		{
+			struct block_list* mbl = map_id2bl(md->master_id);
+
+			if (mbl && mbl->type == BL_PC && ((TBL_PC*)mbl)->state.clone_aid == bl->id)
+				((TBL_PC*)mbl)->state.clone_aid = 0;
 		}
 		//for Alchemist CANNIBALIZE [Lupus]
 		md->deletetimer = INVALID_TIMER;
@@ -2690,7 +2697,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	}
 	
 	if( sd && sd->bonus.raisedead) {
-		if(sd->bonus.raisedead & 1 && (rnd()%100 < 25)) {// Flag 1 - Create copy of monster, 25% chance
+		if(sd->bonus.raisedead & 1 && (rnd()%100 < 33)) {// Flag 1 - Create copy of monster, 25% chance
 			struct mob_data *md2;
 			md2 = mob_once_spawn_sub(src, src->m, -1, -1, md->name, md->mob_id, "", SZ_SMALL, AI_FLORA);
 			
@@ -2701,7 +2708,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				if( md2->deletetimer != INVALID_TIMER )
 					delete_timer(md2->deletetimer, mob_timer_delete);
 					
-				md2->deletetimer = add_timer(gettick()+30000, mob_timer_delete, md2->bl.id, 0);
+				md2->deletetimer = add_timer(gettick()+60000, mob_timer_delete, md2->bl.id, 0);
 				mob_spawn (md2);
 			}
 		}
@@ -3480,16 +3487,19 @@ int mob_clone_spawn(struct map_session_data *sd, int16 m, int16 x, int16 y, cons
 	strcpy(db->jname,sd->status.name);
 	db->lv=status_get_lv(&sd->bl);
 	memcpy(status, &sd->base_status, sizeof(struct status_data));
-	status->rhw.atk2= status->dex + status->rhw.atk + status->rhw.atk2; //Max ATK
-	status->rhw.atk = status->dex; //Min ATK
+	status->rhw.atk2= status->rhw.atk + status->rhw.atk2; //Max ATK
+	status->rhw.atk = status->rhw.atk + status->rhw.atk2; //Min ATK
 	if (status->lhw.atk) {
-		status->lhw.atk2= status->dex + status->lhw.atk + status->lhw.atk2; //Max ATK
-		status->lhw.atk = status->dex; //Min ATK
+		status->lhw.atk2= status->lhw.atk + status->lhw.atk2; //Max ATK
+		status->lhw.atk = status->lhw.atk + status->lhw.atk2; //Min ATK
 	}
 	if (mode) //User provided mode.
 		status->mode = mode;
 	else if (flag&1) //Friendly Character, remove looting.
 		status->mode &= ~MD_LOOTER;
+		
+	status->mode &= ~MD_LOOTER;
+	
 	status->hp = status->max_hp;
 	status->sp = status->max_sp;
 	memcpy(&db->vd, &sd->vd, sizeof(struct view_data));
@@ -3533,7 +3543,7 @@ int mob_clone_spawn(struct map_session_data *sd, int16 m, int16 x, int16 y, cons
 		ms[i].skill_id = skill_id;
 		ms[i].skill_lv = sd->status.skill[skill_id].lv;
 		ms[i].state = MSS_ANY;
-		ms[i].permillage = 500*battle_config.mob_skill_rate/100; //Default chance of all skills: 5%
+		ms[i].permillage = 0;//500*battle_config.mob_skill_rate/100; //Default chance of all skills: 5%
 		ms[i].emotion = -1;
 		ms[i].cancel = 0;
 		ms[i].casttime = skill_castfix(&sd->bl,skill_id, ms[i].skill_lv);
@@ -3574,7 +3584,7 @@ int mob_clone_spawn(struct map_session_data *sd, int16 m, int16 x, int16 y, cons
 				ms[i].target = MST_SELF;
 				ms[i].cond1 = MSC_MYHPLTMAXRATE;
 				ms[i].cond2 = 90;
-				ms[i].permillage = 2000;
+				//ms[i].permillage = 2000;
 				//Delay: Remove the stock 5 secs and add half of the support time.
 				ms[i].delay += -5000 +(skill_get_time(skill_id, ms[i].skill_lv) + skill_get_time2(skill_id, ms[i].skill_lv))/2;
 				if (ms[i].delay < 5000)
@@ -3584,10 +3594,10 @@ int mob_clone_spawn(struct map_session_data *sd, int16 m, int16 x, int16 y, cons
 			ms[i].target = MST_FRIEND;
 			ms[i].cond1 = MSC_FRIENDHPLTMAXRATE;
 			ms[i].cond2 = 90;
-			if (skill_id == AL_HEAL)
-				ms[i].permillage = 5000; //Higher skill rate usage for heal.
-			else if (skill_id == ALL_RESURRECTION)
-				ms[i].cond2 = 1;
+			//if (skill_id == AL_HEAL)
+				//ms[i].permillage = 5000; //Higher skill rate usage for heal.
+			//else if (skill_id == ALL_RESURRECTION)
+				//ms[i].cond2 = 1;
 			//Delay: Remove the stock 5 secs and add half of the support time.
 			ms[i].delay += -5000 +(skill_get_time(skill_id, ms[i].skill_lv) + skill_get_time2(skill_id, ms[i].skill_lv))/2;
 			if (ms[i].delay < 2000)
@@ -3607,7 +3617,7 @@ int mob_clone_spawn(struct map_session_data *sd, int16 m, int16 x, int16 y, cons
 					ms[i].state = MSS_BERSERK;
 					ms[i].target = MST_TARGET;
 					ms[i].cond1 = MSC_ALWAYS;
-					ms[i].permillage = skill_id==MO_TRIPLEATTACK?(3000-ms[i].skill_lv*100):(ms[i].skill_lv*500);
+					//ms[i].permillage = skill_id==MO_TRIPLEATTACK?(3000-ms[i].skill_lv*100):(ms[i].skill_lv*500);
 					ms[i].delay -= 5000; //Remove the added delay as these could trigger on "all hits".
 					break;
 				default: //Untreated Skill

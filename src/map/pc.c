@@ -2971,6 +2971,27 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 		case SP_BRAVERY:
 			sd->bonus.bravery += val;
 			break;
+		case SP_SLEEPYTIME:
+			sd->bonus.sleepytime += val;
+			break;
+		case SP_REGENWALK:
+			sd->regen.state.walk = 1;
+			sd->bonus.walkregen += val;
+			break;
+		case SP_SUMMON:
+			sd->bonus.summon |= val;
+			break;
+		case SP_COPYCAT:
+			if (sd->state.lr_flag != 2)
+				sd->special_state.copycat = cap_value(sd->special_state.copycat + val, 0, 100);
+			break;
+		case SP_LASTSTAND:
+			if (sd->state.lr_flag != 2)
+				sd->special_state.last_stand = cap_value(sd->special_state.last_stand + val, 0, 100);
+			break;
+		case SP_SKIPCOOLDOWN:
+				sd->bonus.skipcooldown += val;
+			break;
 		default:
 			ShowWarning("pc_bonus: unknown type %d %d !\n",type,val);
 			break;
@@ -3658,6 +3679,21 @@ void pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 	nullpo_retv(sd);
 
 	switch(type){
+	case SP_CLONEAID:
+		{
+			int i;
+			ARR_FIND(0, 5, i, sd->clone_aid[i].rate == 0);
+
+			if (i == MAX_PC_BONUS) {
+				ShowWarning("pc_bonus3: SP_CLONEAID: Reached maximum clone bonus (5)\n");
+				break;
+			}
+
+			sd->clone_aid[i].rate = cap_value(type2, 0, 1000);
+			sd->clone_aid[i].flag = type3;
+			sd->clone_aid[i].duration = (unsigned int)val;
+		}
+		break;
 	case SP_ADD_MONSTER_DROP_ITEM: // bonus3 bAddMonsterDropItem,iid,r,n;
 		if(sd->state.lr_flag != 2)
 			pc_bonus_item_drop(sd->add_drop, ARRAYLENGTH(sd->add_drop), type2, 0, CLASS_NONE, type3, val);
@@ -9257,7 +9293,20 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos)
 	}
 
 	if(pos == EQP_ACC) { //Accesories should only go in one of the two,
+	 int l,r;
+	 l = sd->equip_index[EQI_ACC_L] ? sd->equip_index[EQI_ACC_L] : 0; // Accessories are 'unique equipped' - only one of a type can be equipped at a time
+	 r = sd->equip_index[EQI_ACC_R] ? sd->equip_index[EQI_ACC_R] : 0; // This check is kinda sloppy, but I was getting errors if I didn't go step by step
 		pos = req_pos&EQP_ACC;
+		
+		if(l && sd->inventory_data[l])
+			l = sd->inventory_data[l]->nameid;
+		
+		if(r && sd->inventory_data[r])
+			r = sd->inventory_data[r]->nameid;
+		
+		if(sd->status.inventory[n].nameid == l || sd->status.inventory[n].nameid == r)
+			return false; // Already have one equipped!
+		
 		if (pos == EQP_ACC) //User specified both slots..
 			pos = sd->equip_index[EQI_ACC_R] >= 0 ? EQP_ACC_L : EQP_ACC_R;
 	}
