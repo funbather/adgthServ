@@ -148,8 +148,10 @@
 
 28,9,6,16,6,0x21,0,10,1,yes,0,0x2000,0,magic,0,0x20,	AL_HEAL,Heal
 
-4055,5,6,1,1,0x1,0,1,1,yes,0,0,0,none,0,0,	ALL_DOMINATE,Dominate
-4056,5,6,4,1,0x1,0,1,1,yes,0,0,0,none,0,0,	ALL_REST,Rest
-4057,5,6,4,1,0x1,0,1,1,yes,0,0,0,none,0,0,	ALL_BOOSTER,Booster
-4058,5,6,4,1,0x1,0,1,1,yes,0,0,0,none,0,0,	ALL_MANABATTERY,Restore
-4059,5,6,4,1,0x1,0,1,1,yes,0,0,0,none,0,0,	ALL_BEGINCHARGE,Siphon
+4055,5,6,1,0,0x1,0,1,1,yes,0,0,0,none,0,0,	ALL_DOMINATE,Dominate
+4056,5,6,4,0,0x1,0,1,1,yes,0,0,0,none,0,0,	ALL_REST,Rest
+4057,5,6,4,0,0x1,0,1,1,yes,0,0,0,none,0,0,	ALL_BOOSTER,Booster
+4058,5,6,4,0,0x1,0,1,1,yes,0,0,0,none,0,0,	ALL_MANABATTERY,Restore
+4059,5,6,4,0,0x1,0,1,1,yes,0,0,0,none,0,0,	ALL_BEGINCHARGE,Siphon
+4060,5,6,4,0,0x1,0,1,1,yes,0,0,0,none,0,0,	ALL_DRAGONFAMILIAR,Dragon Familiar
+4061,2,6,1,0,0,0,5,1,no,0,0,0,magic,0,0x0,  ALL_LODESTONEBURST,Lodestone Burst

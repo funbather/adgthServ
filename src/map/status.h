@@ -738,6 +738,7 @@ typedef enum sc_type {
 	SC_MARKED,
 	SC_BOOSTER,
 	SC_MANABATTERY,
+	SC_LODESTONECHARGED,
 
 #ifdef RENEWAL
 	SC_EXTREMITYFIST2, //! NOTE: This SC should be right before SC_MAX, so it doesn't disturb if RENEWAL is disabled
@@ -1578,6 +1579,7 @@ enum si_type {
 	SI_POISONIMPRINT = 836,
 	SI_EARTHENSHIELD = 837,
 	SI_MANABATTERY = 838,
+	SI_LODESTONECHARGED = 839,
 	SI_MAX,
 };
 

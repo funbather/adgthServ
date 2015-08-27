@@ -2039,6 +2039,21 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 		if (skill < 2000)
 			mob_class_change(dstmd,class_);
 	}
+	
+	if (attack_type & BF_MAGIC && src != bl) {
+		if(sd && sd->bonus.magicstatus){
+			if(sd->bonus.magicstatus & 0x1) // Freeze - 33%
+				sc_start(src,bl,SC_FREEZE,33,1,8000);
+			if(sd->bonus.magicstatus & 0x2) // Poison - 25%
+				sc_start(src,bl,SC_POISON,25,1,30000);
+			if(sd->bonus.magicstatus & 0x4) // Stun - 25%
+				sc_start(src,bl,SC_STUN,25,1,4000);
+			if(sd->bonus.magicstatus & 0x8) // Blind - 33%
+				sc_start(src,bl,SC_BLIND,33,1,20000);
+			if(sd->bonus.magicstatus & 0x10) // Silence - 33%
+				sc_start(src,bl,SC_SILENCE,33,1,8000);
+		}
+	}
 
 	return 0;
 }
@@ -3147,6 +3162,10 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		if(tsd && tsd->bonus.magiccounter) {
 			if(tsd->bonus.magiccounter & 1) // Flag 1 - Silence when casted on
 				sc_start(src,src,SC_SILENCE,10000,1,8000);
+				
+			if(tsd->bonus.magiccounter & 2 && dmg.flag & BF_MAGIC && damage > 0) // Flag 2 - Lodestone Burst ready - Magic only, at least 1 damage
+				if(!tsc || (tsc && !tsc->data[SC_LODESTONECHARGED])) // Make sure target is not already charged
+					sc_start(bl,bl,SC_LODESTONECHARGED,10000,damage * 4,-1);
 		}
 	}
 
@@ -4831,6 +4850,15 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 		skill_attack(BF_MAGIC,src,src,bl,skill_id,skill_lv,tick,flag);
 		break;
 		
+	case ALL_LODESTONEBURST:
+		if(sc && sc->data[SC_LODESTONECHARGED]) {
+			skill_attack(BF_MAGIC,src,src,bl,skill_id,skill_lv,tick,flag);
+			status_change_end(src,SC_LODESTONECHARGED,INVALID_TIMER);
+		}
+		else
+			clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
+	break;
+		
 	case TR_EXPUNGE:
 	case TR_SLUDGEBOMB:		
 	case MG_SOULSTRIKE:
@@ -6264,6 +6292,29 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
           md->status.batk = 0;
           md->status.rhw.atk = 0;
           md->status.rhw.atk2 = 0;
+        }
+		}
+		break;
+
+    case ALL_DRAGONFAMILIAR: 
+    if(sd){
+			struct mob_data *md;
+      
+        md = mob_once_spawn_sub(src, src->m, -1, -1, "Dragon Familiar", 3000, "", SZ_SMALL, AI_FLORA);
+        if (md) {
+          md->master_id = src->id;
+          if( md->deletetimer != INVALID_TIMER )
+            delete_timer(md->deletetimer, mob_timer_delete);
+          md->deletetimer = add_timer(gettick()+3000, mob_timer_delete, md->bl.id, 0);
+          md->status.hp = 1;
+          mob_spawn (md);
+          md->level = sd->status.base_level;
+          md->status.max_hp = sd->status.max_hp;
+          md->status.hp = md->status.max_hp;
+          md->status.batk = 0;
+          md->status.rhw.atk = sd->battle_status.matk_max / 3;
+          md->status.rhw.atk2 = sd->battle_status.matk_max / 3;
+          md->status.matk_min = md->status.matk_max = sd->battle_status.matk_max / 3;
         }
 		}
 		break;
@@ -15555,7 +15606,16 @@ bool skill_check_condition_castend(struct map_session_data* sd, uint16 skill_id,
 		case ALL_PENGUIN: {
 				int c=0;
 				i = map_foreachinmap(skill_check_condition_mob_master_sub, sd->bl.m, BL_MOB, sd->bl.id, 1391, skill_id, &c);
-				if(c > 0 || c != i)	{
+				if(c > 0)	{
+						clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
+						return false;
+				}
+			}
+			break;
+		case ALL_DRAGONFAMILIAR: {
+				int c=0;
+				i = map_foreachinmap(skill_check_condition_mob_master_sub, sd->bl.m, BL_MOB, sd->bl.id, 3000, skill_id, &c);
+				if(c > 0)	{
 						clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
 						return false;
 				}

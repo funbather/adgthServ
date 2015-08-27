@@ -2957,7 +2957,7 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 			sd->bonus.skillcrit += val;
 			break;
 		case SP_MAGICCOUNTER:
-			sd->bonus.magiccounter += val;
+			sd->bonus.magiccounter |= val;
 			break;
 		case SP_DESPERATE:
 			sd->bonus.desperate |= val;
@@ -2991,6 +2991,12 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 			break;
 		case SP_SKIPCOOLDOWN:
 				sd->bonus.skipcooldown += val;
+			break;
+		case SP_BASICATK:
+				sd->bonus.basicatk += val;
+			break;
+		case SP_MAGICSTATUS:
+				sd->bonus.magicstatus |= val;
 			break;
 		default:
 			ShowWarning("pc_bonus: unknown type %d %d !\n",type,val);

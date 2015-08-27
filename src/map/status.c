@@ -1021,6 +1021,7 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_POISONIMPRINT] = SI_POISONIMPRINT;
 	StatusIconChangeTable[SC_EARTHENSHIELD] = SI_EARTHENSHIELD;
 	StatusIconChangeTable[SC_MANABATTERY] = SI_MANABATTERY;
+	StatusIconChangeTable[SC_LODESTONECHARGED] = SI_LODESTONECHARGED;
 
 	/* Other SC which are not necessarily associated to skills */
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
@@ -5637,8 +5638,8 @@ static signed short status_calc_critical(struct block_list *bl, struct status_ch
 		critical += sc->data[SC_FORTUNE]->val2;
 	if (sc->data[SC_TRUESIGHT])
 		critical += sc->data[SC_TRUESIGHT]->val2;
-	if (sc->data[SC_CLOAKING])
-		critical += critical;
+	/*if (sc->data[SC_CLOAKING])
+		critical += critical;*/
 	if (sc->data[SC_STRIKING])
 		critical += critical * sc->data[SC_STRIKING]->val1 / 100;
 #ifdef RENEWAL
@@ -11656,8 +11657,8 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 	switch(type) {
 	case SC_MAXIMIZEPOWER:
 	case SC_CLOAKING:
-		if(!status_charge(bl, 0, 1))
-			break; // Not enough SP to continue.
+		/*if(!status_charge(bl, 0, 1))
+			break; // Not enough SP to continue.*/
 		sc_timer_next(sce->val2+tick, status_change_timer, bl->id, data);
 		return 0;
 

@@ -450,6 +450,8 @@ struct map_session_data {
 		unsigned short walkregen;
 		unsigned int   summon;
 		unsigned short skipcooldown;
+		unsigned short basicatk;
+		unsigned int   magicstatus;
 	} bonus;
 	// zeroed vars end here.
 

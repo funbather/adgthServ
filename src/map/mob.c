@@ -1909,7 +1909,12 @@ int mob_timer_delete(int tid, unsigned int tick, int id, intptr_t data)
     if( md->master_id > 0 && map_id2sd(md->master_id)) {
       struct map_session_data* msd = map_id2sd(md->master_id);
       
-      if(msd && msd->bonus.summon & 1) { // Penguin
+      if(msd && md->mob_id == 1391 && msd->bonus.summon & 1) { // Penguin
+        md->deletetimer = add_timer(gettick() + 1000, mob_timer_delete, md->bl.id, 0);
+        return 0;
+      }
+      
+      if(msd && md->mob_id == 3000 && msd->bonus.summon & 2) { // Dragon
         md->deletetimer = add_timer(gettick() + 1000, mob_timer_delete, md->bl.id, 0);
         return 0;
       }
@@ -2697,7 +2702,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	}
 	
 	if( sd && sd->bonus.raisedead) {
-		if(sd->bonus.raisedead & 1 && (rnd()%100 < 33)) {// Flag 1 - Create copy of monster, 25% chance
+		if(sd->bonus.raisedead & 1 && (rnd()%100 < 33)) {// Flag 1 - Create copy of monster, 33% chance
 			struct mob_data *md2;
 			md2 = mob_once_spawn_sub(src, src->m, -1, -1, md->name, md->mob_id, "", SZ_SMALL, AI_FLORA);
 			
@@ -2708,8 +2713,72 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				if( md2->deletetimer != INVALID_TIMER )
 					delete_timer(md2->deletetimer, mob_timer_delete);
 					
-				md2->deletetimer = add_timer(gettick()+60000, mob_timer_delete, md2->bl.id, 0);
+				md2->deletetimer = add_timer(gettick()+15000, mob_timer_delete, md2->bl.id, 0);
 				mob_spawn (md2);
+			}
+		}
+		
+		if((sd->bonus.raisedead & 2) && (rnd()%100 < 33)) {// Flag 2 - Create a drone, 33% chance
+			struct mob_data *md2;
+			int roboid;
+			roboid = rnd()%4;
+			switch(roboid) {
+				case 0: md2 = mob_once_spawn_sub(src, src->m, -1, -1, "Drone", 1675, "", SZ_SMALL, AI_FLORA); break;
+				case 1: md2 = mob_once_spawn_sub(src, src->m, -1, -1, "Drone", 1675, "", SZ_SMALL, AI_FLORA); break;
+				case 2: md2 = mob_once_spawn_sub(src, src->m, -1, -1, "Drone", 1675, "", SZ_SMALL, AI_FLORA); break;
+				case 3: md2 = mob_once_spawn_sub(src, src->m, -1, -1, "Drone", 1669, "", SZ_SMALL, AI_FLORA); break;
+			}
+			
+			if (md2) {
+				md2->master_id = src->id;
+				md2->special_state.ai = 1;
+				
+				if( md2->deletetimer != INVALID_TIMER )
+					delete_timer(md2->deletetimer, mob_timer_delete);
+					
+				md2->deletetimer = add_timer(gettick()+15000, mob_timer_delete, md2->bl.id, 0);
+				mob_spawn (md2);
+        md2->level = sd->status.base_level;
+        md2->status.max_hp = sd->battle_status.max_hp / 4;
+        md2->status.hp = md2->status.max_hp;
+        md2->status.batk = sd->battle_status.batk / 3;
+        md2->status.rhw.atk = (sd->battle_status.rhw.atk + sd->battle_status.rhw.atk2) / 3;
+        md2->status.rhw.atk2 = (sd->battle_status.rhw.atk + sd->battle_status.rhw.atk2) / 3;
+			}
+		}
+		
+		if((sd->bonus.raisedead & 4) && (rnd()%100 < 33)) {// Flag 4 - Actually raise the dead, 33% chance
+			struct mob_data *md2;
+			int type;
+			type = rnd()%10;
+			switch(type) {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4: md2 = mob_once_spawn_sub(src, src->m, -1, -1, "Skeletal Squire", 3001, "", SZ_SMALL, AI_FLORA); type = 4; break;
+				case 5:
+				case 6: md2 = mob_once_spawn_sub(src, src->m, -1, -1, "Skeletal Archer", 3002, "", SZ_SMALL, AI_FLORA); type = 3; break;
+				case 7:
+				case 8: md2 = mob_once_spawn_sub(src, src->m, -1, -1, "Skeletal Warrior", 3003, "", SZ_SMALL, AI_FLORA);  type = 2; break;
+				case 9: md2 = mob_once_spawn_sub(src, src->m, -1, -1, "Plague Bomb", 3004, "", SZ_SMALL, AI_FLORA);  type = 1; break;
+			}
+			
+			if (md2) {
+				md2->master_id = src->id;
+				md2->special_state.ai = 1;
+				
+				if( md2->deletetimer != INVALID_TIMER )
+					delete_timer(md2->deletetimer, mob_timer_delete);
+					
+				md2->deletetimer = add_timer(gettick()+15000, mob_timer_delete, md2->bl.id, 0);
+				mob_spawn (md2);
+        md2->level = sd->status.base_level;
+        md2->status.max_hp = sd->battle_status.max_hp / type;
+        md2->status.hp = md2->status.max_hp;
+        md2->status.batk = 0;
+        md2->status.rhw.atk = (sd->battle_status.matk_max) / type;
+        md2->status.rhw.atk2 = (sd->battle_status.matk_max) / type;
 			}
 		}
 	}

@@ -5395,6 +5395,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 			wd.damage += wd.damage * sd->bonus.duelbonus / 100;
   }
   
+  if( sd && sd->bonus.basicatk && !skill_id) {
+			wd.damage += wd.damage * sd->bonus.basicatk / 100;
+  }
+  
   if(sc && tsc)
 		if(sc->data[SC_POISONIMPRINT] && tsc->data[SC_POISON])
 			wd.damage += wd.damage * sc->data[SC_POISONIMPRINT]->val1 * 15 / 1000;
@@ -5550,6 +5554,12 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 
 		switch (skill_id)
 		{	//Calc base damage according to skill
+			case ALL_LODESTONEBURST:
+				if(sc && sc->data[SC_LODESTONECHARGED])
+					ad.damage = sc->data[SC_LODESTONECHARGED]->val1;
+				else
+					ad.damage = 1;
+				break;
 			case TR_EXPUNGE:
 				ad.damage = 1 + rnd()%50;
 				break;
@@ -7256,6 +7266,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 				status_change_end(target, SC_POISONREACT, INVALID_TIMER);
 		}
 	}
+	
 	map_freeblock_unlock();
 	return wd.dmg_lv;
 }

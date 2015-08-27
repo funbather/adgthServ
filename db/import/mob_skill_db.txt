@@ -53,6 +53,9 @@
 //	-2: added for all normal types.
 //	-3: added for all mobs.
 
+3000,DFamiliar@SBomb,attack,4046,3,1500,1000,1000,no,target,always,,,,,,,,
+3000,DFamiliar@PBlow,attack,4047,1,500,1000,7500,no,target,always,,,,,,,,
+3004,PlagueBomb@Boom,attack,173,1,10000,3000,1,no,self,always,,,,,,,29,
 // rAthena Dev Team
 //1900,Valaris@AL_TELEPORT,idle,26,1,10000,0,0,yes,self,rudeattacked,,,,,,,,
 //1900,Valaris@AL_TELEPORT,walk,26,1,500,0,5000,yes,self,rudeattacked,,,,,,,,

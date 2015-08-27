@@ -1191,14 +1191,14 @@ static int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, un
 	WBUFB(buf,48) = (sd)? sd->status.karma : 0;
 	WBUFB(buf,49) = vd->sex;
 	WBUFPOS2(buf,50,bl->x,bl->y,ud->to_x,ud->to_y,8,8);
+	WBUFB(buf,55) = (sd)? 5 : 0;
 	WBUFB(buf,56) = (sd)? 5 : 0;
-	WBUFB(buf,57) = (sd)? 5 : 0;
-	WBUFW(buf,58) = clif_setlevel(bl);
+	WBUFW(buf,57) = clif_setlevel(bl);
 #if PACKETVER >= 20080102
-	WBUFW(buf,60) = (sd ? sd->status.font : 0);
+	WBUFW(buf,59) = (sd ? sd->status.font : 0);
 #endif
 #if PACKETVER >= 20091103
-	memcpy((char*)WBUFP(buf,62), name, NAME_LENGTH);
+	memcpy((char*)WBUFP(buf,61), name, NAME_LENGTH);
 	return WBUFW(buffer,2);
 #else
 	return packet_len(WBUFW(buffer,0));

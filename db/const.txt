@@ -660,6 +660,8 @@ bCloneAid 3023
 bCopyCat 3024
 bLastStand 3025
 bSkipCooldown 3026
+bBasicAtk 3027
+bMagicStatus 3028
 
 EQI_HEAD_TOP	1
 EQI_ARMOR	2
