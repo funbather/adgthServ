@@ -11264,8 +11264,13 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 		if (ud->walktimer != INVALID_TIMER && ud->skill_id != TK_RUN && ud->skill_id != RA_WUGDASH)
 			unit_stop_walking(src,1);
 
-		if( !sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id,ud->skill_lv) )
+		if( !sd || sd->skillitem != ud->skill_id /* || skill_get_delay(ud->skill_id,ud->skill_lv)*/ ) {
+			if( sd ) {
+				//if (ud->state.attack_continue) 
+					ud->attackabletime = tick + skill_delayfix(src, ud->skill_id, ud->skill_lv);
+			}
 			ud->canact_tick = tick + skill_delayfix(src, ud->skill_id, ud->skill_lv); //Tests show wings don't overwrite the delay but skill scrolls do. [Inkfish]
+		}
 		if (sd) { //Cooldown application
 			int cooldown = pc_get_skillcooldown(sd,ud->skill_id, ud->skill_lv); // Increases/Decreases cooldown of a skill by item/card bonuses.
 			if(cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
@@ -11496,8 +11501,14 @@ int skill_castend_pos(int tid, unsigned int tick, int id, intptr_t data)
 		if (ud->walktimer != INVALID_TIMER)
 			unit_stop_walking(src,1);
 
-		if( !sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id,ud->skill_lv) )
+		if( !sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id,ud->skill_lv) ) {
+			if( sd ) {
+				//if (ud->state.attack_continue)
+					ud->attackabletime = tick + skill_delayfix(src, ud->skill_id, ud->skill_lv);
+			}
 			ud->canact_tick = tick + skill_delayfix(src, ud->skill_id, ud->skill_lv);
+		}
+		
 		if (sd) { //Cooldown application
 			int cooldown = pc_get_skillcooldown(sd,ud->skill_id, ud->skill_lv);
 			if(cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);

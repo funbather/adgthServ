@@ -1,0 +1,259 @@
+// Blacksmith Script v1.0
+// A lot of this is cribbed from the existing rAthena refine scripts, so credit to Euphy and Haruna for this
+
+rachel,127,111,6	script	Vorser#adgth	813,{
+	disable_items;
+	mes "[Vorser]";
+	mes "Greetin's, kid. What can I do fer ya today?";
+	next;
+	menu "I'd like to upgrade an item!",menuUpgrade,"What are your services?",askServices,"Nothing today.",thatsAll;
+	
+backToMenu:
+	mes "[Vorser]";
+	mes "What do ya got fer me kid?";
+	next;
+	menu "I'd like to upgrade an item!",menuUpgrade,"What are your services?",askServices,"That's all.",thatsAll;
+	
+askServices:
+	mes "[Vorser]";
+	mes "Well, dependin' on what kinda materials ya got there, I can do a few things to yer items.";
+	next;
+	mes "[Vorser]";
+	mes "Give me some o' that Mythril Ore, an' I can raise a piece o' equipment's Item Quality... only up to 100% though, kid. I ain't THAT good!";
+	next;
+	mes "[Vorser]";
+	mes "If ya got some Orichalcum Ore, I can increase tha Item Level on somethin', only up to yer own Base Level of course. Can't be givin' ya something ya can't even use!";
+	next;
+	mes "[Vorser]";
+	mes "Now, get me a Divine Hammer, an' I can use its blessin's to upgrade a non-unique item's base type to the best in its class! My specialty!";
+	next;
+	goto backToMenu;
+	
+menuUpgrade:
+	mes "[Vorser]";
+	mes "Upgradin' eh? What material do ya got for me?";
+	next;
+	menu "Mythril Ore - Quality",upgQuality,"Orichalcum Ore - Level",upgLevel,"Divine Hammer - Type",upgType,"I've changed my mind.",thatsAll;	
+
+upgQuality:
+	setarray .@position$[1],"Body","Left Hand","Right Hand","Robe","Shoes";
+	set .@menu$,"";
+	for(set .@i,1; .@i<=5; set .@i,.@i+1)
+		set .@menu$, .@menu$+((getequipisequiped(.@i+1))?.@position$[.@i] + " - [" +getequipname(.@i+1)+"]":"")+":";
+	set .@part, select(.@menu$)+1;
+	
+	if (getequiprefinerycnt(.@part) == 100) {
+		mes "[Vorser]";
+		mes "Kid, I can't make this item any better.";
+		close;
+	}
+	
+	if (getequiprefinerycnt(.@part) > 100) {
+		mes "[Vorser]";
+		mes "Kid... this thing is a thing o' beauty! I'm flattered, but this craftsmanship ya got here is beyond even my abilities!";
+		close;
+	}
+	
+	set .@price,((getequiprefinerycnt(.@part) * getequiprefinerycnt(.@part) * BaseLevel) / 100) + 1;
+	set .@material,57000;
+		
+	mes "[Vorser]";	
+	mes "This is gonna set ya back ^FF0000"+.@price+"^000000 Munny, deal?";
+	next;
+	if(select("Sounds good!:I changed my mind.") == 2) {
+		mes "[Vorser]";
+		mes "I think we're done here then, kid.";
+		close;
+	}	
+
+	if (countitem(.@material) == 0) {
+		mes "[Vorser]";
+		mes "Huh? Kid, ya don't even got any Mythril Ore!";
+		close;
+	}
+	
+	if (Zeny < .@price) {
+		mes "[Vorser]";
+		mes "No Munny? Sorry kid, I gotta make a livin' somehow.";
+		close;
+	}
+	
+	delitem .@material,1;
+	set Zeny, Zeny-.@price;
+	
+	successrefitem .@part;
+	
+	mes "[Vorser]";
+	mes "Success! Enjoy, kid.";
+	close;
+	
+upgLevel:
+	setarray .@position$[1],"Body","Left Hand","Right Hand","Robe","Shoes";
+	set .@menu$,"";
+	for(set .@i,1; .@i<=5; set .@i,.@i+1)
+		set .@menu$, .@menu$+((getequipisequiped(.@i+1))?.@position$[.@i] + " - [" +getequipname(.@i+1)+"]":"")+":";
+	set .@part, select(.@menu$)+1;
+	
+	if (getequipilvlcnt(.@part) >= BaseLevel) {
+		mes "[Vorser]";
+		mes "Kid, I can't make this item any better.";
+		close;
+	}
+	
+	set .@price,((getequipilvlcnt(.@part) * getequipilvlcnt(.@part) * BaseLevel * 2) / 100) + 1;
+	set .@material,57001;
+	
+	mes "[Vorser]";		
+	mes "This is gonna set ya back ^FF0000"+.@price+"^000000 Munny, deal?";
+	next;
+	if(select("Sounds good!:I changed my mind.") == 2) {
+		mes "[Vorser]";
+		mes "I think we're done here then, kid.";
+		close;
+	}	
+
+	if (countitem(.@material) == 0) {
+		mes "[Vorser]";
+		mes "Huh? Kid, ya don't even got any Orichalcum Ore!";
+		close;
+	}
+	
+	if (Zeny < .@price) {
+		mes "[Vorser]";
+		mes "No Munny? Sorry kid, I gotta make a livin' somehow.";
+		close;
+	}
+	
+	delitem .@material,1;
+	set Zeny, Zeny-.@price;
+	
+	successrefitem2 .@part;
+	
+	mes "[Vorser]";
+	mes "Success! Enjoy, kid.";
+	close;
+	
+upgType:
+	setarray .@position$[1],"Body","Left Hand","Right Hand","Robe","Shoes";
+	set .@menu$,"";
+	for(set .@i,1; .@i<=5; set .@i,.@i+1)
+		set .@menu$, .@menu$+((getequipisequiped(.@i+1))?.@position$[.@i] + " - [" +getequipname(.@i+1)+"]":"")+":";
+	set .@part, select(.@menu$)+1;
+	
+	if (getequipid(.@part) > 51999) {
+		mes "[Vorser]";
+		mes "Kid... ya got a unique here! I can't improve on this!";
+		close;
+	}
+	
+	if (getequipid(.@part) == 50002 ||
+			getequipid(.@part) == 50005 ||
+			getequipid(.@part) == 50008 ||
+			getequipid(.@part) == 50011 ||
+			getequipid(.@part) == 50014 ||
+			getequipid(.@part) == 50017 ||
+			getequipid(.@part) == 51002 ||
+			getequipid(.@part) == 51005 ||
+			getequipid(.@part) == 51008 ||
+			getequipid(.@part) == 51011) {
+		mes "[Vorser]";
+		mes "Kid, this is already the best of its kind. Nothin' to do here.";
+		close;
+	}
+	
+	switch(getequipid(.@part)) {
+		case 50000:
+		case 50001:
+			set .@upg,50002;
+			break;
+		case 50003:
+		case 50004:
+			set .@upg,50005;
+			break;
+		case 50006:
+		case 50007:
+			set .@upg,50008;
+			break;
+		case 50009:
+		case 50010:
+			set .@upg,50011;
+			break;
+		case 50012:
+		case 50013:
+			set .@upg,50014;
+			break;
+		case 50015:
+		case 50016:
+			set .@upg,50017;
+			break;
+		case 51000:
+		case 51001:
+			set .@upg,51002;
+			break;
+		case 51003:
+		case 51004:
+			set .@upg,51005;
+			break;
+		case 51006:
+		case 51007:
+			set .@upg,51008;
+			break;
+		case 51009:
+		case 51010:
+			set .@upg,51011;
+			break;
+	}
+	
+	set .@price,(BaseLevel * (BaseLevel + 5)) + 1;
+	set .@material,57008;
+	
+	mes "[Vorser]";	
+	mes "This is gonna set ya back ^FF0000"+.@price+"^000000 Munny, deal?";
+	next;
+	if(select("Sounds good!:I changed my mind.") == 2) {
+		mes "[Vorser]";
+		mes "I think we're done here then, kid.";
+		close;
+	}	
+
+	if (countitem(.@material) == 0) {
+		mes "[Vorser]";
+		mes "Huh? Kid, ya don't even got a Divine Hammer!";
+		close;
+	}
+	
+	if (Zeny < .@price) {
+		mes "[Vorser]";
+		mes "No Munny? Sorry kid, I gotta make a livin' somehow.";
+		close;
+	}
+	
+	delitem .@material,1;
+	set Zeny, Zeny-.@price;
+	
+	set .@oldtype,getequipid(.@part);
+	set .@qual,getequiprefinerycnt(.@part);
+	set .@ilvl,getequipilvlcnt(.@part);
+	set .@ench1,getequipcardid(.@part,0);
+	set .@ench2,getequipcardid(.@part,1);
+	set .@ench3,getequipcardid(.@part,2);
+	set .@ench4,getequipcardid(.@part,3);
+	
+	unequip .@part;
+	delitem2 .@oldtype,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;
+	
+	autoequip .@upg,1;
+	getitem2 .@upg,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;
+	autoequip .@upg,0;
+	
+	specialeffect2 154;
+	
+	mes "[Vorser]";
+	mes "Success! Enjoy, kid.";
+	close;
+	
+thatsAll:
+	mes "[Vorser]";
+	mes "Nice doin' business with ya, kid.";
+	close;
+}

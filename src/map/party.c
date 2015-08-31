@@ -387,12 +387,20 @@ int party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 		return 0;
 	}
 
-	if( tsd->status.party_id > 0 || tsd->party_invite > 0 )
-	{// already associated with a party
+	if( tsd->status.party_id == sd->status.party_id || tsd->party_invite > 0 ) 
+	{// Invite others to party, even if they're in one
 		clif_party_inviteack(sd,tsd->status.name,0);
 		return 0;
 	}
-
+	
+	// Put a check so you can't invite party leaders? We'll see
+	
+	// check the requesting char's party membership
+	ARR_FIND( 0, MAX_PARTY, i, p->party.member[i].account_id == sd->status.account_id && p->party.member[i].char_id == sd->status.char_id );
+	if( i == MAX_PARTY )
+		return 0; // request from someone not in party? o.O
+	if( !p->party.member[i].leader )
+		return 0; // only party leader may remove members
 	tsd->party_invite=sd->status.party_id;
 	tsd->party_invite_account=sd->status.account_id;
 
@@ -416,6 +424,8 @@ int party_reply_invite(struct map_session_data *sd,int party_id,int flag)
 	if( flag == 1 && !sd->party_creating && !sd->party_joining ) { // accepted and allowed
 		sd->party_joining = true;
 		party_fill_member(&member, sd, 0);
+		if (sd->status.party_id) // Switch party support.
+			party_leave(sd);
 		intif_party_addmember(sd->party_invite, &member);
 		return 1;
 	} else { // rejected or failure
@@ -1008,15 +1018,15 @@ int party_exp_share(struct party_data* p, struct block_list* src, unsigned int b
 
 	// count the number of players eligible for exp sharing
 	for (i = c = 0; i < MAX_PARTY; i++) {
-		if( (sd[c] = p->data[i].sd) == NULL || sd[c]->bl.m != src->m || pc_isdead(sd[c]) || (battle_config.idle_no_share && pc_isidle(sd[c])) )
+		if( (sd[c] = p->data[i].sd) == NULL || sd[c]->bl.m != src->m || pc_isdead(sd[c]) || (battle_config.idle_no_share && pc_isidle(sd[c])) ) // Must be on-screen
 			continue;
 		c++;
 	}
 	if (c < 1)
 		return 0;
 
-	base_exp/=c;
-	job_exp/=c;
+	/*base_exp/=c;
+	job_exp/=c;*/
 	zeny/=c;
 
 	if (battle_config.party_even_share_bonus && c > 1) {

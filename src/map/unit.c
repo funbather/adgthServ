@@ -1707,9 +1707,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 			return 0; // Arrow-path check failed.
 	}
 
-	if (!combo) // Stop attack on non-combo skills [Skotlex]
-		unit_stop_attack(src);
-	else if(ud->attacktimer != INVALID_TIMER) // Elsewise, delay current attack sequence
+	if(ud->attacktimer != INVALID_TIMER) // Continue attacking after skill use
 		ud->attackabletime = tick + status_get_adelay(src);
 
 	ud->state.skillcastcancel = castcancel;
@@ -2066,6 +2064,14 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 
 		if( (sd && pc_checkskill(sd,SA_FREECAST) > 0) || skill_id == LG_EXEEDBREAK)
 			status_calc_bl(&sd->bl, SCB_SPEED);
+		else if (casttime < 5000 && ud->state.attack_continue) {
+			casttime = status_get_adelay(src);
+			if (DIFF_TICK(ud->canact_tick, tick+casttime) > 0)
+				ud->attackabletime = ud->canact_tick + 100;
+			else
+				ud->attackabletime = tick+casttime + 100;
+			unit_stop_walking(src,1);
+		} 
 	} else {
 		ud->skilltimer = INVALID_TIMER;
 		skill_castend_pos(ud->skilltimer,tick,src->id,0);

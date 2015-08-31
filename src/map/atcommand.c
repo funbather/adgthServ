@@ -433,6 +433,21 @@ static void warp_get_suggestions(struct map_session_data* sd, const char *name) 
 	clif_displaymessage(sd->fd, buffer);
 }
 
+
+// Autotarget
+ACMD_FUNC(autotarget)
+{
+	nullpo_retr(-1, sd);
+	
+	sd->state.autotarget^=1;
+		if(sd->state.autotarget)
+			clif_displaymessage(fd, "Offensive melee skills will automatically pick your current target.");
+		else
+			clif_displaymessage(fd, "Offensive melee skills behave normally again.");
+		clif_skillinfoblock(sd);
+		return 0;
+}
+
 /*==========================================
  * @rura, @warp, @mapmove
  *------------------------------------------*/
@@ -9710,6 +9725,7 @@ void atcommand_basecommands(void) {
 	 **/
 	AtCommandInfo atcommand_base[] = {
 #include "../custom/atcommand_def.inc"
+		ACMD_DEF(autotarget),
 		ACMD_DEF2R("warp", mapmove, ATCMD_NOCONSOLE),
 		ACMD_DEF(where),
 		ACMD_DEF(jumpto),

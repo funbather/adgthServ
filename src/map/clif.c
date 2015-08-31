@@ -4841,6 +4841,10 @@ void clif_skillinfoblock(struct map_session_data *sd)
 
 			WFIFOW(fd,len)   = id;
 			WFIFOL(fd,len+2) = skill_get_inf(id);
+			if (sd->state.autotarget && //MouRO: Convert offensive melee skills to automatic.
+				WFIFOL(fd,len+2) == INF_ATTACK_SKILL &&
+				skill_get_range(id, sd->status.skill[i].lv) < 0)
+					WFIFOL(fd,len+2) = INF_SELF_SKILL;
 			WFIFOW(fd,len+6) = sd->status.skill[i].lv;
 			WFIFOW(fd,len+8) = skill_get_sp(id,sd->status.skill[i].lv);
 			WFIFOW(fd,len+10)= skill_get_range2(&sd->bl, id,sd->status.skill[i].lv);
@@ -6212,6 +6216,11 @@ void clif_item_skill(struct map_session_data *sd,uint16 skill_id,uint16 skill_lv
 	WFIFOW(fd, 0)=0x147;
 	WFIFOW(fd, 2)=skill_id;
 	WFIFOW(fd, 4)=skill_get_inf(skill_id);
+	if(sd->state.autotarget &&
+		WFIFOW(fd, 4) == INF_ATTACK_SKILL &&
+		skill_get_range(skill_id, skill_lv) < 0 &&
+		sd->ud.target)
+		WFIFOW(fd, 4) = INF_SELF_SKILL;
 	WFIFOW(fd, 6)=0;
 	WFIFOW(fd, 8)=skill_lv;
 	WFIFOW(fd,10)=skill_get_sp(skill_id,skill_lv);
@@ -6221,6 +6230,22 @@ void clif_item_skill(struct map_session_data *sd,uint16 skill_id,uint16 skill_lv
 	WFIFOSET(fd,packet_len(0x147));
 }
 
+void clif_skill_use(struct map_session_data *sd,int skill_id,int skill_lv,int inf)
+{
+	int fd;
+	fd=sd->fd;
+	WFIFOHEAD(fd,packet_len(0x147));
+	WFIFOW(fd, 0)=0x147;
+	WFIFOW(fd, 2)=skill_id;
+	WFIFOW(fd, 4)=inf;
+	WFIFOW(fd, 6)=0;
+	WFIFOW(fd, 8)=skill_lv;
+	WFIFOW(fd,10)=skill_get_sp(skill_id,skill_lv);
+	WFIFOW(fd,12)=skill_get_range2(&sd->bl, skill_id,skill_lv);
+	safestrncpy((char*)WFIFOP(fd,14),skill_get_name(skill_id),NAME_LENGTH);
+	WFIFOB(fd,38)=0;
+	WFIFOSET(fd,packet_len(0x147));
+}
 
 /// Adds an item to character's cart.
 /// 0124 <index>.W <amount>.L <name id>.W <identified>.B <damaged>.B <refine>.B <card1>.W <card2>.W <card3>.W <card4>.W (ZC_ADD_ITEM_TO_CART)
@@ -11448,6 +11473,14 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	}
 
 	sd->skillitem = sd->skillitemlv = 0;
+
+	if (target_id == sd->bl.id && sd->state.autotarget && tmp == INF_ATTACK_SKILL) {
+		target_id = sd->ud.target;
+		if (!target_id) {
+			clif_skill_use(sd,skill_id,skill_lv,INF_ATTACK_SKILL);
+			return;
+		}
+	}
 
 	if( skill_id >= GD_SKILLBASE ) {
 		if( sd->state.gmaster_flag )

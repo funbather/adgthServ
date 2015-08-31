@@ -8250,7 +8250,7 @@ BUILDIN_FUNC(getequippercentrefinery)
  * Refine +1 item at pos and log and display refine
  *------------------------------------------*/
 BUILDIN_FUNC(successrefitem) {
-	short i = -1, up = 1;
+	short i = -1, up = 10; // +10 at a time
 	int pos;
 	TBL_PC *sd;
 
@@ -8276,7 +8276,7 @@ BUILDIN_FUNC(successrefitem) {
 		}
 
 		sd->status.inventory[i].refine += up;
-		sd->status.inventory[i].refine = cap_value( sd->status.inventory[i].refine, 0, MAX_REFINE);
+		sd->status.inventory[i].refine = cap_value( sd->status.inventory[i].refine, 0, 100);
 		pc_unequipitem(sd,i,2); // status calc will happen in pc_equipitem() below
 
 		clif_refine(sd->fd,0,i,sd->status.inventory[i].refine);
@@ -8305,6 +8305,100 @@ BUILDIN_FUNC(successrefitem) {
 			 }
 		}
 		script_pushint(st, sd->status.inventory[i].refine);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	ShowError("buildin_successrefitem: No item equipped at pos %d (CID=%d/AID=%d).\n", pos, sd->status.char_id, sd->status.account_id);
+	script_pushint(st, -1);
+	return SCRIPT_CMD_FAILURE;
+}
+
+// refine but for item level
+BUILDIN_FUNC(successrefitem2) {
+	short i = -1, up = 5;
+	int pos;
+	TBL_PC *sd;
+
+	pos = script_getnum(st,2);
+	sd = script_rid2sd(st);
+	if (sd == NULL)
+		return 0;
+
+	if (script_hasdata(st, 3))
+		up = script_getnum(st, 3);
+
+	if (pos > 0 && pos <= ARRAYLENGTH(equip))
+		i = pc_checkequip(sd,equip[pos-1]);
+	if (i >= 0) {
+		unsigned int ep = sd->status.inventory[i].equip;
+
+		//Logs items, got from (N)PC scripts [Lupus]
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->status.inventory[i]);
+
+		if (sd->status.inventory[i].attribute >= 50) {
+			script_pushint(st, MAX_REFINE);
+			return SCRIPT_CMD_SUCCESS;
+		}
+
+		sd->status.inventory[i].attribute += up;
+		sd->status.inventory[i].attribute = cap_value( sd->status.inventory[i].attribute, 0, sd->status.base_level);
+		pc_unequipitem(sd,i,2); // status calc will happen in pc_equipitem() below
+
+		clif_refine(sd->fd,0,i,sd->status.inventory[i].attribute);
+		clif_delitem(sd,i,1,3);
+
+		//Logs items, got from (N)PC scripts [Lupus]
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->status.inventory[i]);
+
+		clif_additem(sd,i,1,0);
+		pc_equipitem(sd,i,ep);
+		clif_misceffect(&sd->bl,3);
+		
+		script_pushint(st, sd->status.inventory[i].attribute);
+		return SCRIPT_CMD_SUCCESS;
+	}
+
+	ShowError("buildin_successrefitem: No item equipped at pos %d (CID=%d/AID=%d).\n", pos, sd->status.char_id, sd->status.account_id);
+	script_pushint(st, -1);
+	return SCRIPT_CMD_FAILURE;
+}
+
+// changes an item type, used to upgrade a non-unique to the best of its kind
+// works? but npcs won't read the new item type until the character relogs
+// i dunno how this stuff works man i'll look into it another time
+BUILDIN_FUNC(successrefitem3) {
+	short i = -1, type = 56000;
+	int pos;
+	TBL_PC *sd;
+
+	pos = script_getnum(st,2);
+	sd = script_rid2sd(st);
+	if (sd == NULL)
+		return 0;
+		
+	if (script_hasdata(st, 3))
+		type = script_getnum(st, 3);
+		
+	if (pos > 0 && pos <= ARRAYLENGTH(equip))
+		i = pc_checkequip(sd,equip[pos-1]);
+	if (i >= 0) {
+		unsigned int ep = sd->status.inventory[i].equip;
+			
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->status.inventory[i]);
+
+		sd->status.inventory[i].nameid = type;
+		pc_unequipitem(sd,i,2);
+
+		//clif_refine(sd->fd,0,i,sd->status.inventory[i].nameid);
+		clif_delitem(sd,i,1,3);
+
+		log_pick_pc(sd, LOG_TYPE_SCRIPT, 1, &sd->status.inventory[i]);
+
+		clif_additem(sd,i,1,0);
+		pc_equipitem(sd,i,ep);
+		clif_misceffect(&sd->bl,3);
+		
+		script_pushint(st, sd->status.inventory[i].nameid);
 		return SCRIPT_CMD_SUCCESS;
 	}
 
@@ -12149,8 +12243,8 @@ BUILDIN_FUNC(getequipcardcnt)
 	}
 
 	count = 0;
-	for( j = 0; j < sd->inventory_data[i]->slot; j++ )
-		if( sd->status.inventory[i].card[j] && itemdb_type(sd->status.inventory[i].card[j]) == IT_CARD )
+	for( j = 0; j < 4; j++ )
+		if( sd->status.inventory[i].card[j] )
 			count++;
 
 	script_pushint(st,count);
@@ -19461,9 +19555,12 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getequipisequiped,"i"),
 	BUILDIN_DEF(getequipisenableref,"i"),
 	BUILDIN_DEF(getequiprefinerycnt,"i"),
+  BUILDIN_DEF(getequipilvlcnt,"i"),
 	BUILDIN_DEF(getequipweaponlv,"i"),
 	BUILDIN_DEF(getequippercentrefinery,"i"),
 	BUILDIN_DEF(successrefitem,"i?"),
+	BUILDIN_DEF(successrefitem2,"i?"),
+	BUILDIN_DEF(successrefitem3,"i?"),
 	BUILDIN_DEF(failedrefitem,"i"),
 	BUILDIN_DEF(downrefitem,"i?"),
 	BUILDIN_DEF(statusup,"i"),
