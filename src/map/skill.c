@@ -4913,8 +4913,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 			int range = skill_lv / 2;
 			int maxlv = skill_get_max(skill_id); // learnable level
 			int count = 0;
-			int x, y;
-			struct skill_unit* unit;
+			//int x, y;
+			//struct skill_unit* unit;
 
 			if( skill_lv > maxlv )
 			{
@@ -4924,7 +4924,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 					range = maxlv / 2;
 			}
 
-			for( y = src->y - range; y <= src->y + range; ++y )
+			/*for( y = src->y - range; y <= src->y + range; ++y )
 				for( x = src->x - range; x <= src->x + range; ++x )
 				{
 					if( !map_find_skill_unit_oncell(src,x,y,SA_LANDPROTECTOR,NULL,1) )
@@ -4937,7 +4937,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 							skill_delunit(unit); // consume cell
 						}
 					}
-				}
+				}*/
+
+			count = rnd()%(skill_lv * 5);
 
 			if( count > (10000/WATERBALL_INTERVAL)+1 ) //Waterball has a max duration of 10 seconds [Playtester]
 				count = (10000/WATERBALL_INTERVAL)+1;

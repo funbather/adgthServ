@@ -7088,6 +7088,11 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 		// do not reset basic skill
 		//if( i == NV_BASIC && (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE )
 			//continue;
+			
+		if( i == AL_WARP ||
+				i == ALL_RESURRECTION ||
+				i == ALL_FIRSTAID) // Basic skills
+				continue;
 
 		if( sd->status.skill[i].flag == SKILL_FLAG_PERM_GRANTED )
 			continue;

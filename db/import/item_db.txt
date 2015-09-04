@@ -146,7 +146,7 @@
 55003,_int,Shard of Intelligence,6,20,,10,,,,,,,,,,,,,{ bonus bInt,7; },{},{}
 55004,_pre,Shard of Precision,6,20,,10,,,,,,,,,,,,,{ bonus bDex,7; },{},{}
 55005,_luk,Shard of Luck,6,20,,10,,,,,,,,,,,,,{ bonus bLuk,10; },{},{}
-55006,_hp,Shard of Health,6,20,,10,,,,,,,,,,,,,{ bonus bMaxHPrate,7; },{},{}
+55006,_hp,Shard of Health,6,20,,10,,,,,,,,,,,,,{ bonus bMaxHPrate,10; },{},{}
 55007,_sp,Shard of Mana,6,20,,10,,,,,,,,,,,,,{ bonus bMaxSP,15; },{},{}
 55008,_def,Shard of Defense,6,20,,10,,,,,,,,,,,,,{ bonus bDef,2; },{},{}
 55009,_mdef,Shard of Magic Defense,6,20,,10,,,,,,,,,,,,,{ bonus bMdef,3; },{},{}
@@ -193,6 +193,10 @@
 57006,_capriciousbijou,Capricious Bijou,3,0,0,0,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
 57007,_discordantbijou,Discordant Bijou,3,0,0,0,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
 57008,_divinehammer,Divine Hammer,3,0,0,0,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+
+// Costumes
+19526,C_Helm,Costume Helm,4,0,,0,,0,,0,0xFFFFFFFF,63,2,256,,1,0,40,{},{},{}
+20205,C_Fancy_Flower,Costume Fancy Flower,4,0,,0,,,,0,0xFFFFFFFF,63,2,256,,1,1,4,{},{},{}
 
 605,Anodyne,Anodyne,11,2000,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill 214,1; },{},{}
 

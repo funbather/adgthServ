@@ -56,6 +56,11 @@
 3000,DFamiliar@SBomb,attack,4046,3,1500,1000,1000,no,target,always,,,,,,,,
 3000,DFamiliar@PBlow,attack,4047,1,500,1000,7500,no,target,always,,,,,,,,
 3004,PlagueBomb@Boom,attack,173,1,10000,3000,1,no,self,always,,,,,,,29,
+
+2406,Quartermaster@Slave,attack,196,2,10000,3000,10000,no,self,slavele,2,1071,,,,,,
+1112,Admiral@HiltBash,attack,4031,3,1500,2000,5000,no,target,always,,,,,,,,
+1112,Admiral@Deluge,attack,86,3,1000,3000,10000,no,target,always,,,,,,,,
+1112,Admiral@Deluge,chase,86,3,2000,3000,10000,no,target,always,,,,,,,,
 // rAthena Dev Team
 //1900,Valaris@AL_TELEPORT,idle,26,1,10000,0,0,yes,self,rudeattacked,,,,,,,,
 //1900,Valaris@AL_TELEPORT,walk,26,1,500,0,5000,yes,self,rudeattacked,,,,,,,,

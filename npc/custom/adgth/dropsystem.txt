@@ -1,6 +1,12 @@
 // my dumbo drop system by ben age 8
 -	script	DropSystem	-1,{
-  function HeyAnItemDrop{
+  OnNPCKillEvent: // Three chances, starting at a base of 20%, 10%, 5%
+		callfunc("HeyAnItemDrop",20,getmonsterinfo(killedrid,1),1);
+		callfunc("HeyAnItemDrop",10,getmonsterinfo(killedrid,1),1);
+		callfunc("HeyAnItemDrop",5,getmonsterinfo(killedrid,1),1);
+}
+
+function	script	HeyAnItemDrop	{
     set .@drop,getarg(0);
     set .@monlvl,getarg(1);
     set .@random,rand(1,10000);
@@ -70,12 +76,12 @@
        
        
       // Finally, generate the item!
-      getitem3 .@item,1,1,.@quality,.@ilvl,.@socket1,.@socket2,.@socket3,.@socket4;
+      // Flags
+      // 0 - Give to player
+      // 1 - Drop on the ground (monster kills, etc)
+      if(getarg(2))
+				getitem3 .@item,1,1,.@quality,.@ilvl,.@socket1,.@socket2,.@socket3,.@socket4;
+			else
+				getitem2 .@item,1,1,.@quality,.@ilvl,.@socket1,.@socket2,.@socket3,.@socket4;
     }
-  }
-  
-  OnNPCKillEvent:
-    HeyAnItemDrop(20,getmonsterinfo(killedrid,1)); // Three chances, starting at a base of 20%, 10%, 5%
-    HeyAnItemDrop(10,getmonsterinfo(killedrid,1));
-    HeyAnItemDrop(5,getmonsterinfo(killedrid,1));
 }

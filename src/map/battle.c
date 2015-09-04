@@ -5731,7 +5731,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 20*skill_lv;
 						break;
 					case WZ_WATERBALL:
-						skillratio += 30*skill_lv;
+						skillratio += 25;
 						break;
 					case WZ_STORMGUST:
 						skillratio += 40*skill_lv;

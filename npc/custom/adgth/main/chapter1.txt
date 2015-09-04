@@ -1,0 +1,423 @@
+-	script	first_login	-,{
+OnPCLoginEvent:
+// First login
+if (class == Job_Novice && !firstlogin) {
+		skill 27, 1, 0;
+		skill 54, 1, 0;
+		skill 4014, 1, 0;
+		
+		resetstatus;
+		firstlogin = 1;
+	}
+}
+// NPCs
+alb2trea,60,72,4	script	Izaak#ch1	56,{
+	if(!questflag) {	
+		mes "[Izaak]";
+		mes "Aye, so you're the Recruit they sent me? Don't look so nervous, kid. It's dangerous, but a good payin' job. You'll be swimmin' in treasure in no time.";
+		next;
+		mes "["+strcharinfo(0)+"]";
+		mes "Danger? I don't know if I signed up for that!";
+		next;
+		mes "[Izaak]";
+		mes "What did you think bein' an adventurer would entail, then? You'll be fine! Our group of adventurers is second to none! We'll get you up to speed.";
+		next;
+		mes "[Izaak]";
+		mes "Take these. They ain't much, but they'll do you fine. Talk to me again when you're ready.";
+		
+		getitem2 "_shortsword1",1,1,85,1,0,0,0,0;
+		getitem2 "_heavyarmor1",1,1,85,1,0,0,0,0;
+		questflag = 1;
+		close;
+	}
+
+	if(questflag == 1) {	
+		mes "[Izaak]";
+		mes "Now, It's time for you to help us before I take ya under our wing. Use that new Curved Blade I gave ya to hunt down some of the animals around here. We're gatherin' supplies before we shove off to our next destination.";
+		next;
+		mes "[Izaak]";
+		mes "Let me see you bring me the meat of 10 of these animals.";
+		questflag = 2;
+		close;
+	}
+	
+	if(questflag == 2 && @gathermeat < 10) {
+		mes "[Izaak]";
+		mes "Aye, I need the meat of 10 of these animals for you to prove to me you can pull your weight.";
+		close;
+	}
+
+	if(questflag == 2 && @gathermeat >= 10) {
+		mes "[Izaak]";
+		mes "Good! I guess you are useful after all!";
+		next;
+		mes "[Izaak]";
+		mes "Now, you're probably wantin' to do more than just wave a sword around. Go talk to Guinevere or Azras over on the ship, and they'll set you up for your next mission.";
+		next;
+		mes "[Izaak]";
+		mes "And if you're ever confused by something, talk to Bookworm. He'll get ya sorted out.";
+		questflag = 3;
+		close;
+	}
+	
+	if(questflag == 3) {
+		mes "[Izaak]";
+		mes "What're you lookin at me for? Go talk to Guinevere or Azras over on the ship.";
+		close;
+	}
+	
+	if(questflag == 4) {
+		mes "[Izaak]";
+		mes "Aye, I see you're ready now for some real work. Time to put your new skills to the test.";
+		next;
+		mes "[Izaak]";
+		mes "To the northeast there's a wrecked ship, and you can guess what I want you to do. Word is there's two large caches of treasure that was stashed on that ship before it crashed, and I want you to go get it.";
+		next;
+		mes "[Izaak]";
+		mes "Why don't I go get it? Well, it's haunted of course! You're more suited to combat than my old self - that's why I'm sending you to do it! Don't fret too much, I hear there was treasure left all over that ship. All I want is the two large caches, help yourself to the rest of it.";
+		questflag = 5;
+		close;
+	}
+	
+	if(questflag == 5 && !(ch2Obj & 3)) {
+		mes "[Izaak]";
+		mes "What're you waitin' for? Get me the two treasure caches from the wrecked ship to the northeast.";
+		close;
+	}
+	
+	if(questflag == 5 && (ch2Obj & 3)) {
+		mes "[Izaak]";
+		mes "Fine work! You're the real deal!";
+		next;
+		mes "[Izaak]";
+		mes "Oh ho ho, yes! Time to finally leave this island. We'll be headed to another island I hear is filled with treasure. It'll be a real test for your new power, the dungeon there is truly treacherous!";
+		next;
+		mes "[Izaak]";
+		mes "I'll start preparations, finish up any business you had and talk to me again when you're ready to leave.";
+		questflag = 6;
+		close;
+	}
+	
+	if(questflag == 6) {
+		mes "warp to next place here";
+		close;
+	}
+}
+
+alb2trea,26,56,5	script	Guinevere#ch1	469,{
+	if(questflag < 3) {
+		mes "[Guinevere]";
+		mes "Hey, go talk to Izaak first.";
+		close;
+	}
+	
+	if(Class == 0) {
+		mes "[Guinevere]";
+		mes "Hey! I'm Guinevere the Warrior instructor! What do you need?";
+		next;
+		menu "What is a Warrior?",warriorDesc,"Any tips for Warriors?",warriorTips,"I want to become a Warrior!",warriorChange,"That's all.",warriorThatsAll;
+warriorMenu:
+		mes "[Guinevere]";
+		mes "Anything else you need?";
+		next;
+		menu "What is a Warrior?",warriorDesc,"Any tips for Warriors?",warriorTips,"I want to become a Warrior!",warriorChange,"That's all.",warriorThatsAll;
+	}
+	
+	if(Class > 0 && Class != 31) {
+		mes "[Guinevere]";
+		mes "I see you've already made your choice...";
+		close;
+	}
+	
+	if(Class == 31) {
+		mes "[Guinevere]";
+		mes "Go try out some skills, then talk to Izaak!";
+		close;
+	}
+	
+warriorDesc:
+	mes "[Guinevere]";
+	mes "A Warrior is a fighter who charges into battle and serves as the front line!";
+	mes "\nWarriors are unique because of their ability to switch freely between being an unstoppable force and an immovable object!";
+	next;
+	mes "[Guinevere]";
+	mes "We can do this because of our two support skills Monkey Grip and Twinhand.";
+	mes "\nMonkey Grip allows us to hold two-handed weapons, such as Knightswords and Mauls, in one hand! This lets us be able to wield a fearsome weapon without sacrificing defense.";
+	mes "\nTwinhand, on the other hand, lets us hold a Shortsword with both hands. This lets us boost its Weapon Power to truly fearsome levels, while also increasing attack speed!";
+	next;
+	mes "[Guinevere]";
+	mes "What good are support skills by themselves, though? Warriors feature a wide array of melee skills to take down any enemy, or even a whole mob of 'em!";
+	mes "\nOur repertoire grows even bigger if you're equipped with a shield also! Being able to play offense while on defense is the true specialty of a Warrior!";
+	next;
+	mes "[Guinevere]";
+	mes "As masters of controlling the battlefield, Warriors are suitable for any adventuring party.";
+	mes "\nWe can use Taunt to pull threats away from our allies, Hilt Bash to keep them in place, and even use Cover to recieve damage in place of an ally!";
+	next;
+	mes "[Guinevere]";
+	mes "Warriors are simply the best! You'll join my side, won't you?";
+	next;
+	goto warriorMenu;
+	
+warriorTips:
+	mes "[Guinevere]";
+	mes "As a Warrior, you first need to decide: Who do I fight for? Myself? Or my allies?";
+	next;
+	mes "[Guinevere]";
+	mes "If you're going to remain mostly solo, it's important to focus on offensive power. Try putting more emphasis on Strength, Agility, and Precision to make every hit count!";
+	mes "\nWarriors can be deadly if built for it - very few enemies can withstand a powerful Echo Blade, especially from a Twinhanded weapon.";
+	next;
+	mes "[Guinevere]";
+	mes "If you have allies to protect, instead focus more on Strength, Vitality, and Agility, as well as picking up some Shield skills.";
+	mes "\nIn party play, you'll be more in the thick of things; having more HP and being able to Cover more frail allies frees them up to focus solely on destruction!";
+	next;
+	mes "[Guinevere]";
+	mes "Warriors may be fairly straightforward, but our efficiency and versatility simply can't be beat!";
+	next;
+	goto warriorMenu;
+	
+warriorChange:
+	mes "[Guinevere]";
+	mes "You're about to embark on the path of the Warrior - Are you sure about this?";
+	next;
+	if(select("I'm sure!:On second thought...") == 2) {
+		mes "[Guinevere]";
+		mes "Come back when you're ready!";
+		close;
+	}
+	
+	jobchange 31;
+	SkillPoint = 1;
+	
+	getitem2 "_shield2",1,1,100,3,0,0,0,0;
+	getitem2 "_knightsword2",1,1,100,3,0,0,0,0;
+	getitem 19526,1; // Costume Helm
+	
+	mes "[Guinevere]";	
+	mes "Congratulations! You're now a Warrior! Go try out some skills, then talk to Izaak!";
+	
+	questflag = 4;
+	close;
+	
+warriorThatsAll:
+	mes "[Guinevere]";	
+	mes "Alright, then. Come back if you need anything!";
+	close;
+}
+
+alb2trea,35,54,3	script	Azras#ch1	502,{
+	if(questflag < 3) {
+		mes "[Azras]";
+		mes "I think Izaak is looking for you.";
+		close;
+	}
+	
+	if(Class == 0) {
+		mes "[Azras]";
+		mes "I'm Azras, the Terramancer instructor. Interested in Terramancy?";
+		next;
+		menu "Terramancy?",terramancerDesc,"Any tips for Terramancers?",terramancerTips,"I want to become a Terramancer!",terramancerChange,"That's all.",terramancerThatsAll;
+terramancerMenu:
+		mes "[Azras]";
+		mes "Anything else?";
+		next;
+		menu "Terramancy?",terramancerDesc,"Any tips for Terramancers?",terramancerTips,"I want to become a Terramancer!",terramancerChange,"That's all.",terramancerThatsAll;
+	}
+	
+	if(Class > 0 && Class != 32) {
+		mes "[Azras]";
+		mes "I have no interest in talking to you.";
+		close;
+	}
+	
+	if(Class == 32) {
+		mes "[Azras]";
+		mes "Go, I believe Izaak is calling for you.";
+		close;
+	}
+	
+terramancerDesc:
+	mes "[Azras]";
+	mes "Terramancy is total control over Earth and Poison - It's much less flashy than Fire and Ice magics, but you'll soon learn it's much more deadly.";
+	next;
+	mes "[Azras]";
+	mes "Poison magic can bring any enemy to their knees - no creature can resist the toxins eating away at their vitals.";
+	mes "\nAs a Terramancer, you can leave entire groups of enemies Poisoned and slowly withering away... only to erupt in a Poison explosion to wipe them all out.";
+	next;
+	mes "[Azras]";
+	mes "Terramancers aren't limited to slow methods, either. Earth magics are quick and decisive, and can quickly dispose of any threat.";
+	mes "\nFire magic can scorch an enemy - Earth magic will erase them.";
+	next;
+	mes "[Azras]";
+	mes "Terramancers also have a multitude of supportive spells to protect and heal allies with the Earth's restorative capabilites. Terramancy is the full package.";
+	next;
+	goto terramancerMenu;
+	
+terramancerTips:
+	mes "[Azras]";
+	mes "As a Terramancer, you have a wealth of options. You must first decide whether to focus on Posion or Earth magics.";
+	next;
+	mes "[Azras]";
+	mes "Earth spells are recommended if you need to be on offense. They can cover a much wider area, and are much more potent.";
+	next;
+	mes "[Azras]";
+	mes "If you are with allies, consider going with more Poison spells. You will be able to support them and control the battle - all while dealing damage through Poison.";
+	next;
+	mes "[Azras]";
+	mes "As for stats, Intelligence is your biggest priority. In addition to dealing more damage, INT will increase your Mana pool, letting you use your spells more freely.";
+	mes "\nAlso consider Precision for devastating critical attacks, and Vitality to survive long enough to deal your damage.";
+	next;
+	goto terramancerMenu;
+	
+terramancerChange:
+	mes "[Azras]";
+	mes "I knew you'd choose the right path. Are you ready to become a Terramancer?";
+	next;
+	if(select("Yeah!:On second thought...") == 2) {
+		mes "[Azras]";
+		mes "Think it over.";
+		close;
+	}
+	
+	jobchange 32;
+	SkillPoint = 1;
+	
+	getitem2 "_staff2",1,1,100,3,0,0,0,0;
+	getitem2 "_lightarmor2",1,1,100,3,0,0,0,0;
+	getitem 20205,1; // Costume Fancy Flower
+	
+	mes "[Azras]";	
+	mes "Try out your new power, then report back to Izaak.";
+	
+	questflag = 4;
+	close;
+	
+terramancerThatsAll:
+	mes "[Azras]";	
+	mes "I'll see you later, then.";
+	close;
+}
+
+alb2trea,54,47,1	script	Bookworm#ch1	805,{
+bookMenu:
+		mes "[Bookworm]";
+		mes "What do you want to know about?";
+		next;
+		menu "Items",tellItems,"Stats",tellStats,"Skills",tellSkills,"Parties",tellParties,"That's all.",bookThatsAll;
+		
+tellItems:
+		mes "[Bookworm]";
+		mes "Items, huh? Here's all I got so far about items...";
+		next;
+		mes "[Bookworm]";
+		mes "There are three types of items: Equipment, Consumables, and Crafting Items. You can view your Inventory by clicking the 'item' button near your status bar, or using the shortcut 'Alt+Q'. You can view your currently equipped items by clicked the 'info' button near your status bar, or with the shortcut 'Alt+E'.";
+		next;
+		mes "[Bookworm]";
+		mes "Equipment includes Armor, Weapons, and Accessories. Armor and weapons have both a Quality Level, and an Item Level. Accessories are much rarer than the other two, but will always be the same.";
+		mes "\nQuality on item drops is random from 50% to 100%, and sometimes even higher than that. The Quality heavily affects an item's stats, although low rolls can be remedied by a Blacksmith... or so I hear. ";
+		mes "\nItem Level also affects an item's stats, but is less random. Item drops will have an item level averaged around your own level, and the level of the monster who dropped it. I hear this, too, can be raised... if you're attached to a particular item.";
+		next;
+		mes "[Bookworm]";
+		mes "Consumables can be bought from merchants in towns and encampments. Most consumables are very potent, but have a limit on how many you can carry.";
+		mes "\nIt's often a better idea to sit down and rest between fights than use healing items. You might run out of consumables at a crucial moment.";
+		next;
+		mes "[Bookworm]";
+		mes "There are also Crafting Items, which can be used to customize and perfect your equipment. I only know about special ores that Blacksmiths can use to upgrade items, I guess I need to do more research here...";
+		next;
+		goto bookMenu;
+tellStats:
+		mes "[Bookworm]";
+		mes "Stats, huh? Here's all I got so far about stats...";
+		next;
+		mes "[Bookworm]";
+		mes "There are six different kinds of stats, although only five that you can raise directly. They are Strength (STR), Agility (AGI), Vitality (VIT), Intelligence (INT), Precision (PRE), and Luck (LUK). You can view and distribute your status points by clicking the 'info' button near your status bar, or by using the shortcut 'Alt+E'.";
+		next;
+		mes "[Bookworm]";
+		mes "Strength affects your damage with basic attacks (even with staves!), as well as your physical skill damage by a percentage.";
+		mes "\nAdditionally, for every stat point you put into STR, your weight capacity will increase by 2. Moderate STR investment can be attractive for even magic-heavy builds.";
+		next;
+		mes "[Bookworm]";
+		mes "Agility affects your attack speed, as well as increases your evasion.";
+		mes "\nAGI can seem unimpactful in low amounts, but an AGI-invested player can be a force of destruction, dealing rapid hits on top of being difficult to hit.";
+		next;
+		mes "[Bookworm]";
+		mes "Vitality greatly increases your base HP pool and HP regeneration rate.";
+		mes "\nVIT is a very potent stat, but it provides no offensive value. Don't neglect it, but be sure to also not over-invest!";
+		next;
+		mes "[Bookworm]";
+		mes "Intelligence increases your Magical Attack, as well as your MP pool.";
+		mes "\nINT provides many useful benefits, beyond the obvious magic damage increase. A higher Mana pool not only allows for you to use your more powerful skills more easily, but because regeneration is based off of your maximum MP, you can use them more often as well.";
+		next;
+		mes "[Bookworm]";
+		mes "Precision increases your chance to critically hit, as well as your critical hit damage.";
+		mes "\nPRE, similarly to AGI, is very potent in higher amounts. A powerful spell that critically hits can turn around a dire fight very quickly. Be wary though; PRE offers no defensive value, so try to find a balance.";
+		next;
+		mes "[Bookworm]";
+		mes "Luck affects not only the quantity of the items you find, but the rarity of them as well.";
+		mes "\nLUK cannot be raised naturally, but is instead increased through equipment.";
+		next;
+		goto bookMenu;	
+tellSkills:
+		mes "[Bookworm]";
+		mes "Skills, huh? Here's all I got so far about skills...";
+		next;
+		mes "[Bookworm]";
+		mes "There are a few different types of skills. Innate skills, Common Passive skills, Active skills, and Support skills. You can view your skills by clicking the 'skill' button near your status bar, or by using the shortcut 'Alt+S'.";
+		next;
+		mes "[Bookworm]";
+		mes "Innate skills are any skills that do not require you to put skill points into them to use, and have a dark green icon.";
+		mes "\nThese include basic skills such as First Aid and Recucitate, as well as any skills given by items. It's important to remember these skills in the heat of battle.";
+		next;
+		mes "[Bookworm]";
+		mes "Common Passive skills are passive skills that are shared between all classes, and have a light blue icon.";
+		mes "\nThese skills are not especially potent, but can help cover weaknesses or emphasize strengths if you have skill points left over in your build.";
+		next;
+		mes "[Bookworm]";
+		mes "Active skills are self-explanitory, offensive skills that must manually be used, and have a red icon.";
+		mes "\nThese skills can include physical attacks as well as magical spells. A helpful tip: by turning on auto-target with the command '/autotarget', you can cast offensive melee skills on your target automatically while continuing to attack.";
+		next;
+		mes "[Bookworm]";
+		mes "The last type of skills are Support skills, skills which either support your allies or yourself, and have a dark blue icon.";
+		mes "\nThese skills can be active or passive, and range from damage reduction on yourself, to even coating an ally's weapon in poison. There are many support skills, so keep a look out for them!";
+		next;
+		goto bookMenu;
+tellParties:
+		mes "[Bookworm]";
+		mes "Parties, huh? Here's all I got so far about parties...";
+		next;
+		mes "[Bookworm]";
+		mes "Parties are a great, efficient, and fun way to advance through the game! You can view your current party status by clicking the 'party' button near your status bar, or with the shortcut 'Alt+Z'.";
+		next;
+		mes "[Bookworm]";
+		mes "To create a party, use the 'Create Party' button from within the party menu, or use the command '/organize \"partyname\"'. While creating a party, you can choose who can invite others into the party, as well as how loot is distributed. By default, items are finders keepers-style, but you can set it so regardless of who picks the item up, it is distrubuted round-robin style.";
+		mes "\nYou can invite others into your party by right clicking on them, or by using the command '/invite \"playername\"'.";
+		next;
+		mes "[Bookworm]";
+		mes "Once in a party, all experience is shared equally and fully to all members within range. This makes parties very efficient for leveling.";
+		mes "\nMunny, however, is split evenly between all members within range, instead of in full like experience. Additionally, there is no bonus to item quantity while in a party, and items can be picked up by anyone in the party... so either set the item distribution to Even Share, or work out a distribution method beforehand!";
+		next;
+		mes "[Bookworm]";
+		mes "While having more people in a party can be fun, it can also diminish the challenge. Those seeking the biggest challenge with the greatest rewards can try to play by themselves.";
+		mes "\nTry to find the right difficulty balance for you by playing in many different parties.";
+		next;
+		goto bookMenu;
+bookThatsAll:
+		mes "[Bookworm]";
+		mes "I'm still learning too - Come back sometime and I might have some more info.";
+		close;
+}
+
+alb2trea,0,0	monster	Hare	1063,15,0,0,"mob#gatherMeat::OnKill"
+alb2trea,0,0	monster	Bandit	1056,7,0,0,"mob#gatherMeat::OnKill"
+alb2trea,0,0	monster	Squirrel	1104,10,0,0,"mob#gatherMeat::OnKill"
+
+alb2trea,0,0,0	script	mob#gatherMeat	-1,{
+OnKill:
+if(@gathermeat < 9 && questflag == 2) {
+	@gathermeat += 1;
+	message strcharinfo(0),"Animal Meat Collected! "+(10-@gathermeat)+" left to go...";
+} else if(@gathermeat == 9 && questflag == 2) {
+	@gathermeat = 10;
+	message strcharinfo(0),"Got 'em all! I should report back to Izaak...";
+}
+end;
+}
