@@ -56,6 +56,7 @@ struct party_data* party_searchname(const char* str);
 int party_getmemberid(struct party_data* p, struct map_session_data* sd);
 struct map_session_data* party_getavailablesd(struct party_data *p);
 
+struct map_session_data *party_searchleader(struct map_session_data *sd);
 int party_create(struct map_session_data *sd,char *name, int item, int item2);
 void party_created(uint32 account_id,uint32 char_id,int fail,int party_id,char *name);
 int party_request_info(int party_id, uint32 char_id);

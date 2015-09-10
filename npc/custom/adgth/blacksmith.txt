@@ -54,7 +54,7 @@ upgQuality:
 		close;
 	}
 	
-	set .@price,((getequiprefinerycnt(.@part) * getequiprefinerycnt(.@part) * BaseLevel) / 100) + 1;
+	set .@price,((getequiprefinerycnt(.@part) * getequiprefinerycnt(.@part) * BaseLevel) / 1000) + 1;
 	set .@material,57000;
 		
 	mes "[Vorser]";	
@@ -100,7 +100,7 @@ upgLevel:
 		close;
 	}
 	
-	set .@price,((getequipilvlcnt(.@part) * getequipilvlcnt(.@part) * BaseLevel * 2) / 100) + 1;
+	set .@price,((getequipilvlcnt(.@part) * getequipilvlcnt(.@part) * BaseLevel * 2) / 1000) + 1;
 	set .@material,57001;
 	
 	mes "[Vorser]";		
@@ -257,3 +257,5 @@ thatsAll:
 	mes "Nice doin' business with ya, kid.";
 	close;
 }
+
+izlu2dun,99,115,5	duplicate(Vorser#adgth)	Vorser	813

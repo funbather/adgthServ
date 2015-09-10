@@ -98,8 +98,10 @@ treasure02,55,33,0	script	Treasure#trch06	111,{
 
 treasure02,155,34,0	script	Treasure#trch07	111,{
 	if(!(treasure & 0x40)) {
-		message strcharinfo(0),"Hey, treasure!";
+		message strcharinfo(0),"Wow! Lots of treasure!";
 		treasure = (treasure | 0x40);
+		callfunc("HeyAnItemDrop",100,BaseLevel,0);
+		callfunc("HeyAnItemDrop",100,BaseLevel,0);
 		callfunc("HeyAnItemDrop",100,BaseLevel,0);
 	} else {
 		message strcharinfo(0),"I've already gotten this treasure.";

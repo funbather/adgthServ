@@ -4,6 +4,28 @@
 		callfunc("HeyAnItemDrop",20,getmonsterinfo(killedrid,1),1);
 		callfunc("HeyAnItemDrop",10,getmonsterinfo(killedrid,1),1);
 		callfunc("HeyAnItemDrop",5,getmonsterinfo(killedrid,1),1);
+
+		if(questflag > 6) { // Blacksmith unlocked in Chapter 3
+			if(rand(1,100) <= 25) // Mythril 25%
+				getitem3 57000,1,1,0,0,0,0,0,0;
+			if(rand(1,100) <= 15) // Orichalcum 15%
+				getitem3 57001,1,1,0,0,0,0,0,0;
+			if(rand(1,100) <= 5) // Divine Hammer 5%
+				getitem3 57008,1,1,0,0,0,0,0,0;
+		}
+			
+		if(questflag > 99) { // Enchantress unlocked ??
+			if(rand(1,100) <= 15) // Empty 15%
+				getitem3 57002,1,1,0,0,0,0,0,0;			
+			if(rand(1,100) <= 9) // Arcane 9%
+				getitem3 57004,1,1,0,0,0,0,0,0;			
+			if(rand(1,100) <= 4) // Blessed 4%
+				getitem3 57005,1,1,0,0,0,0,0,0;
+			if(rand(1,100) <= 7) // Capricious 7%
+				getitem3 57006,1,1,0,0,0,0,0,0;
+			if(rand(1,100) <= 4) // Discordant 4%
+				getitem3 57007,1,1,0,0,0,0,0,0;
+		}
 }
 
 function	script	HeyAnItemDrop	{
@@ -20,7 +42,7 @@ function	script	HeyAnItemDrop	{
     set .@itemfind,0;
     set .@magicfind,0;
     
-    set .@itemfind,100 + readparam(bLuk2) + ((readparam(bLuk2)  * BaseLevel * 5) / 200);
+    set .@itemfind,100 + readparam(bLuk2);
     set .@magicfind,readparam(bLuk2);
     
     // Do we get a drop at all?
@@ -84,4 +106,6 @@ function	script	HeyAnItemDrop	{
 			else
 				getitem2 .@item,1,1,.@quality,.@ilvl,.@socket1,.@socket2,.@socket3,.@socket4;
     }
+    
+    return 1;
 }

@@ -7622,6 +7622,21 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		break;
 
 	case AL_TELEPORT:
+		if(sd && skill_lv == 4) {
+						struct map_session_data *tsd = party_searchleader(sd);
+						if (!sd->status.party_id || tsd==NULL)
+						{	//No party to warp to.
+							clif_skill_fail(sd,skill_id,0,0);
+							break;
+						}
+						if(map[tsd->bl.m].flag.nowarpto && (tsd->bl.m != sd->bl.m || map[tsd->bl.m].flag.gvg_castle))
+						{
+							clif_skill_teleportmessage(sd,0);
+							break;
+						}
+						pc_setpos(sd, tsd->mapindex, tsd->bl.x, tsd->bl.y, CLR_TELEPORT);
+					}
+					break;
 	case ALL_ODINS_RECALL:
 		if(sd)
 		{

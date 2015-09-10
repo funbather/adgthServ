@@ -4,46 +4,46 @@
 // ID,Name,Name,Type,Price,Sell,Weight,ATK,DEF,Range,Slot,Job,Class,Gender,Loc,wLV,eLV,Refineable,View,{ Script },{ OnEquip_Script },{ OnUnequip_Script }
 
 // 50K - COMMON ARMOR
-50000,_heavyarmor1,Breastplate,4,10,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*45*14 / 100) + 45) * getrefine() / 100); bonus bDef,(((getilvl()*2*4*3 / 100) + 4) * getrefine() / 100);},{},{}
-50001,_heavyarmor2,Hauberk,4,10,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*50*14 / 100) + 50) * getrefine() / 100); bonus bDef,(((getilvl()*2*4*3 / 100) + 4) * getrefine() / 100);},{},{}
-50002,_heavyarmor3,Platemail,4,10,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*55*14 / 100) + 55) * getrefine() / 100); bonus bDef,(((getilvl()*2*5*3 / 100) + 5) * getrefine() / 100);},{},{}
+50000,_heavyarmor1,Breastplate,4,40,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*45*14 / 100) + 45) * getrefine() / 100); bonus bDef,(((getilvl()*2*4*3 / 100) + 4) * getrefine() / 100);},{},{}
+50001,_heavyarmor2,Hauberk,4,50,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*50*14 / 100) + 50) * getrefine() / 100); bonus bDef,(((getilvl()*2*4*3 / 100) + 4) * getrefine() / 100);},{},{}
+50002,_heavyarmor3,Platemail,4,60,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*55*14 / 100) + 55) * getrefine() / 100); bonus bDef,(((getilvl()*2*5*3 / 100) + 5) * getrefine() / 100);},{},{}
 
-50003,_medarmor1,Ironweave Coat,4,10,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*27*14 / 100) + 27) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*5*10 / 100) + 5) * getrefine() / 100); bonus bDef,(((getilvl()*2*3*3 / 100) + 3) * getrefine() / 100); },{},{}
-50004,_medarmor2,Battlemage Robe,4,10,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*30*14 / 100) + 30) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*6*10 / 100) + 6) * getrefine() / 100); bonus bDef,(((getilvl()*2*3*3 / 100) + 3) * getrefine() / 100);},{},{}
-50005,_medarmor3,Hero's Garb,4,10,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*33*14 / 100) + 33) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*7*10 / 100) + 7) * getrefine() / 100); bonus bDef,(((getilvl()*2*4*3 / 100) + 4) * getrefine() / 100);},{},{}
+50003,_medarmor1,Ironweave Coat,4,40,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*27*14 / 100) + 27) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*5*10 / 100) + 5) * getrefine() / 100); bonus bDef,(((getilvl()*2*3*3 / 100) + 3) * getrefine() / 100); },{},{}
+50004,_medarmor2,Battlemage Robe,4,50,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*30*14 / 100) + 30) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*6*10 / 100) + 6) * getrefine() / 100); bonus bDef,(((getilvl()*2*3*3 / 100) + 3) * getrefine() / 100);},{},{}
+50005,_medarmor3,Hero's Garb,4,60,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*33*14 / 100) + 33) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*7*10 / 100) + 7) * getrefine() / 100); bonus bDef,(((getilvl()*2*4*3 / 100) + 4) * getrefine() / 100);},{},{}
 
-50006,_lightarmor1,Apprentice's Robe,4,10,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*17*14 / 100) + 17) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*17*10 / 100) + 17) * getrefine() / 100); bonus bDef,(((getilvl()*2*1*3 / 100) + 1) * getrefine() / 100); bonus bMdef,(((getilvl()*2*5*3 / 100) + 5) * getrefine() / 100);},{},{}
-50007,_lightarmor2,Spellweave Gown,4,10,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*20*14 / 100) + 20) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*20*10 / 100) + 20) * getrefine() / 100); bonus bDef,(((getilvl()*2*1*3 / 100) + 1) * getrefine() / 100); bonus bMdef,(((getilvl()*2*6*3 / 100) + 6) * getrefine() / 100);},{},{}
-50008,_lightarmor3,Arcane Raiment,4,10,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*23*14 / 100) + 23) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*23*10 / 100) + 23) * getrefine() / 100); bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bMdef,(((getilvl()*2*7*3 / 100) + 7) * getrefine() / 100);},{},{}
+50006,_lightarmor1,Apprentice's Robe,4,40,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*17*14 / 100) + 17) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*17*10 / 100) + 17) * getrefine() / 100); bonus bDef,(((getilvl()*2*1*3 / 100) + 1) * getrefine() / 100); bonus bMdef,(((getilvl()*2*5*3 / 100) + 5) * getrefine() / 100);},{},{}
+50007,_lightarmor2,Spellweave Gown,4,50,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*20*14 / 100) + 20) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*20*10 / 100) + 20) * getrefine() / 100); bonus bDef,(((getilvl()*2*1*3 / 100) + 1) * getrefine() / 100); bonus bMdef,(((getilvl()*2*6*3 / 100) + 6) * getrefine() / 100);},{},{}
+50008,_lightarmor3,Arcane Raiment,4,60,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*23*14 / 100) + 23) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*23*10 / 100) + 23) * getrefine() / 100); bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bMdef,(((getilvl()*2*7*3 / 100) + 7) * getrefine() / 100);},{},{}
 
-50009,_shield1,Buckler,4,10,,50,,0,,0,0xFFFFFFFF,63,2,32,,0,1,1,{bonus bMaxHP,(((getilvl()*2*12*14 / 100) + 12) * getrefine() / 100); bonus bDef,(((getilvl()*2*5*3 / 100) + 5) * getrefine() / 100); bonus bMdef,(((getilvl()*2*4*3 / 100) + 4) * getrefine() / 100); bonus bFlee,(((getilvl()*2*11 / 100) + 11) * getrefine() / 100);},{},{}
-50010,_shield2,Targe,4,10,,50,,0,,0,0xFFFFFFFF,63,2,32,,0,1,1,{bonus bMaxHP,(((getilvl()*2*14*14 / 100) + 14) * getrefine() / 100); bonus bDef,(((getilvl()*2*5*3 / 100) + 5) * getrefine() / 100); bonus bMdef,(((getilvl()*2*4*3 / 100) + 4) * getrefine() / 100); bonus bFlee,(((getilvl()*2*12 / 100) + 12) * getrefine() / 100);},{},{}
-50011,_shield3,Kite Shield,4,10,,50,,0,,0,0xFFFFFFFF,63,2,32,,0,1,1,{bonus bMaxHP,(((getilvl()*2*16*14 / 100) + 16) * getrefine() / 100); bonus bDef,(((getilvl()*2*6*3 / 100) + 6) * getrefine() / 100); bonus bMdef,(((getilvl()*2*5*3 / 100) + 5) * getrefine() / 100); bonus bFlee,(((getilvl()*2*13 / 100) + 13) * getrefine() / 100);},{},{}
+50009,_shield1,Buckler,4,40,,50,,0,,0,0xFFFFFFFF,63,2,32,,0,1,1,{bonus bMaxHP,(((getilvl()*2*12*14 / 100) + 12) * getrefine() / 100); bonus bDef,(((getilvl()*2*5*3 / 100) + 5) * getrefine() / 100); bonus bMdef,(((getilvl()*2*4*3 / 100) + 4) * getrefine() / 100); bonus bFlee,(((getilvl()*2*11 / 100) + 11) * getrefine() / 100);},{},{}
+50010,_shield2,Targe,4,50,,50,,0,,0,0xFFFFFFFF,63,2,32,,0,1,1,{bonus bMaxHP,(((getilvl()*2*14*14 / 100) + 14) * getrefine() / 100); bonus bDef,(((getilvl()*2*5*3 / 100) + 5) * getrefine() / 100); bonus bMdef,(((getilvl()*2*4*3 / 100) + 4) * getrefine() / 100); bonus bFlee,(((getilvl()*2*12 / 100) + 12) * getrefine() / 100);},{},{}
+50011,_shield3,Kite Shield,4,60,,50,,0,,0,0xFFFFFFFF,63,2,32,,0,1,1,{bonus bMaxHP,(((getilvl()*2*16*14 / 100) + 16) * getrefine() / 100); bonus bDef,(((getilvl()*2*6*3 / 100) + 6) * getrefine() / 100); bonus bMdef,(((getilvl()*2*5*3 / 100) + 5) * getrefine() / 100); bonus bFlee,(((getilvl()*2*13 / 100) + 13) * getrefine() / 100);},{},{}
 
-50012,_mantle1,Layered Shawl,4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bFlee,(((getilvl()*2*5 / 100) + 5) * getrefine() / 100);},{},{}
-50013,_mantle2,Wool Scarf,4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bFlee,(((getilvl()*2*6 / 100) + 6) * getrefine() / 100);},{},{}
-50014,_mantle3,Feathered Muffler,4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bFlee,(((getilvl()*2*7 / 100) + 7) * getrefine() / 100);},{},{}
+50012,_mantle1,Layered Shawl,4,40,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bFlee,(((getilvl()*2*5 / 100) + 5) * getrefine() / 100);},{},{}
+50013,_mantle2,Wool Scarf,4,50,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bFlee,(((getilvl()*2*6 / 100) + 6) * getrefine() / 100);},{},{}
+50014,_mantle3,Feathered Muffler,4,60,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bFlee,(((getilvl()*2*7 / 100) + 7) * getrefine() / 100);},{},{}
 
-50015,_shoes1,Leather Shoes,4,10,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bMaxHP,(((getilvl()*2*13*14 / 100) + 13) * getrefine() / 100); bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bSpeedAddRate,(((getilvl()*2*6*2 / 100) + 6) * getrefine() / 100);},{},{}
-50016,_shoes2,Reinforced Boots,4,10,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bMaxHP,(((getilvl()*2*14*14 / 100) + 14) * getrefine() / 100); bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bSpeedAddRate,(((getilvl()*2*7*2 / 100) + 7) * getrefine() / 100);},{},{}
-50017,_shoes3,Groundpounders,4,10,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bMaxHP,(((getilvl()*2*15*14 / 100) + 15) * getrefine() / 100); bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bSpeedAddRate,(((getilvl()*2*8*2 / 100) + 8) * getrefine() / 100);},{},{}
+50015,_shoes1,Leather Shoes,4,40,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bMaxHP,(((getilvl()*2*13*14 / 100) + 13) * getrefine() / 100); bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bSpeedAddRate,(((getilvl()*2*6*2 / 100) + 6) * getrefine() / 100);},{},{}
+50016,_shoes2,Reinforced Boots,4,50,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bMaxHP,(((getilvl()*2*14*14 / 100) + 14) * getrefine() / 100); bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bSpeedAddRate,(((getilvl()*2*7*2 / 100) + 7) * getrefine() / 100);},{},{}
+50017,_shoes3,Groundpounders,4,60,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bMaxHP,(((getilvl()*2*15*14 / 100) + 15) * getrefine() / 100); bonus bDef,(((getilvl()*2*2*3 / 100) + 2) * getrefine() / 100); bonus bSpeedAddRate,(((getilvl()*2*8*2 / 100) + 8) * getrefine() / 100);},{},{}
 
 // 51K - COMMON WEAPONS
-51000,_shortsword1,Curved Blade,5,100,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,1,{bonus bAtk,(((getilvl()*2*8*10 / 100) + 8) * getrefine() / 100);},{},{}
-51001,_shortsword2,Arming Sword,5,100,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,1,{bonus bAtk,(((getilvl()*2*9*10 / 100) + 9) * getrefine() / 100);},{},{}
-51002,_shortsword3,Hallowed Sabre,5,100,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,1,{bonus bAtk,(((getilvl()*2*10*10 / 100) + 10) * getrefine() / 100);},{},{}
+51000,_shortsword1,Curved Blade,5,40,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,1,{bonus bAtk,(((getilvl()*2*8*10 / 100) + 8) * getrefine() / 100);},{},{}
+51001,_shortsword2,Arming Sword,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,1,{bonus bAtk,(((getilvl()*2*9*10 / 100) + 9) * getrefine() / 100);},{},{}
+51002,_shortsword3,Hallowed Sabre,5,60,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,1,{bonus bAtk,(((getilvl()*2*10*10 / 100) + 10) * getrefine() / 100);},{},{}
 
-51003,_knightsword1,Iron Blade,5,100,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,3,{bonus bSplashAddRange,1; bonus bAtk,(((getilvl()*2*10*10 / 100) + 10) * getrefine() / 100);},{},{}
-51004,_knightsword2,Broadsword,5,100,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,3,{bonus bSplashAddRange,1; bonus bAtk,(((getilvl()*2*11*10 / 100) + 11) * getrefine() / 100);},{},{}
-51005,_knightsword3,Claymore,5,100,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,3,{bonus bSplashAddRange,1; bonus bAtk,(((getilvl()*2*12*10 / 100) + 12) * getrefine() / 100);},{},{}
+51003,_knightsword1,Iron Blade,5,40,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,3,{bonus bSplashAddRange,1; bonus bAtk,(((getilvl()*2*10*10 / 100) + 10) * getrefine() / 100);},{},{}
+51004,_knightsword2,Broadsword,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,3,{bonus bSplashAddRange,1; bonus bAtk,(((getilvl()*2*11*10 / 100) + 11) * getrefine() / 100);},{},{}
+51005,_knightsword3,Claymore,5,60,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,3,{bonus bSplashAddRange,1; bonus bAtk,(((getilvl()*2*12*10 / 100) + 12) * getrefine() / 100);},{},{}
 
-51006,_maul1,Cudgel,5,100,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,8,{bonus bAtk,(((getilvl()*2*14*10 / 100) + 14) * getrefine() / 100);},{},{}
-51007,_maul2,Morningstar,5,100,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,8,{bonus bAtk,(((getilvl()*2*15*10 / 100) + 15) * getrefine() / 100);},{},{}
-51008,_maul3,Aklys,5,100,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,8,{bonus bAtk,(((getilvl()*2*16*10 / 100) + 16) * getrefine() / 100);},{},{}
+51006,_maul1,Cudgel,5,40,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,8,{bonus bAtk,(((getilvl()*2*14*10 / 100) + 14) * getrefine() / 100);},{},{}
+51007,_maul2,Morningstar,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,8,{bonus bAtk,(((getilvl()*2*15*10 / 100) + 15) * getrefine() / 100);},{},{}
+51008,_maul3,Aklys,5,60,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,8,{bonus bAtk,(((getilvl()*2*16*10 / 100) + 16) * getrefine() / 100);},{},{}
 
-51009,_staff1,Oak Staff,5,100,,50,0,,6,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMatk,(((getilvl()*2*10*10 / 100) + 10) * getrefine() / 100);},{},{}
-51010,_staff2,Arcane Wand,5,100,,50,0,,6,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMatk,(((getilvl()*2*11*10 / 100) + 11) * getrefine() / 100);},{},{}
-51011,_staff3,Ruby Rod,5,100,,50,0,,6,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMatk,(((getilvl()*2*12*10 / 100) + 12) * getrefine() / 100);},{},{}
+51009,_staff1,Oak Staff,5,40,,50,0,,6,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMatk,(((getilvl()*2*10*10 / 100) + 10) * getrefine() / 100);},{},{}
+51010,_staff2,Arcane Wand,5,50,,50,0,,6,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMatk,(((getilvl()*2*11*10 / 100) + 11) * getrefine() / 100);},{},{}
+51011,_staff3,Ruby Rod,5,60,,50,0,,6,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMatk,(((getilvl()*2*12*10 / 100) + 12) * getrefine() / 100);},{},{}
 
 // 52K - UNIQUE ARMOR
 52000,_niflheimsgrasp,Niflheim's Grasp,4,10,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus3 bAutoSpellWhenHit,"SC_FLASHFREEZE",2,75; bonus bMaxHP,(((getilvl()*2*20*14 / 100) + 20) * getrefine() / 100); bonus bMaxSP,(((getilvl()*2*10*10 / 100) + 10) * getrefine() / 100); bonus bDef,(((getilvl()*2*1*3 / 100) + 1) * getrefine() / 100); bonus bMdef,(((getilvl()*2*10*3 / 100) + 10) * getrefine() / 100);},{},{}
@@ -181,7 +181,14 @@
 55118,_trearthshudder,Seal of Earth Shudder,6,20,,10,,,,,,,,,,,,,{ skill "TR_EARTHSHUDDER",1,8; },{},{}
 
 // 56K - CONSUMABLES 
-56000,_fruitjuice,Fruit Juice,0,1,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 0,20; percentheal 10,0; },{},{}
+56000,_fruitjuice,Fruit Juice,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 0,20; percentheal 10,0; },{},{}
+56001,_minipotion,Mini Potion,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ percentheal 33,0; },{},{}
+56002,_stoutpotion,Stout Potion,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ percentheal 66,0; },{},{}
+56003,_megapotion,Mega Potion,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ percentheal 100,0; },{},{}
+56004,_salve,Salve,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_end SC_POISON; sc_end SC_SILENCE; sc_end SC_BLIND; },{},{}
+56005,_goddesstear,Goddess Tear,11,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill 54,2; },{},{}
+56006,_faeriewing,Faerie Wing,11,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill "AL_TELEPORT",4; },{},{}
+56007,_grandfaeriewing,Grand Faerie Wing,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ callfunc "doWarpParty"; },{},{}
 
 // 57K - Other
 57000,_mythril,Mythril Ore,3,0,0,0,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}

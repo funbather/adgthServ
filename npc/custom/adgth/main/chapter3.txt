@@ -1,0 +1,64 @@
+// Chapter 3
+
+// Warps
+iz_dun00,168,173,0	warp	izd01-1	3,3,izlu2dun,108,88
+iz_dun00,352,342,0	warp	izd02	5,2,iz_dun01,253,252
+iz_dun00,39,41,0	warp	izd03	5,2,iz_dun01,41,37
+iz_dun01,118,170,0	warp	izd04	5,2,iz_dun02,236,204
+iz_dun01,253,258,0	warp	izd02-1	2,2,iz_dun00,352,337
+iz_dun01,41,32,0	warp	izd03-1	2,2,iz_dun00,39,46
+iz_dun02,236,198,0	warp	izd04-1	5,3,iz_dun01,118,165
+iz_dun02,339,331,0	warp	izd05	2,2,iz_dun03,32,63
+iz_dun03,264,245,0	warp	izd06	1,2,iz_dun04,26,27
+iz_dun03,29,63,0	warp	izd05-1	2,2,iz_dun02,339,328
+iz_dun04,26,24,0	warp	izd06-1	2,2,iz_dun03,261,245
+
+// Npcs
+
+izlu2dun,110,120,4	script	Izaak#ch3	56,{
+	if(questflag == 6) {
+		mes "[Izaak]";
+		mes "We're here! What an awful week of sailing that was... but at long last, we're here!";
+		next;
+		mes "["+strcharinfo(0)+"]";
+		mes "Week?! How long was I asleep...?";
+		next;
+		mes "[Izaak]";
+		mes "Haha, I'm just messin' with you, the trip didn't take more than a day. It's a good thing you got that rest though, this next mission is going to be a step up from before.";
+		next;
+		mes "[Izaak]";
+		mes "The dungeon right down those steps goes down quite a long ways... you won't be wanting to make that trip all at once.";
+		next;
+		mes "[Izaak]";
+		mes "If you need to resupply or just need a rest, you can set a checkpoint by typing the '/checkpoint' or '/cp' commands. Then you can use Town Portal to come back here, and use it again to be able to return to where you left off!";
+		next;
+		mes "[Izaak]";
+		mes "Also, I brought along with us a blacksmith and merchant to make your life a bit easier. They can keep your gear in top shape, and sell you the supplies you need. Go introduce yourself to them if you haven't already!";
+		next;
+		mes "[Izaak]";
+		mes "Now, at the bottom will be a large cache of treasure... and of course, like last time, that's what I'm after! Don't pout now; there's a lot of treasure to be had in that dungeon, and you're free to keep the rest. I just want the big one!";
+		next;
+		mes "[Izaak]";
+		mes "Good luck down there, recruit!";
+		
+		questflag = 7;
+		close;
+	}
+	
+	if(questflag == 7) {
+		mes "[Izaak]";
+		mes "Aye, not done yet? If you're confused by something, go ask Bookworm and he'll get ya straightened out.";
+		close;
+	}
+}
+
+// Warp to sea dungeon
+izlu2dun,107,83,0	script	warptodun#ch3	45,1,1,{
+onTouch:
+	if(questflag < 7) {
+		message strcharinfo(0),"Maybe I shouldn't go in here yet...";
+		end;
+	}
+	else
+		warp "iz_dun00",168,168;
+}
