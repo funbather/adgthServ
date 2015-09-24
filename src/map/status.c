@@ -3101,7 +3101,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 					wa->ele = (sd->status.inventory[index].card[1]&0x0f);
 			}
 		} else if(sd->inventory_data[index]->type == IT_ARMOR) {
-			int r;
+			//int r;
       	//if ( (r = sd->status.inventory[index].refine) ) // New armor refine formula [ADGTH]
           //sd->hprate += 2*r;
 			/*if ( (r = sd->status.inventory[index].refine) )
@@ -8928,7 +8928,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		break;
 		case SC_JAMES:
         tick_time = 10000 + rnd()%20000;
-        val1 = (floor(rnd()%100) / 20) + 1;
+        val1 = (int) ((floor(rnd()%100) / 20) + 1);
         
         switch(val1) {
           case 1: clif_talkiebox(bl, "James: Bein' a skull ain't so bad. (STR)"); break;

@@ -100,7 +100,7 @@ upgLevel:
 		close;
 	}
 	
-	set .@price,((getequipilvlcnt(.@part) * getequipilvlcnt(.@part) * BaseLevel * 2) / 1000) + 1;
+	set .@price,((getequipilvlcnt(.@part) * getequipilvlcnt(.@part) * BaseLevel * 2) / 250) + 1;
 	set .@material,57001;
 	
 	mes "[Vorser]";		

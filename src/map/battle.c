@@ -3279,28 +3279,28 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
       //skillratio = 100+5*pc_checkskill(sd, SC_FIRESPIRIT);
       //break;
     case WR_SUNDER:
-      skillratio = 150 + 50*skill_lv;
+      skillratio += 150 + 100*skill_lv;
       break;
     case WR_HILTBASH:
-      skillratio += 25*skill_lv;
+      skillratio += 50 + 50*skill_lv;
       break;
     case WR_CLEAVE:
-      skillratio = 250 + 50*skill_lv;
+      skillratio += 75 + 40*skill_lv;
       break;
     case WR_PILEBUNKER:
-      skillratio = 250 + 75*skill_lv;
+      skillratio += 125 + 105*skill_lv;
       break;
     case WR_ECHOBLADE:
-      skillratio = 500 + 300*skill_lv;
+      skillratio += 455 + 555*skill_lv;
       break;
     case WR_BULWARKBOOMERANG:
-      skillratio += 50*skill_lv;
+      skillratio += 100 + 85*skill_lv;
       break;
     case WR_BULWARKBLITZ:
-      skillratio += 50*skill_lv;
+      skillratio += 100 + 85*skill_lv;
       break;
     case WR_BULWARKBASH:
-      skillratio = 300 + 100*skill_lv;
+      skillratio += 100 + 70*skill_lv;
       break;
 		case SM_BASH:
 		case MS_BASH:
@@ -3369,7 +3369,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		}
 		case KN_BOWLINGBASH:
 		case MS_BOWLINGBASH:
-			skillratio = 200 + 75 * skill_lv;
+			skillratio += 100 + 55 * skill_lv;
 			break;
 		case AS_GRIMTOOTH:
 			skillratio += 20*skill_lv;
@@ -4422,7 +4422,7 @@ struct Damage battle_calc_defense_reduction(struct Damage wd, struct block_list 
 	struct status_data *tstatus = status_get_status_data(target);
 
 	//Defense reduction
-	short vit_def;
+	//short vit_def;
 	defType def1 = status_get_def(target); //Don't use tstatus->def1 due to skill timer reductions.
 	short def2 = tstatus->def2;
 
@@ -4479,7 +4479,7 @@ struct Damage battle_calc_defense_reduction(struct Damage wd, struct block_list 
 			def1 = (def1 * tsc->data[SC_OVERED_BOOST]->val4) / 100;
 	}
 
-	if( battle_config.vit_penalty_type && battle_config.vit_penalty_target&target->type ) {
+	/*if( battle_config.vit_penalty_type && battle_config.vit_penalty_target&target->type ) {
 		unsigned char target_count; //256 max targets should be a sane max
 
 		target_count = unit_counttargeted(target);
@@ -4542,7 +4542,7 @@ struct Damage battle_calc_defense_reduction(struct Damage wd, struct block_list 
 	if (battle_config.weapon_defense_type) {
 		vit_def += def1*battle_config.weapon_defense_type;
 		def1 = 0;
-	}
+	}*/
 
 #ifdef RENEWAL
 	/**
@@ -4550,7 +4550,7 @@ struct Damage battle_calc_defense_reduction(struct Damage wd, struct block_list 
 	 * Damage = Attack * (4000+eDEF)/(4000+eDEF*10) - sDEF
 	 * Pierce defence gains 1 atk per def/2
 	 */
-	if (def1 > 100) def1 = 100;
+	if (def1 > 90) def1 = 90;
 	if( def1 == -400 ) /* being hit by a gazillion units, -400 creates a division by 0 and subsequently crashes */
 		def1 = -399;
 	ATK_ADD2(wd.damage, wd.damage2,
@@ -5076,7 +5076,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 	struct status_data *tstatus = status_get_status_data(target);
 	int right_element, left_element;
 	struct status_data *mystatus = status_get_status_data(src);
-	double strMod = 0;
+	int strMod = 0;
 
 	memset(&wd,0,sizeof(wd));
 	
@@ -5636,7 +5636,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 
 				switch(skill_id){
           case TR_SLUDGEBOMB:
-            skillratio += 50 + 25 * skill_lv;
+            skillratio += 125 + 55 * skill_lv;
             break;
           case TR_POISONBLOW:
 						skillratio += 80 + 35 * skill_lv;
@@ -5645,19 +5645,19 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio = 0;
 						break;
 					case TR_EXPUNGE_SPLASH:
-						skillratio = 1000 + 250 * skill_lv;
+						skillratio += 900 + 250 * skill_lv;
 						break;
 					case TR_TERRASPINE:
-						skillratio += 50 + 50 * skill_lv;
+						skillratio += 140 + 70 * skill_lv;
 						break;
 					case TR_HEAVENSDRIVE:
-						skillratio += 75 + 75 * skill_lv;
+						skillratio += 100 + 45 * skill_lv;
 						break;
 					case TR_GROUNDRIFT:
-						skillratio += 100 + 125 * skill_lv;
+						skillratio += 150 + 65 * skill_lv;
 						break;
 					case TR_EARTHSHUDDER:
-						skillratio += 300 + 200 * skill_lv;
+						skillratio += 300 + 135 * skill_lv;
 						break;
           case SC_ARCANECANNON: { // [ADGTH]
               struct Damage wd;

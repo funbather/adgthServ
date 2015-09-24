@@ -62,3 +62,15 @@ onTouch:
 	else
 		warp "iz_dun00",168,168;
 }
+
+// Mobs
+// F1
+iz_dun00,0,0	monster	Asari 	1074,375
+iz_dun00,0,0	monster	Sea Star	1266,140
+iz_dun00,0,0	monster	Hydroazoa	1141,60
+
+// F2
+iz_dun01,0,0	monster	Sea Star	1266,70
+iz_dun01,0,0	monster	Hydroazoa	1141,90
+iz_dun01,0,0	monster	Shankha 	1067,275
+iz_dun01,0,0	monster	Cephalopot 	2203,195

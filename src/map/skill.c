@@ -359,7 +359,7 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
       hp2 = 200+10*pc_checkskill(sd,SC_ICESPIRIT);
       hp2 *= status->matk_max;
       hp2 /= 100;
-      hp = hp2;
+      hp = (int) hp2;
       }
       break;
 		case BA_APPLEIDUN:
@@ -3165,7 +3165,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 				
 			if(tsd->bonus.magiccounter & 2 && dmg.flag & BF_MAGIC && damage > 0) // Flag 2 - Lodestone Burst ready - Magic only, at least 1 damage
 				if(!tsc || (tsc && !tsc->data[SC_LODESTONECHARGED])) // Make sure target is not already charged
-					sc_start(bl,bl,SC_LODESTONECHARGED,10000,damage * 4,-1);
+					sc_start(bl,bl,SC_LODESTONECHARGED,10000,(int)(damage * 4),-1);
 		}
 	}
 
@@ -3918,7 +3918,7 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
          case WL_CHAINLIGHTNING_ATK: {
 						skill_attack(BF_MAGIC,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag); // Hit a Lightning on the current Target
 						skill_toggle_magicpower(src, skl->skill_id); // only the first hit will be amplify
-						if( skl->type < (3 + pc_checkskill(src,SC_WINDSPIRIT)/10 ) )
+						if( skl->type < 5 ) // (3 + pc_checkskill(src,SC_WINDSPIRIT)/10 ) ) unused atm, fix later... incompatible types - from 'block_list *' to 'map_session_data *'
 						{ // Remaining Chains Hit
 							struct block_list *nbl = NULL; // Next Target of Chain
 							nbl = battle_getenemyarea(src, target->x, target->y, 5, // After 2 bounces, it will bounce to other targets in 7x7 range.

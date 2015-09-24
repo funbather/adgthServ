@@ -1308,7 +1308,9 @@ int char_check_char_name(char * name, char * esc_name)
 	 * The client does not allow you to create names with less than 4 characters, however,
 	 * the use of WPE can bypass this, and this fixes the exploit.
 	 **/
-	if( strlen( name ) < 4 )
+	 
+	 // Changed to 3
+	if( strlen( name ) < 3 )
 		return -2;
 	// check content of character name
 	if( remove_control_chars(name) )
@@ -1351,12 +1353,12 @@ int char_check_char_name(char * name, char * esc_name)
 //-----------------------------------
 // Function to create a new character
 //-----------------------------------
-#if PACKETVER >= 20120307
-int char_make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style) {
-	int str = 1, agi = 1, vit = 1, int_ = 1, dex = 1, luk = 1;
-#else
+//#if PACKETVER >= 20120307
+//int char_make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style) {
+//  int str = 1, agi = 1, vit = 1, int_ = 1, dex = 1, luk = 1;
+//#else
 int char_make_new_char_sql(struct char_session_data* sd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style) {
-#endif
+//#endif
 	char name[NAME_LENGTH];
 	char esc_name[NAME_LENGTH*2+1];
 	uint32 char_id;
@@ -1372,18 +1374,20 @@ int char_make_new_char_sql(struct char_session_data* sd, char* name_, int str, i
 
 	//check other inputs
 #if PACKETVER >= 20120307
-	if(slot < 0 || slot >= sd->char_slots)
+	if((slot < 0 || slot >= sd->char_slots) ||
+		 (str + agi + vit + int_ + dex + luk > 30) || // More than 30 points
+		 (str + agi + vit + int_ + dex + luk < 30)) // Less than 30 points?
 #else
 	if((slot < 0 || slot >= sd->char_slots) // slots
 	|| (str + agi + vit + int_ + dex + luk != 6*5 ) // stats
 	|| (str < 1 || str > 9 || agi < 1 || agi > 9 || vit < 1 || vit > 9 || int_ < 1 || int_ > 9 || dex < 1 || dex > 9 || luk < 1 || luk > 9) // individual stat values
 	|| (str + int_ != 10 || agi + luk != 10 || vit + dex != 10) ) // pairs
 #endif
-#if PACKETVER >= 20100413
-		return -4; // invalid slot
-#else
+//#if PACKETVER >= 20100413
+//		return -4; // invalid slot
+//#else
 		return -2; // invalid input
-#endif
+//#endif
 
 
 	// check the number of already existing chars in this account
@@ -1410,8 +1414,8 @@ int char_make_new_char_sql(struct char_session_data* sd, char* name_, int str, i
 	if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`account_id`, `char_num`, `name`, `zeny`, `status_point`,`str`, `agi`, `vit`, `int`, `dex`, `luk`, `max_hp`, `hp`,"
 		"`max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`) VALUES ("
 		"'%d', '%d', '%s', '%d',  '%d','%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d','%d', '%d','%d', '%d', '%s', '%d', '%d', '%s', '%d', '%d')",
-		schema_config.char_db, sd->account_id , slot, esc_name, charserv_config.start_zeny, 48, str, agi, vit, int_, dex, luk,
-		(40 * (100 + vit)/100) , (40 * (100 + vit)/100 ),  (11 * (100 + int_)/100), (11 * (100 + int_)/100), hair_style, hair_color,
+		schema_config.char_db, sd->account_id , slot, esc_name, charserv_config.start_zeny, 0, str, agi, vit, int_, dex, luk,
+		(50 * (10000 + vit * 666)) / 10000, (50 * (10000 + vit * 666)) / 10000,  100 + int_, 100 + int_, hair_style, hair_color,
 		mapindex_id2name(charserv_config.start_point.map), charserv_config.start_point.x, charserv_config.start_point.y, mapindex_id2name(charserv_config.start_point.map), charserv_config.start_point.x, charserv_config.start_point.y) )
 	{
 		Sql_ShowDebug(sql_handle);

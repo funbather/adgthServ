@@ -778,10 +778,10 @@ void clif_dropflooritem(struct flooritem_data* fitem)
 	WBUFW(buf, offset+15) = fitem->item.amount;
 	WBUFB(buf, offset+17) = fitem->item.refine;
 	WBUFB(buf, offset+18) = fitem->item.attribute;
-	WBUFB(buf, offset+19) = fitem->item.card[0];
-	WBUFB(buf, offset+20) = fitem->item.card[1];
-	WBUFB(buf, offset+21) = fitem->item.card[2];
-	WBUFB(buf, offset+22) = fitem->item.card[3];
+	WBUFB(buf, offset+19) = (uint8) fitem->item.card[0];
+	WBUFB(buf, offset+20) = (uint8) fitem->item.card[1];
+	WBUFB(buf, offset+21) = (uint8) fitem->item.card[2];
+	WBUFB(buf, offset+22) = (uint8) fitem->item.card[3];
 
 	clif_send(buf, packet_len(header)+6, &fitem->bl, AREA);
 }
@@ -2880,12 +2880,12 @@ void clif_updatestatus(struct map_session_data *sd,int type)
 		WFIFOL(fd,4)=sd->battle_status.amotion;
 		break;
 	case SP_ATK1:
-	{ double dps;
-    dps = (pc_leftside_atk(sd) + pc_rightside_atk(sd));
-    dps *= (50000/(2000-(2000-sd->battle_status.amotion)));
-    dps += (dps*sd->battle_status.str)/100;
-    dps += (dps*((125+sd->bonus.crit_atk_rate+(sd->battle_status.dex))*(sd->battle_status.cri)))/100000;
-		WFIFOL(fd,4)=dps;//pc_leftside_atk(sd);
+	{ double dps; // This is still ugly, zzz
+    dps = sd->weapontype1 == W_STAFF ? sd->battle_status.matk_max : ( pc_leftside_atk(sd) + pc_rightside_atk(sd) ); // Base Damage
+    dps *= ( 50000 / (2000 - (2000 - sd->battle_status.amotion ) ) ); // Attacks per second
+    dps += ( dps * sd->battle_status.str ) / 100; // STR bonus
+    dps += ( dps * ( ( 125 + sd->bonus.crit_atk_rate + (sd->battle_status.dex) ) * ( sd->battle_status.cri ))) / 100000; // Critical Hits
+		WFIFOL(fd,4)=(uint32) dps;
 		break;
 	}
 	case SP_DEF1:
@@ -3243,7 +3243,7 @@ void clif_initialstatus(struct map_session_data *sd) {
 	unsigned char *buf;
 	
 	double dps;
-	dps = (pc_leftside_atk(sd) + pc_rightside_atk(sd));
+	dps = sd->weapontype1 == W_STAFF ? sd->battle_status.matk_max : ( pc_leftside_atk(sd) + pc_rightside_atk(sd) );
   dps *= (50000/(2000-(2000-sd->battle_status.amotion)));
   dps += (dps*sd->battle_status.str*.5)/100;
   dps += (dps*((125+sd->bonus.crit_atk_rate+(sd->battle_status.dex/2))*(sd->battle_status.cri)))/100000;
@@ -3268,7 +3268,7 @@ void clif_initialstatus(struct map_session_data *sd) {
 	WBUFB(buf,13)=pc_need_status_point(sd,SP_DEX,1);
 	WBUFB(buf,14)=min(sd->status.luk, UINT8_MAX);
 	WBUFB(buf,15)=pc_need_status_point(sd,SP_LUK,1);
-	WBUFW(buf,16) = dps;
+	WBUFW(buf,16) = (uint16) dps;
 	WBUFW(buf,18) = pc_leftside_atk(sd) + pc_rightside_atk(sd); // [ADGTH]
 	WBUFW(buf,20) = sd->battle_status.matk_max;//pc_leftside_matk(sd);//pc_rightside_matk(sd); Messed something up lmao [ADGTH]
 	WBUFW(buf,22) = sd->battle_status.matk_max;//pc_leftside_matk(sd);
@@ -14248,10 +14248,11 @@ void clif_parse_AutoRevive(int fd, struct map_session_data *sd)
 void clif_check(int fd, struct map_session_data* pl_sd)
 {
   double dps;
-  dps = pl_sd->battle_status.batk+pl_sd->battle_status.rhw.atk+pl_sd->battle_status.lhw.atk+pl_sd->battle_status.rhw.atk2+pl_sd->battle_status.lhw.atk2;
+  //dps = pl_sd->battle_status.batk+pl_sd->battle_status.rhw.atk+pl_sd->battle_status.lhw.atk+pl_sd->battle_status.rhw.atk2+pl_sd->battle_status.lhw.atk2; ??? why was this like this lol
+  dps = pl_sd->weapontype1 == W_STAFF ? pl_sd->battle_status.matk_max : ( pc_leftside_atk(pl_sd) + pc_rightside_atk(pl_sd) );
   dps *= (50000/(2000-(2000-pl_sd->battle_status.amotion)));
-  dps += (dps*pl_sd->status.str*.5)/100;
-  dps += (dps*((125+pl_sd->bonus.crit_atk_rate+(pl_sd->battle_status.dex/2))*(pl_sd->battle_status.cri)))/100000;
+  dps += (dps*pl_sd->status.str*1)/100;
+  dps += (dps*((125+pl_sd->bonus.crit_atk_rate+(pl_sd->battle_status.dex))*(pl_sd->battle_status.cri)))/100000;
 
 	WFIFOHEAD(fd,packet_len(0x214));
 	WFIFOW(fd, 0) = 0x214;
@@ -14267,7 +14268,7 @@ void clif_check(int fd, struct map_session_data* pl_sd)
 	WFIFOB(fd,11) = pc_need_status_point(pl_sd, SP_DEX, 1);
 	WFIFOB(fd,12) = min(pl_sd->status.luk, UINT8_MAX);
 	WFIFOB(fd,13) = pc_need_status_point(pl_sd, SP_LUK, 1);
-	WFIFOW(fd,14) = dps;
+	WFIFOW(fd,14) = (uint16) dps;
 	WFIFOW(fd,16) = pl_sd->battle_status.batk+pl_sd->battle_status.rhw.atk+pl_sd->battle_status.lhw.atk+pl_sd->battle_status.rhw.atk2+pl_sd->battle_status.lhw.atk2;
 	WFIFOW(fd,18) = pl_sd->battle_status.matk_max;
 	WFIFOW(fd,20) = pl_sd->battle_status.matk_max;//pl_sd->battle_status.matk_min;
