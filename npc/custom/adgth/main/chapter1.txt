@@ -2,7 +2,7 @@
 OnPCLoginEvent:
 // First login
 if (class == Job_Novice && !firstlogin) {
-		skill 27, 1, 0;
+		skill 26, 1, 0;
 		skill 54, 1, 0;
 		skill 4014, 1, 0;
 		

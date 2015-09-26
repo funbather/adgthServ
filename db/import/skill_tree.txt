@@ -1,5 +1,5 @@
 //JobNo,Skill-ID,MaxLV{,JobLV},Prerequisite Skill-ID-1,Prerequisite Skill-ID-1-Lv,PrereqSkill-ID-2,PrereqSkill-ID-2-Lv,PrereqSkill-ID-3,PrereqSkill-ID-3-Lv,PrereqSkill-ID-4,PrereqSkill-ID-4-Lv,PrereqSkill-ID-5,PrereqSkill-ID-5-Lv//CLASS_SKILLNAME#Skill Name#
-0,27,1,0,0,0,0,0,0,0,0,0,0 //Town Portal
+0,26,1,0,0,0,0,0,0,0,0,0,0 //Teleportation
 0,54,1,0,0,0,0,0,0,0,0,0,0 //Recucitate
 0,4014,1,0,0,0,0,0,0,0,0,0,0 //First Aid
 0,4015,10,0,0,0,0,0,0,0,0,0,0 //Tenacity
@@ -14,7 +14,7 @@
 0,4024,10,0,0,0,0,0,0,0,0,0,0 //Featherfoot
 
 
-30,27,1,0,0,0,0,0,0,0,0,0,0 //Town Portal
+30,26,1,0,0,0,0,0,0,0,0,0,0 //Teleportation
 30,54,1,0,0,0,0,0,0,0,0,0,0 //Recucitate
 30,4014,1,0,0,0,0,0,0,0,0,0,0 //First Aid
 30,4015,10,0,0,0,0,0,0,0,0,0,0 //Tenacity
@@ -42,7 +42,7 @@
 30,4012,0,0,0,0,0,0,0,0,0,0,0 // Energize
 30,4013,0,0,0,0,0,0,0,0,0,0,0 // Phasewalk
 
-31,27,1,0,0,0,0,0,0,0,0,0,0 //Town Portal
+31,26,1,0,0,0,0,0,0,0,0,0,0 //Teleportation
 31,54,1,0,0,0,0,0,0,0,0,0,0 //Recucitate
 31,4014,1,0,0,0,0,0,0,0,0,0,0 //First Aid
 31,4015,10,0,0,0,0,0,0,0,0,0,0 //Tenacity
@@ -72,7 +72,7 @@
 31,4036,5,0,0,0,0,0,0,0,0,0,0 // Bulwark Blitz
 31,4037,5,0,0,0,0,0,0,0,0,0,0 // Bulwark Bash
 
-32,27,1,0,0,0,0,0,0,0,0,0,0 //Town Portal
+32,26,1,0,0,0,0,0,0,0,0,0,0 //Teleportation
 32,54,1,0,0,0,0,0,0,0,0,0,0 //Recucitate
 32,4014,1,0,0,0,0,0,0,0,0,0,0 //First Aid
 32,4015,10,0,0,0,0,0,0,0,0,0,0 //Tenacity

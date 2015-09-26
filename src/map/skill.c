@@ -7636,7 +7636,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 						}
 						pc_setpos(sd, tsd->mapindex, tsd->bl.x, tsd->bl.y, CLR_TELEPORT);
 					}
-					break;
 	case ALL_ODINS_RECALL:
 		if(sd)
 		{
@@ -7663,10 +7662,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			}
 
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-			if( skill_lv == 1 && skill_id != ALL_ODINS_RECALL )
-				clif_skill_warppoint(sd,skill_id,skill_lv, (unsigned short)-1,0,0,0);
-			else
-				clif_skill_warppoint(sd,skill_id,skill_lv, (unsigned short)-1,sd->status.save_point.map,0,0);
+			clif_skill_warppoint(sd,skill_id,skill_lv,sd->status.save_point.map,sd->status.memo_point[0].map,0,0);
 		} else
 			unit_warp(bl,-1,-1,-1,CLR_TELEPORT);
 		break;
@@ -12434,10 +12430,13 @@ int skill_castend_map (struct map_session_data *sd, uint16 skill_id, const char 
 		//The storage window is closed automatically by the client when there's
 		//any kind of map change, so we need to restore it automatically
 		//bugreport:8027
-		if(strcmp(mapname,"Random") == 0)
-			pc_randomwarp(sd,CLR_TELEPORT);
-		else if (sd->menuskill_val > 1 || skill_id == ALL_ODINS_RECALL) //Need lv2 to be able to warp here.
+		//if(strcmp(mapname,"Random") == 0)
+		//	pc_randomwarp(sd,CLR_TELEPORT);
+		//else if (sd->menuskill_val > 1 || skill_id == ALL_ODINS_RECALL) //Need lv2 to be able to warp here.
+		if(strcmp(mapname,"Save Point") == 0)
 			pc_setpos(sd,sd->status.save_point.map,sd->status.save_point.x,sd->status.save_point.y,CLR_TELEPORT);
+		else
+			pc_setpos(sd,sd->status.memo_point[0].map,sd->status.memo_point[0].x,sd->status.memo_point[0].y,CLR_TELEPORT);
 
 		clif_refresh_storagewindow(sd);
 		break;

@@ -31,6 +31,7 @@
 //	Specified equipment to be equipped. For multiple values, use : as delimiter.
 //	Max. multiple value is 10 (skill.h: MAX_SKILL_EQUIP_REQUIRE)
 
+26,0,0,35,0,0,0,99,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 27,0,0,35,0,0,0,99,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 54,0,0,35,0,0,0,99,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
