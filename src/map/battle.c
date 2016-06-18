@@ -5407,7 +5407,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 	wd.damage = (wd.damage * strMod) / 100;
 	
   if(sd && pc_checkskill(sd, ALL_POWER))
-    wd.damage += wd.damage * (sd, ALL_POWER) / 100;
+    wd.damage += wd.damage * pc_checkskill(sd, ALL_POWER) / 100;
     
   if(tsd && tsd->bonus.healevade && wd.dmg_lv == ATK_FLEE) {	
 			status_heal(target, wd.damage * tsd->bonus.healevade / 100, 0, 3);

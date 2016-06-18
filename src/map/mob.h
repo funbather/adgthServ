@@ -185,6 +185,10 @@ struct mob_data {
 	 * MvP Tombstone NPC ID
 	 **/
 	int tomb_nid;
+	
+	// Dyamic EXP/JEXP
+	int bexp;
+	int jexp;
 };
 
 

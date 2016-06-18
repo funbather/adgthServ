@@ -7089,7 +7089,7 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 		//if( i == NV_BASIC && (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE )
 			//continue;
 			
-		if( i == AL_WARP ||
+		if( i == AL_TELEPORT ||
 				i == ALL_RESURRECTION ||
 				i == ALL_FIRSTAID) // Basic skills
 				continue;

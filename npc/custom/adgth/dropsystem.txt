@@ -5,27 +5,23 @@
 		callfunc("HeyAnItemDrop",10,getmonsterinfo(killedrid,1),1);
 		callfunc("HeyAnItemDrop",5,getmonsterinfo(killedrid,1),1);
 
-		if(questflag > 6) { // Blacksmith unlocked in Chapter 3
-			if(rand(1,10000) <= 1000) // Mythril 10%
-				getitem3 57000,1,1,0,0,0,0,0,0;
-			if(rand(1,10000) <= 1000) // Orichalcum 10%
-				getitem3 57001,1,1,0,0,0,0,0,0;
-			if(rand(1,10000) <= 300) // Divine Hammer 3%
-				getitem3 57008,1,1,0,0,0,0,0,0;
-		}
-			
-		if(questflag > 99) { // Enchantress unlocked ??
-			if(rand(1,10000) <= 800) // Empty 8%
-				getitem3 57002,1,1,0,0,0,0,0,0;			
-			if(rand(1,10000) <= 350) // Arcane 3.5%
-				getitem3 57004,1,1,0,0,0,0,0,0;			
-			if(rand(1,10000) <= 100) // Blessed 1%
-				getitem3 57005,1,1,0,0,0,0,0,0;
-			if(rand(1,10000) <= 150) // Capricious 1.5%
-				getitem3 57006,1,1,0,0,0,0,0,0;
-			if(rand(1,10000) <= 50) // Discordant 0.5%
-				getitem3 57007,1,1,0,0,0,0,0,0;
-		}
+		if(rand(1,10000) <= 300) // Mythril 3%
+			getitem3 57000,1,1,0,0,0,0,0,0;
+		if(rand(1,10000) <= 300) // Orichalcum 3%
+			getitem3 57001,1,1,0,0,0,0,0,0;
+		if(rand(1,10000) <= 25)  // Divine Hammer .25%
+			getitem3 57008,1,1,0,0,0,0,0,0;
+		
+		if(rand(1,10000) <= 200) // Empty 2%
+			getitem3 57002,1,1,0,0,0,0,0,0;			
+		if(rand(1,10000) <= 100) // Arcane 1%
+			getitem3 57004,1,1,0,0,0,0,0,0;			
+		if(rand(1,10000) <= 25)  // Blessed 0.25%
+			getitem3 57005,1,1,0,0,0,0,0,0;
+		if(rand(1,10000) <= 20)  // Capricious 0.2%
+			getitem3 57006,1,1,0,0,0,0,0,0;
+		if(rand(1,10000) <= 10)  // Discordant 0.1%
+			getitem3 57007,1,1,0,0,0,0,0,0;
 }
 
 function	script	HeyAnItemDrop	{

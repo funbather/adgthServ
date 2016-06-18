@@ -2281,7 +2281,7 @@ static void read_constdb(void)
 			continue;
 		if(line[0]=='/' && line[1]=='/') //ignore commented line
 			continue;
-		
+
 		type=0;
 		if(sscanf(line,"%1023[A-Za-z0-9/_],%1023[A-Za-z0-9/_-],%d",name,val,&type)>=2 ||
 		   sscanf(line,"%1023[A-Za-z0-9/_] %1023[A-Za-z0-9/_-] %d",name,val,&type)>=2){
@@ -2968,7 +2968,7 @@ int conv_num(struct script_state* st, struct script_data* data)
 	get_val(st, data);
 	if( data_isint(data) )
 	{// nothing to convert
-		
+
 	}
 	else if( data_isstring(data) )
 	{// string -> int
@@ -2976,7 +2976,7 @@ int conv_num(struct script_state* st, struct script_data* data)
 		// ex: 999999999999 is capped to INT_MAX (2147483647)
 		char* p = data->u.str;
 		long num;
-		
+
 		errno = 0;
 		num = strtol(data->u.str, NULL, 10);// change radix to 0 to support octal numbers "o377" and hex numbers "0xFF"
 		if( errno == ERANGE
@@ -6233,7 +6233,7 @@ BUILDIN_FUNC(countitem)
 		i = 1;
 		aid = 10;
 	}
-	
+
 	if( script_hasdata(st,aid) ) {
 		if( !(sd = map_id2sd( (aid = script_getnum(st, aid)) )) ) {
 			ShowError("buildin_%s: player not found (AID=%d).\n", command, aid);
@@ -6245,7 +6245,7 @@ BUILDIN_FUNC(countitem)
 		if( !(sd = script_rid2sd(st)) )
 			return SCRIPT_CMD_SUCCESS;
 	}
-	
+
 	if( !strncmp(command, "cart", 4) ) {
 		loc = 1;
 		size = MAX_CART;
@@ -6267,7 +6267,7 @@ BUILDIN_FUNC(countitem)
 		script_pushint(st,-1);
 		return SCRIPT_CMD_SUCCESS;
 	}
-	
+
 	data = script_getdata(st, 2);
 	get_val(st, data); // Convert into value in case of a variable
 
@@ -6875,7 +6875,7 @@ BUILDIN_FUNC(rentitem2) {
 		ShowError("buildin_rentitem2: invalid data type for argument #1 (%d).\n", data->type);
 		return SCRIPT_CMD_FAILURE;
 	}
-	
+
 	seconds = script_getnum(st,3);
 	iden = script_getnum(st,4);
 	ref = script_getnum(st,5);
@@ -7064,7 +7064,7 @@ BUILDIN_FUNC(makeitem2) {
 	struct item item_tmp;
 	struct script_data *data;
 	struct item_data *id;
-	
+
 	data = script_getdata(st,2);
 	get_val(st,data);
 	if( data_isstring(data) ){
@@ -7092,7 +7092,7 @@ BUILDIN_FUNC(makeitem2) {
 	}
 	else
 		m = map_mapname2mapid(mapname);
-	
+
 	if ((id = itemdb_search(nameid))) {
 		char iden, ref, attr;
 		memset(&item_tmp,0,sizeof(item_tmp));
@@ -7100,7 +7100,7 @@ BUILDIN_FUNC(makeitem2) {
 
 		iden = (char)script_getnum(st,7);
 		ref = (char)script_getnum(st,8);
-		attr = (char)script_getnum(st,9);		
+		attr = (char)script_getnum(st,9);
 
 		if (id->type==IT_WEAPON || id->type==IT_ARMOR || id->type==IT_SHADOWGEAR) {
 			if(ref > MAX_REFINE) ref = MAX_REFINE;
@@ -7113,7 +7113,7 @@ BUILDIN_FUNC(makeitem2) {
 			iden = 1;
 			ref = attr = 0;
 		}
-		
+
 		item_tmp.identify = iden;
 		item_tmp.refine = ref;
 		item_tmp.attribute = attr;
@@ -7330,7 +7330,7 @@ BUILDIN_FUNC(delitem)
 	else if(!strncmp(command, "storage", 7))
 		loc = 2;
 	//TODO: 3 - Guild Storage
-	
+
 	if( script_hasdata(st,4) )
 	{
 		uint32 account_id = script_getnum(st,4);
@@ -7719,7 +7719,7 @@ BUILDIN_FUNC(getguildname)
 	guild_id = script_getnum(st,2);
 	if( ( g = guild_search(guild_id) ) != NULL )
 		script_pushstrcopy(st,g->name);
-	else 
+	else
 		script_pushconststr(st,"null");
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -7736,7 +7736,7 @@ BUILDIN_FUNC(getguildmaster)
 	guild_id = script_getnum(st,2);
 	if( ( g = guild_search(guild_id) ) != NULL )
 		script_pushstrcopy(st,g->member[0].name);
-	else 
+	else
 		script_pushconststr(st,"null");
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -8353,7 +8353,7 @@ BUILDIN_FUNC(successrefitem2) {
 		clif_additem(sd,i,1,0);
 		pc_equipitem(sd,i,ep);
 		clif_misceffect(&sd->bl,3);
-		
+
 		script_pushint(st, sd->status.inventory[i].attribute);
 		return SCRIPT_CMD_SUCCESS;
 	}
@@ -8375,15 +8375,15 @@ BUILDIN_FUNC(successrefitem3) {
 	sd = script_rid2sd(st);
 	if (sd == NULL)
 		return 0;
-		
+
 	if (script_hasdata(st, 3))
 		type = script_getnum(st, 3);
-		
+
 	if (pos > 0 && pos <= ARRAYLENGTH(equip))
 		i = pc_checkequip(sd,equip[pos-1]);
 	if (i >= 0) {
 		unsigned int ep = sd->status.inventory[i].equip;
-			
+
 		log_pick_pc(sd, LOG_TYPE_SCRIPT, -1, &sd->status.inventory[i]);
 
 		sd->status.inventory[i].nameid = type;
@@ -8397,7 +8397,7 @@ BUILDIN_FUNC(successrefitem3) {
 		clif_additem(sd,i,1,0);
 		pc_equipitem(sd,i,ep);
 		clif_misceffect(&sd->bl,3);
-		
+
 		script_pushint(st, sd->status.inventory[i].nameid);
 		return SCRIPT_CMD_SUCCESS;
 	}
@@ -9663,6 +9663,89 @@ BUILDIN_FUNC(monster)
 	for(i=0; i<amount; i++){ //not optimised
 		int mobid = mob_once_spawn(sd, m, x, y, str, class_, 1, event, size, ai);
 		if(mobid) mapreg_setreg(reference_uid(add_str("$@mobid"), i),mobid);
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(monster_dynamic)
+{
+	const char* mapn	= script_getstr(st,2);
+	int x				= script_getnum(st,3);
+	int y				= script_getnum(st,4);
+	const char* str		= script_getstr(st,5);
+	int class_			= script_getnum(st,6);
+	int amount			= script_getnum(st,7);
+	int level				= script_getnum(st,8);
+	int difficulty = script_getnum(st,9);
+	const char* event	= "";
+	unsigned int size	= SZ_SMALL;
+	unsigned int ai		= AI_NONE;
+
+	struct map_session_data* sd;
+	int16 m;
+	int i;
+
+	if (script_hasdata(st, 10)) {
+		event = script_getstr(st, 10);
+		check_event(st, event);
+	}
+
+	if (script_hasdata(st, 11)) {
+		size = script_getnum(st, 11);
+		if (size > 3) {
+			ShowWarning("buildin_monster_dynamic: Attempted to spawn non-existing size %d for monster class %d\n", size, class_);
+			return 1;
+		}
+	}
+
+	if (script_hasdata(st, 12)) {
+		ai = script_getnum(st, 12);
+		if (ai >= AI_MAX) {
+			ShowWarning("buildin_monster_dynamic: Attempted to spawn non-existing ai %d for monster class %d\n", ai, class_);
+			return 1;
+		}
+	}
+
+	if (class_ >= 0 && !mobdb_checkid(class_)) {
+		ShowWarning("buildin_monster_dynamic: Attempted to spawn non-existing monster class %d\n", class_);
+		return 1;
+	}
+
+	sd = map_id2sd(st->rid);
+
+	if (sd && strcmp(mapn, "this") == 0)
+		m = sd->bl.m;
+	else
+		m = map_mapname2mapid(mapn);
+
+	for(i=0; i<amount; i++){
+		struct mob_data *md;
+		md = mob_once_spawn_sub(&sd->bl, m, x, y, str, class_, event, size, ai);
+		mob_spawn(md);
+
+		md->bexp = 3 + pow(level,1.2);
+		md->bexp = md->bexp * difficulty / 100;
+
+		md->jexp = 3 + pow(level,1.2);
+		md->jexp = md->jexp * difficulty / 100;
+
+		md->level = level;
+
+		md->status.max_hp = 65 * pow(level+1,1.15);
+		md->status.max_hp = difficulty > 100 ? md->status.max_hp * (difficulty * 3 / 2) / 100 : md->status.max_hp * difficulty / 100;
+
+		md->status.hp = md->status.max_hp;
+
+		md->status.batk = 10 + pow(level,1.2);
+		md->status.batk = difficulty > 100 ? md->status.batk * (100 + ((difficulty-100) / 3)) / 100 : md->status.batk * difficulty / 100;
+
+		md->status.matk_min = md->status.matk_max = 10 + pow(level,1.3);
+		md->status.matk_min = md->status.matk_max = difficulty > 100 ? md->status.matk_min * (100 + ((difficulty-100) / 3)) / 100 : md->status.matk_min * difficulty / 100;
+
+		md->status.adelay = difficulty > 100 ? 800 - (level * (5 + ((difficulty-100) / 20))) : 800 - (level * 5);
+		md->status.amotion = md->status.adelay;
+
+		if(md) mapreg_setreg(reference_uid(add_str("$@mobid"), i),md->mob_id);
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -13585,7 +13668,7 @@ BUILDIN_FUNC(atcommand) {
 
 /** Displays a message for the player only (like system messages like "you got an apple" )
 * dispbottom("<message>"{,<color>})
-* @param message 
+* @param message
 * @param color Hex color default (Green)
 */
 BUILDIN_FUNC(dispbottom)
@@ -18468,10 +18551,10 @@ BUILDIN_FUNC(getrandgroupitem) {
 BUILDIN_FUNC(getgroupitem) {
 	TBL_PC *sd;
 	int group_id = script_getnum(st,2);
-	
+
 	if (!(sd = script_rid2sd(st)))
 		return SCRIPT_CMD_SUCCESS;
-	
+
 	if (itemdb_pc_get_itemgroup(group_id,sd)) {
 		ShowError("getgroupitem: Invalid group id '%d' specified.\n",group_id);
 		return SCRIPT_CMD_FAILURE;
@@ -18530,7 +18613,7 @@ BUILDIN_FUNC(npcskill)
 	struct npc_data *nd;
 	struct map_session_data *sd;
 	struct script_data *data;
-	
+
 	data = script_getdata(st, 2);
 	get_val(st, data); // Convert into value in case of a variable
 	skill_id	= data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2);
@@ -18996,7 +19079,7 @@ BUILDIN_FUNC(vip_time) {
 	if (sd == NULL)
 		return SCRIPT_CMD_FAILURE;
 
-	chrif_req_login_operation(sd->status.account_id, sd->status.name, CHRIF_OP_LOGIN_VIP, viptime, 7, 0); 
+	chrif_req_login_operation(sd->status.account_id, sd->status.name, CHRIF_OP_LOGIN_VIP, viptime, 7, 0);
 #endif
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -19118,7 +19201,7 @@ BUILDIN_FUNC(bonus_script) {
 
 	if (sd == NULL)
 		return SCRIPT_CMD_FAILURE;
-	
+
 	script_str = script_getstr(st,2);
 	dur = 1000 * abs(script_getnum(st,3));
 	FETCH(4,flag);
@@ -19266,7 +19349,7 @@ BUILDIN_FUNC(addspiritball) {
 	uint8 i, count = script_getnum(st,2);
 	uint16 duration = script_getnum(st,3);
 	struct map_session_data *sd = NULL;
-	
+
 	if (count == 0)
 		return SCRIPT_CMD_SUCCESS;
 
@@ -19295,10 +19378,10 @@ BUILDIN_FUNC(addspiritball) {
 BUILDIN_FUNC(delspiritball) {
 	uint8 count = script_getnum(st,2);
 	struct map_session_data *sd = NULL;
-	
+
 	if (count == 0)
 		count = 1;
-	
+
 	if (script_hasdata(st,3)) {
 		if (!script_isstring(st,3))
 			sd = map_charid2sd(script_getnum(st,3));
@@ -19604,6 +19687,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(produce,"i"),
 	BUILDIN_DEF(cooking,"i"),
 	BUILDIN_DEF(monster,"siisii???"),
+	BUILDIN_DEF(monster_dynamic,"siisiiii???"),
 	BUILDIN_DEF(getmobdrops,"i"),
 	BUILDIN_DEF(areamonster,"siiiisii???"),
 	BUILDIN_DEF(killmonster,"ss?"),

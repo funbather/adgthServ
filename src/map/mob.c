@@ -981,6 +981,12 @@ int mob_spawn (struct mob_data *md)
 	// MvP tomb [GreenBox]
 	if ( md->tomb_nid )
 		mvptomb_destroy(md);
+		
+	// Dynamic Exp? [ADGTH]
+	// If this value is still -1 in mob_dead, use the db value
+	// For use with dynamic mobs
+	md->bexp = -1;
+	md->jexp = -1;
 
 	if(map_addblock(&md->bl))
 		return 2;
@@ -2303,7 +2309,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			if (map[m].flag.nobaseexp || !md->db->base_exp)
 				base_exp = 0;
 			else {
-				double exp = apply_rate2(md->db->base_exp, per, 1);
+				double exp = md->bexp == -1 ? apply_rate2(md->db->base_exp, per, 1) : apply_rate2(md->bexp, per, 1);
 				exp = apply_rate(exp, bonus);
 				exp = apply_rate(exp, map[m].adjust.bexp);
 				base_exp = (unsigned int)cap_value(exp, 1, UINT_MAX);
@@ -2312,7 +2318,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			if (map[m].flag.nojobexp || !md->db->job_exp || md->dmglog[i].flag == MDLF_HOMUN) //Homun earned job-exp is always lost.
 				job_exp = 0;
 			else {
-				double exp = apply_rate2(md->db->job_exp, per, 1);
+				double exp = md->jexp == -1 ? apply_rate2(md->db->job_exp, per, 1) : apply_rate2(md->jexp, per, 1);
 				exp = apply_rate(exp, bonus);
 				exp = apply_rate(exp, map[m].adjust.jexp);
 				job_exp = (unsigned int)cap_value(exp, 1, UINT_MAX);
