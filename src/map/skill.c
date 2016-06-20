@@ -4748,13 +4748,14 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 		{
 			int min_x,max_x,min_y,max_y,i,c,dir,tx,ty;
 			// Chain effect and check range gets reduction by recursive depth, as this can reach 0, we don't use blowcount
-			c = (10-(flag&0xFFF)+1)/2;
+			//c = (12-(flag&0xFFF))/2;
+			c = 8 - (flag&0xFFF);
 
 				// Area around caster
-				min_x = src->x - battle_config.bowling_bash_area;
-				max_x = src->x + battle_config.bowling_bash_area;
-				min_y = src->y - battle_config.bowling_bash_area;
-				max_y = src->y + battle_config.bowling_bash_area;
+				min_x = src->x - 21;
+				max_x = src->x + 21;
+				min_y = src->y - 21;
+				max_y = src->y + 21;
 
 			// Initialization, break checks, direction
 			if((flag&0xFFF) > 0) {
@@ -4769,8 +4770,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 			} else {
 				// Create an empty list of already hit targets
 				db_clear(bowling_db);
-				// Direction is walkpath
-				dir = (unit_getdir(bl))%8;
+				// Direction used to be walkpath... why?? why not just the direction you cast it from...?
+				dir = (map_calc_dir(src,bl->x,bl->y) + 4) % 8;
 			}
 			// Add current target to the list of already hit targets
 			idb_put(bowling_db, bl->id, bl);
@@ -4784,20 +4785,20 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 				// If target cell is a wall then break
 				if(map_getcell(bl->m,tx,ty,CELL_CHKWALL))
 					break;
-				skill_blown(src,bl,(flag&0xFFF)>0?2:5,dir,0);
+				skill_blown(src,bl,1,dir,0);
 				// Splash around target cell, but only cells inside area; we first have to check the area is not negative
-				if((max(min_x,tx-2) <= min(max_x,tx+2)) &&
-					(max(min_y,ty-2) <= min(max_y,ty+2)) &&
-					(map_foreachinarea(skill_area_sub, bl->m, max(min_x,tx-2), max(min_y,ty-2), min(max_x,tx+2), min(max_y,ty+2), splash_target(src), src, skill_id, skill_lv, tick, flag|BCT_ENEMY, skill_area_sub_count))) {
+				if((max(min_x,tx-1) <= min(max_x,tx+1)) &&
+					(max(min_y,ty-1) <= min(max_y,ty+1)) &&
+					(map_foreachinarea(skill_area_sub, bl->m, max(min_x,tx-1), max(min_y,ty-1), min(max_x,tx+1), min(max_y,ty+1), splash_target(src), src, skill_id, skill_lv, tick, flag|BCT_ENEMY, skill_area_sub_count)) > 1) {
 					// Recursive call
-					map_foreachinarea(skill_area_sub, bl->m, max(min_x,tx-2), max(min_y,ty-2), min(max_x,tx+2), min(max_y,ty+2), splash_target(src), src, skill_id, skill_lv, tick, (flag|BCT_ENEMY)+1, skill_castend_damage_id);
+					map_foreachinarea(skill_area_sub, bl->m, max(min_x,tx-1), max(min_y,ty-1), min(max_x,tx+1), min(max_y,ty+1), splash_target(src), src, skill_id, skill_lv, tick, (flag|BCT_ENEMY)+2, skill_castend_damage_id);
 					// Self-collision
 					//if(bl->x >= min_x && bl->x <= max_x && bl->y >= min_y && bl->y <= max_y)
-						//skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,(flag&0xFFF)>0?SD_ANIMATION:0);
+					if(!((flag&0xFFF) > 0)) // Only the original target will receive double damage, and only if they collide with another target
+						skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,(flag&0xFFF)>0?SD_ANIMATION:0);
 					break;
 				}
 			}
-			
 			// Original hit or chain hit depending on flag
 			skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,(flag&0xFFF)>0?SD_ANIMATION:0);
 		}

@@ -1656,6 +1656,7 @@ enum sc_opt2 {
 	OPT2_FEAR		= 0x0100,
 	OPT2_IGNITE = 0x0200,
 	OPT2_MARKED = 0x0400,
+	OPT2_SHATTER = 0x0800
 };
 
 ///opt3: (SHOW_EFST_*)

@@ -1730,6 +1730,9 @@ int map_quit(struct map_session_data *sd) {
 		//Non-active players should not have loaded any data yet (or it was cleared already) so no additional cleanups are needed.
 		return 0;
 	}
+	
+	// Saving autotarget status on logout [ADGTH]
+	pc_setglobalreg(sd,"serveroptions", 0 | (sd->state.autotarget ? 0x01 : 0));
 
 	if (sd->expiration_tid != INVALID_TIMER)
 		delete_timer(sd->expiration_tid, pc_expiration_timer);

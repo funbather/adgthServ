@@ -1329,6 +1329,13 @@ void pc_reg_received(struct map_session_data *sd)
 {
 	uint8 i;
 
+	int servop;
+	
+	servop = pc_readglobalreg(sd,"serveroptions");
+	
+	if (servop & 0x01)
+		sd->state.autotarget = 1;
+
 	sd->change_level_2nd = pc_readglobalreg(sd,"jobchange_level");
 	sd->change_level_3rd = pc_readglobalreg(sd,"jobchange_level_3rd");
 	sd->die_counter = pc_readglobalreg(sd,"PC_DIE_COUNTER");

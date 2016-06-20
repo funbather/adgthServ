@@ -10391,6 +10391,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_WHITEIMPRISON:  sc->opt1 = OPT1_IMPRISON;	break;
 		case SC_CRYSTALIZE:	sc->opt1 = OPT1_CRYSTALIZE;	break;
 		// OPT2
+		case SC_SHATTER:      sc->opt2 |= OPT2_SHATTER;  break;
 		case SC_MARKED:       sc->opt2 |= OPT2_MARKED;   break;
 		case SC_IGNITE:       sc->opt2 |= OPT2_IGNITE;		break;
 		case SC_POISON:       sc->opt2 |= OPT2_POISON;		break;
@@ -10890,7 +10891,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	switch(type) {
 		case SC_BOOSTER:
 			if(sce->val1 > 0) {
-				sc_start(&sd->bl,&sd->bl,SC_BOOSTER,100,sce->val1 - 2,100);	
+				sc_start(&sd->bl,&sd->bl,SC_BOOSTER,100,sce->val1 - 10,500);	
 			}
 			break;
 		case SC_GRANITIC_ARMOR:
@@ -11385,6 +11386,9 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		break;
 	case SC_MARKED:
 		sc->opt2 &= ~OPT2_MARKED;
+		break;
+	case SC_SHATTER:
+		sc->opt2 &= ~OPT2_SHATTER;
 		break;
 		
 		

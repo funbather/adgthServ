@@ -1124,18 +1124,19 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
       DAMAGE_SUBRATE(15*sc->data[SC_SPIRIT_3]->val3/50);
     }*/
     
-    if(pc_checkskill(sd, WR_HARDHEARTED > 0)) {
+    if(pc_checkskill(sd, WR_HARDHEARTED) > 0) {
       int ratio = (sd->battle_status.hp * 100) / sd->battle_status.max_hp;
       int reduc = pc_checkskill(sd, WR_HARDHEARTED);
       
-      if(ratio <= 25) {
-        DAMAGE_SUBRATE(reduc * 4);
-      } else if (ratio <= 50) {
-        DAMAGE_SUBRATE(reduc * 3);
-      } else if (ratio <= 75) {
-        DAMAGE_SUBRATE(reduc * 2);
-      } else
-        DAMAGE_SUBRATE(reduc * 1);
+      switch(ratio / 25) {
+				case 0: ratio = 4; break;
+				case 1: ratio = 3; break;
+				case 2: ratio = 2; break;
+				case 3: ratio = 1; break;
+				case 4: ratio = 1; break;
+      }
+      
+			DAMAGE_SUBRATE(reduc * ratio);
     }
     
     if(pc_checkskill(sd, SC_ICESPIRIT) > 0)
