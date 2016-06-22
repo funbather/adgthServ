@@ -405,6 +405,7 @@ enum e_damage_type {
 	DMG_LUCY_DODGE,			/// lucky dodge
 	DMG_TOUCH,				/// (touch skill?)
 	DMG_MULTICRIT = 20,    /// [adgth] double attack crit
+	DMG_BLOCKED,           /// [adgth] blocked attack
 };
 
 int clif_setip(const char* ip);

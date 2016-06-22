@@ -2357,28 +2357,28 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 
 	if( sc && (sc->data[SC_NEUTRALBARRIER] || sc->data[SC_NEUTRALBARRIER_MASTER]) && (wd.flag&(BF_LONG|BF_MAGIC)) == BF_LONG )
 		return false;
-
-	flee = tstatus->flee;
+		
+  flee = tstatus->flee;
 #ifdef RENEWAL
 	hitrate = 0; //Default hitrate
 #else
 	hitrate = 80; //Default hitrate
 #endif
 
-	if(battle_config.agi_penalty_type && battle_config.agi_penalty_target&target->type) {
-		unsigned char attacker_count = unit_counttargeted(target); //256 max targets should be a sane max
+	//if(battle_config.agi_penalty_type && battle_config.agi_penalty_target&target->type) {
+	//	unsigned char attacker_count = unit_counttargeted(target); //256 max targets should be a sane max
 
-		if(attacker_count >= battle_config.agi_penalty_count) {
-			if (battle_config.agi_penalty_type == 1)
-				flee = (flee * (100 - (attacker_count - (battle_config.agi_penalty_count - 1)) * battle_config.agi_penalty_num)) / 100;
-			else //assume type 2: absolute reduction
-				flee -= (attacker_count - (battle_config.agi_penalty_count - 1)) * battle_config.agi_penalty_num;
-			if(flee < 1)
-				flee = 1;
-		}
-	}
+	//	if(attacker_count >= battle_config.agi_penalty_count) {
+	//		if (battle_config.agi_penalty_type == 1)
+	//			flee = (flee * (100 - (attacker_count - (battle_config.agi_penalty_count - 1)) * battle_config.agi_penalty_num)) / 100;
+	//		else //assume type 2: absolute reduction
+	//			flee -= (attacker_count - (battle_config.agi_penalty_count - 1)) * battle_config.agi_penalty_num;
+	//		if(flee < 1)
+	//			flee = 1;
+	//	}
+	//}
 	
-	if(tsd) {
+	if( tsd && tsd->bonus.bravery ) {
 		unsigned char attacker_count = unit_counttargeted(target); 
 		flee += attacker_count * tsd->bonus.bravery;
 			
@@ -2386,102 +2386,107 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 			flee = 90;
 	}
 
-	hitrate += sstatus->hit - flee;
+//	hitrate += sstatus->hit - flee;
 
 	//Fogwall's hit penalty is only for normal ranged attacks.
-	if ((wd.flag&(BF_LONG|BF_MAGIC)) == BF_LONG && !skill_id && tsc && tsc->data[SC_FOGWALL])
-		hitrate -= 50;
+//	if ((wd.flag&(BF_LONG|BF_MAGIC)) == BF_LONG && !skill_id && tsc && tsc->data[SC_FOGWALL])
+//		hitrate -= 50;
 
-	if(sd && is_skill_using_arrow(src, skill_id))
-		hitrate += sd->bonus.arrow_hit;
+//	if(sd && is_skill_using_arrow(src, skill_id))
+//		hitrate += sd->bonus.arrow_hit;
 
-#ifdef RENEWAL
-	if (sd) //in Renewal hit bonus from Vultures Eye is not anymore shown in status window
-		hitrate += pc_checkskill(sd,AC_VULTURE);
-#endif
+//#ifdef RENEWAL
+//	if (sd) //in Renewal hit bonus from Vultures Eye is not anymore shown in status window
+//		hitrate += pc_checkskill(sd,AC_VULTURE);
+//#endif
 
-	if(skill_id) {
-		switch(skill_id) { //Hit skill modifiers
+//	if(skill_id) {
+//		switch(skill_id) { //Hit skill modifiers
 			//It is proven that bonus is applied on final hitrate, not hit.
-			case SM_BASH:
-			case MS_BASH:
-				hitrate += hitrate * 5 * skill_lv / 100;
-				break;
-			case MS_MAGNUM:
-			case SM_MAGNUM:
-				hitrate += hitrate * 10 * skill_lv / 100;
-				break;
-			case KN_AUTOCOUNTER:
-			case PA_SHIELDCHAIN:
-			case NPC_WATERATTACK:
-			case NPC_GROUNDATTACK:
-			case NPC_FIREATTACK:
-			case NPC_WINDATTACK:
-			case NPC_POISONATTACK:
-			case NPC_HOLYATTACK:
-			case NPC_DARKNESSATTACK:
-			case NPC_UNDEADATTACK:
-			case NPC_TELEKINESISATTACK:
-			case NPC_BLEEDING:
-				hitrate += hitrate * 20 / 100;
-				break;
-			case KN_PIERCE:
-			case ML_PIERCE:
-				hitrate += hitrate * 5 * skill_lv / 100;
-				break;
-			case AS_SONICBLOW:
-				if(sd && pc_checkskill(sd,AS_SONICACCEL) > 0)
-					hitrate += hitrate * 50 / 100;
-				break;
-			case MC_CARTREVOLUTION:
-			case GN_CART_TORNADO:
-			case GN_CARTCANNON:
-				if (sd && pc_checkskill(sd, GN_REMODELING_CART))
-					hitrate += pc_checkskill(sd, GN_REMODELING_CART) * 4;
-				break;
-			case LG_BANISHINGPOINT:
-				hitrate += 3 * skill_lv;
-				break;
-			case GC_VENOMPRESSURE:
-				hitrate += 10 + 4 * skill_lv;
-				break;
-			case SC_FATALMENACE:
-				hitrate -= 35 - 5 * skill_lv;
-				break;
-			case RL_SLUGSHOT:
-				{
-					int8 dist = distance_bl(src, target);
-					if (dist > 3) {
+//			case SM_BASH:
+//			case MS_BASH:
+//				hitrate += hitrate * 5 * skill_lv / 100;
+//				break;
+//			case MS_MAGNUM:
+//			case SM_MAGNUM:
+//				hitrate += hitrate * 10 * skill_lv / 100;
+//				break;
+//			case KN_AUTOCOUNTER:
+//			case PA_SHIELDCHAIN:
+//			case NPC_WATERATTACK:
+//			case NPC_GROUNDATTACK:
+//			case NPC_FIREATTACK:
+//			case NPC_WINDATTACK:
+//			case NPC_POISONATTACK:
+//			case NPC_HOLYATTACK:
+//			case NPC_DARKNESSATTACK:
+//			case NPC_UNDEADATTACK:
+//			case NPC_TELEKINESISATTACK:
+//			case NPC_BLEEDING:
+//				hitrate += hitrate * 20 / 100;
+//				break;
+//			case KN_PIERCE:
+//			case ML_PIERCE:
+//				hitrate += hitrate * 5 * skill_lv / 100;
+//				break;
+//			case AS_SONICBLOW:
+//				if(sd && pc_checkskill(sd,AS_SONICACCEL) > 0)
+//					hitrate += hitrate * 50 / 100;
+//				break;
+//			case MC_CARTREVOLUTION:
+//			case GN_CART_TORNADO:
+//			case GN_CARTCANNON:
+//				if (sd && pc_checkskill(sd, GN_REMODELING_CART))
+//					hitrate += pc_checkskill(sd, GN_REMODELING_CART) * 4;
+//				break;
+//			case LG_BANISHINGPOINT:
+//				hitrate += 3 * skill_lv;
+//				break;
+//			case GC_VENOMPRESSURE:
+//				hitrate += 10 + 4 * skill_lv;
+//				break;
+//			case SC_FATALMENACE:
+//				hitrate -= 35 - 5 * skill_lv;
+//				break;
+//			case RL_SLUGSHOT:
+//				{
+//					int8 dist = distance_bl(src, target);
+//					if (dist > 3) {
 						// Reduce n hitrate for each cell after initial 3 cells. Different each level
 						// -10:-9:-8:-7:-6
-						dist -= 3;
-						hitrate -= ((11 - skill_lv) * dist);
-					}
-				}
-				break;
-		}
-	} else if (sd && wd.type&DMG_MULTI_HIT && wd.div_ == 2) // +1 hit per level of Double Attack on a successful double attack (making sure other multi attack skills do not trigger this) [helvetica]
-		hitrate += pc_checkskill(sd,TF_DOUBLE);
+//						dist -= 3;
+//						hitrate -= ((11 - skill_lv) * dist);
+//					}
+//				}
+//				break;
+//		}
+//	} else if (sd && wd.type&DMG_MULTI_HIT && wd.div_ == 2) // +1 hit per level of Double Attack on a successful double attack (making sure other multi attack skills do not trigger this) [helvetica]
+//		hitrate += pc_checkskill(sd,TF_DOUBLE);
 
-	if (sd) {
-		int skill = 0;
+//	if (sd) {
+//		int skill = 0;
 
-#ifdef RENEWAL
+//#ifdef RENEWAL
 		// Weaponry Research hidden bonus
-		if ((skill = pc_checkskill(sd,BS_WEAPONRESEARCH)) > 0)
-			hitrate += hitrate * ( 2 * skill ) / 100;
-#endif
+//		if ((skill = pc_checkskill(sd,BS_WEAPONRESEARCH)) > 0)
+//			hitrate += hitrate * ( 2 * skill ) / 100;
+//#endif
 
-		if( (sd->status.weapon == W_1HSWORD || sd->status.weapon == W_DAGGER) &&
-			(skill = pc_checkskill(sd, GN_TRAINING_SWORD))>0 )
-			hitrate += 3 * skill;
-	}
+//		if( (sd->status.weapon == W_1HSWORD || sd->status.weapon == W_DAGGER) &&
+//			(skill = pc_checkskill(sd, GN_TRAINING_SWORD))>0 )
+//			hitrate += 3 * skill;
+//	}
 
-	if(sc && sc->data[SC_MTF_ASPD])
-		hitrate += 5;
+//	if(sc && sc->data[SC_MTF_ASPD])
+//		hitrate += 5;
 
-	hitrate = 100-flee;//cap_value(hitrate, battle_config.min_hitrate, battle_config.max_hitrate);
-	return (rnd()%100 < hitrate);
+	// Can skip most of the above... [ADGTH]		
+	hitrate = 100 - flee;
+	
+	if( sc->data[SC_BLIND] ) // Blind halves final hit chance
+		hitrate = hitrate / 2;
+	
+	return (rnd()%100 <= hitrate);
 }
 
 /*==========================================
@@ -4551,7 +4556,6 @@ struct Damage battle_calc_defense_reduction(struct Damage wd, struct block_list 
 	 * Damage = Attack * (4000+eDEF)/(4000+eDEF*10) - sDEF
 	 * Pierce defence gains 1 atk per def/2
 	 */
-	if (def1 > 90) def1 = 90;
 	if( def1 == -400 ) /* being hit by a gazillion units, -400 creates a division by 0 and subsequently crashes */
 		def1 = -399;
 	ATK_ADD2(wd.damage, wd.damage2,
@@ -4559,10 +4563,10 @@ struct Damage battle_calc_defense_reduction(struct Damage wd, struct block_list 
 		is_attack_piercing(wd, src, target, skill_id, skill_lv, EQI_HAND_L) ? (def1/2) : 0
 	);
 	if( !attack_ignores_def(wd, src, target, skill_id, skill_lv, EQI_HAND_R) && !is_attack_piercing(wd, src, target, skill_id, skill_lv, EQI_HAND_R) )
-		wd.damage = (wd.damage * (100-def1)) / 100;
+		wd.damage = wd.damage * (10000+def1) / (10000+25*def1);
 		//wd.damage = wd.damage * (4000+def1) / (4000+10*def1) - vit_def; // [ADGTH]
 	if( is_attack_left_handed(src, skill_id) && !attack_ignores_def(wd, src, target, skill_id, skill_lv, EQI_HAND_L) && !is_attack_piercing(wd, src, target, skill_id, skill_lv, EQI_HAND_L) )
-		wd.damage2 = (wd.damage2 * (100-def1)) / 100;
+		wd.damage2 = wd.damage2 * (10000+def1) / (10000+25*def1);
 		//wd.damage2 = wd.damage2 * (4000+def1) / (4000+10*def1) - vit_def;
 
 #else
@@ -5409,13 +5413,16 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 	
   if(sd && pc_checkskill(sd, ALL_POWER))
     wd.damage += wd.damage * pc_checkskill(sd, ALL_POWER) / 100;
+ 
+ 	if(rnd()%100 < tstatus->def2) // Blocked?
+		wd.type = DMG_BLOCKED;
     
-  if(tsd && tsd->bonus.healevade && wd.dmg_lv == ATK_FLEE) {	
+  if(tsd && tsd->bonus.healevade && (wd.dmg_lv == ATK_FLEE || wd.type == DMG_BLOCKED)) {	
 			status_heal(target, wd.damage * tsd->bonus.healevade / 100, 0, 3);
   }
     
-  if(wd.dmg_lv == ATK_FLEE) // Because we gotta calc even missed attacks now
-		wd.damage = 0;          // Purposefully behind the gib check :P
+  if(wd.dmg_lv == ATK_FLEE || wd.type == DMG_BLOCKED) // Because we gotta calc even missed attacks now
+		wd.damage = 0;
     
   if( sd && sd->bonus.executioner ) { // Absolute last check, gib target
 	  struct status_data *tstatus = status_get_status_data(target);
@@ -6134,7 +6141,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 			if (mdef < -99)
 				mdef = -99; // Avoid divide by 0
 
-			ad.damage = ad.damage * (1000 + mdef) / (1000 + mdef * 10) - mdef2;
+			//ad.damage = ad.damage * (1000 + mdef) / (1000 + mdef * 10) - mdef2;
+			// Same formula as Phys DEF
+			ad.damage = ad.damage * (10000 + mdef) / (10000 + mdef * 25);
 #else
 			if(battle_config.magic_defense_type)
 				ad.damage = ad.damage - mdef*battle_config.magic_defense_type - mdef2;
@@ -6241,8 +6250,15 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
       ad.type = DMG_CRITICAL;
     }
   }
-
-
+	// Magical block chance [ADGTH]	
+	if(rnd()%100 < tstatus->mdef2) { // Blocked?
+		if(tsd && tsd->bonus.healevade)
+				status_heal(target, ad.damage * tsd->bonus.healevade / 100, 0, 3);
+				
+		ad.type = DMG_BLOCKED;
+		ad.damage = 0;
+	}
+	
   if(ad.type == DMG_ENDURE)
     ad.type = DMG_NORMAL;
 

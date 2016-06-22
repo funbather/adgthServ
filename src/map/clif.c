@@ -4849,11 +4849,16 @@ void clif_skillinfoblock(struct map_session_data *sd)
 			WFIFOW(fd,len+8) = skill_get_sp(id,sd->status.skill[i].lv);
 			WFIFOW(fd,len+10)= skill_get_range2(&sd->bl, id,sd->status.skill[i].lv);
 			safestrncpy((char*)WFIFOP(fd,len+12), skill_get_name(id), NAME_LENGTH);
-			if(sd->status.skill[i].flag == SKILL_FLAG_PERMANENT)
-				WFIFOB(fd,len+36) = (sd->status.skill[i].lv < skill_tree_get_max(id, sd->status.class_))? 1:0;
-			else
+			if( sd->status.skill[i].flag == SKILL_FLAG_PERMANENT || sd->status.skill[i].flag >= SKILL_FLAG_REPLACED_LV_0) {
+				if( sd->status.skill[i].flag >= SKILL_FLAG_REPLACED_LV_0 )
+					WFIFOB(fd,len+36) = ((sd->status.skill[i].flag - SKILL_FLAG_REPLACED_LV_0) < skill_tree_get_max(i, sd->status.class_))? 1:0;
+				else
+					WFIFOB(fd,len+36) = (sd->status.skill[i].lv < skill_tree_get_max(i, sd->status.class_))? 1:0;
+			} else {
 				WFIFOB(fd,len+36) = 0;
+			}
 			len += 37;
+			
 		}
 	}
 	WFIFOW(fd,2)=len;
@@ -4954,10 +4959,14 @@ void clif_skillinfo(struct map_session_data *sd,int skill, int inf)
 	WFIFOW(fd,8) = sd->status.skill[skill].lv;
 	WFIFOW(fd,10) = skill_get_sp(skill,sd->status.skill[skill].lv);
 	WFIFOW(fd,12) = skill_get_range2(&sd->bl,skill,sd->status.skill[skill].lv);
-	if( sd->status.skill[skill].flag == SKILL_FLAG_PERMANENT )
-		WFIFOB(fd,14) = (sd->status.skill[skill].lv < skill_tree_get_max(skill, sd->status.class_))? 1:0;
-	else
+	if( sd->status.skill[skill].flag == SKILL_FLAG_PERMANENT || sd->status.skill[skill].flag >= SKILL_FLAG_REPLACED_LV_0) {
+		if( sd->status.skill[skill].flag >= SKILL_FLAG_REPLACED_LV_0 )
+			WFIFOB(fd,14) = ((sd->status.skill[skill].flag - SKILL_FLAG_REPLACED_LV_0) < skill_tree_get_max(skill, sd->status.class_))? 1:0;
+		else
+			WFIFOB(fd,14) = (sd->status.skill[skill].lv < skill_tree_get_max(skill, sd->status.class_))? 1:0;
+	} else {
 		WFIFOB(fd,14) = 0;
+	}
 	WFIFOSET(fd,packet_len(0x7e1));
 }
 
@@ -10433,6 +10442,11 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		unit_attack(&sd->bl, target_id, action_type != 0);
 	break;
 	case 0x02: // sitdown
+		if (DIFF_TICK(gettick(), sd->canlog_tick) < 5000) {
+			clif_talkiebox(&sd->bl, "Cannot sit while in combat.");
+			break;
+		}
+	
 		if (battle_config.basic_skill_check && pc_checkskill(sd, NV_BASIC) < 3) {
 			clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 2);
 			break;

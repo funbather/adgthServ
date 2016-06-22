@@ -3917,6 +3917,7 @@ void pc_bonus5(struct map_session_data *sd,int type,int type2,int type3,int type
  *	1 - Grant an item skill (temporary)
  *	2 - Like 1, except the level granted can stack with previously learned level.
  *	4 - Like 0, except the skill will ignore skill tree (saves through job changes and resets).
+ *  8 - Like 2, but will not grant skill if unlearned
  *------------------------------------------*/
 int pc_skill(TBL_PC* sd, int id, int level, int flag)
 {
@@ -3984,12 +3985,16 @@ int pc_skill(TBL_PC* sd, int id, int level, int flag)
 			break;
 		case 8: //Add to skill, but do not grant it
 			if( sd->status.skill[id].id == id ) {
-				if( sd->status.skill[id].flag == SKILL_FLAG_PERMANENT )
+				if( sd->status.skill[id].flag == SKILL_FLAG_PERMANENT && sd->status.skill[id].lv > 0 ) {
 					sd->status.skill[id].flag = SKILL_FLAG_REPLACED_LV_0 + sd->status.skill[id].lv; // Store previous level.
+					sd->status.skill[id].lv += level;
+				} else if ( sd->status.skill[id].flag >= SKILL_FLAG_REPLACED_LV_0 ) {
+          //sd->status.skill[id].flag = SKILL_FLAG_REPLACED_LV_0 + sd->status.skill[id].lv; // Store previous level.
+					sd->status.skill[id].lv += level;
+				}
 			} else {
 				return 0;
 			}
-			sd->status.skill[id].lv += level;
 			break;
 		default: //Unknown flag?
 			return 0;
@@ -6786,30 +6791,48 @@ int pc_skillup(struct map_session_data *sd,uint16 skill_id)
 	if(skill_id >= MAX_SKILL )
 		return 0;
 
-	if( sd->status.skill_point > 0 &&
-		sd->status.skill[skill_id].id &&
-		sd->status.skill[skill_id].flag == SKILL_FLAG_PERMANENT && //Don't allow raising while you have granted skills. [Skotlex]
-		sd->status.skill[skill_id].lv < skill_tree_get_max(skill_id, sd->status.class_) )
-	{
-		int lv,range, upgradable;
-		sd->status.skill[skill_id].lv++;
-		sd->status.skill_point--;
-		//if( !skill_get_inf(skill_id) )
-			status_calc_pc(sd,SCO_NONE); // Only recalculate for passive skills.
-		if( sd->status.skill_point == 0 && pc_is_taekwon_ranker(sd) ) // Hope this don't break anything [ADGTH]
-			pc_calc_skilltree(sd); // Required to grant all TK Ranker skills.
-		else
+	if( sd->status.skill_point > 0 && sd->status.skill[skill_id].id ) {// Can now upgrade skills that have bonuses [ADGTH]
+		if ( sd->status.skill[skill_id].flag == SKILL_FLAG_PERMANENT && sd->status.skill[skill_id].lv < skill_tree_get_max(skill_id, sd->status.class_) ) {
+			int lv,range, upgradable;
+			sd->status.skill[skill_id].lv++;
+			sd->status.skill_point--;
+			
+			status_calc_pc(sd,SCO_NONE); // Some actives may give passive bonuses, recalculate for all skillups [ADGTH]
+				
+			if( sd->status.skill_point == 0 && pc_is_taekwon_ranker(sd) ) // Hope this don't break anything [ADGTH]
+				pc_calc_skilltree(sd); // Required to grant all TK Ranker skills.
+			else
+				pc_check_skilltree(sd, skill_id); // Check if a new skill can Lvlup
+
+			lv = sd->status.skill[skill_id].lv;
+			range = skill_get_range2(&sd->bl, skill_id, lv);
+			upgradable = (lv < skill_tree_get_max(sd->status.skill[skill_id].id, sd->status.class_)) ? 1 : 0;
+			clif_skillup(sd,skill_id,lv,range,upgradable);
+			clif_updatestatus(sd,SP_SKILLPOINT);
+			if( skill_id == GN_REMODELING_CART ) /* cart weight info was updated by status_calc_pc */
+				clif_updatestatus(sd,SP_CARTINFO);
+			if (!pc_has_permission(sd, PC_PERM_ALL_SKILL)) // may skill everything at any time anyways, and this would cause a huge slowdown
+				clif_skillinfoblock(sd);
+		} else if ( sd->status.skill[skill_id].flag >= SKILL_FLAG_REPLACED_LV_0 && (sd->status.skill[skill_id].flag - SKILL_FLAG_REPLACED_LV_0) < skill_tree_get_max(skill_id, sd->status.class_) ) {
+			// Just copying the above for this condition to avoid a massive headache [ADGTH]
+			int lv,range, upgradable;
+			sd->status.skill[skill_id].lv++;
+			sd->status.skill_point--;
+			sd->status.skill[skill_id].flag++;
+			
+			status_calc_pc(sd,SCO_NONE);
+			
 			pc_check_skilltree(sd, skill_id); // Check if a new skill can Lvlup
 
-		lv = sd->status.skill[skill_id].lv;
-		range = skill_get_range2(&sd->bl, skill_id, lv);
-		upgradable = (lv < skill_tree_get_max(sd->status.skill[skill_id].id, sd->status.class_)) ? 1 : 0;
-		clif_skillup(sd,skill_id,lv,range,upgradable);
-		clif_updatestatus(sd,SP_SKILLPOINT);
-		if( skill_id == GN_REMODELING_CART ) /* cart weight info was updated by status_calc_pc */
-			clif_updatestatus(sd,SP_CARTINFO);
-		if (!pc_has_permission(sd, PC_PERM_ALL_SKILL)) // may skill everything at any time anyways, and this would cause a huge slowdown
-			clif_skillinfoblock(sd);
+			lv = sd->status.skill[skill_id].lv;
+			range = skill_get_range2(&sd->bl, skill_id, lv);
+			upgradable = ((sd->status.skill[skill_id].flag - SKILL_FLAG_REPLACED_LV_0) < skill_tree_get_max(sd->status.skill[skill_id].id, sd->status.class_)) ? 1 : 0;
+			clif_skillup(sd,skill_id,lv,range,upgradable);
+			clif_updatestatus(sd,SP_SKILLPOINT);
+			
+			if (!pc_has_permission(sd, PC_PERM_ALL_SKILL)) // may skill everything at any time anyways, and this would cause a huge slowdown
+				clif_skillinfoblock(sd);		
+		}
 	}
 
 	return 0;
@@ -7801,6 +7824,7 @@ int pc_readparam(struct map_session_data* sd,int type)
 		case SP_INT2:             val = sd->battle_status.int_; break;
 		case SP_DEX2:             val = sd->battle_status.dex; break;
 		case SP_LUK2:             val = sd->battle_status.luk; break;
+		case SP_SPEED:            val = sd->battle_status.speed; break;
 	}
 
 	return val;

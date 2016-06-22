@@ -2260,13 +2260,13 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 	}
 	status->matk_min = status->matk_max = (10+level)+((10+level)*status->int_)/50;//status_base_matk(status, level);
 	//Def2
-	//stat = status->def2;
+	stat = status->def2;
 	//stat += (int)(((float)level + status->vit)/2 + ((float)status->agi/5)); // base level + (every 2 vit = +1 def) + (every 5 agi = +1 def)
-	status->def2 = 0; //cap_value(stat,0,SHRT_MAX);
+	status->def2 = cap_value(stat,0,SHRT_MAX);
 	//MDef2
-	//stat = status->mdef2;
+	stat = status->mdef2;
 	//stat += (int)(status->int_ + ((float)level/4) + ((float)status->dex/5) + ((float)status->vit/5)); // (every 4 base level = +1 mdef) + (every 1 int = +1 mdef) + (every 5 dex = +1 mdef) + (every 5 vit = +1 mdef)
-	status->mdef2 = 0; //cap_value(stat,0,SHRT_MAX);
+	status->mdef2 = cap_value(stat,0,SHRT_MAX);
 #else
 	status->matk_min = status_base_matk_min(status);
 	status->matk_max = status_base_matk_max(status);
@@ -2905,7 +2905,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	sd->matk_rate = 100;
 	sd->critical_rate = sd->hit_rate = sd->flee_rate = sd->flee2_rate = 100;
 	sd->def_rate = sd->mdef_rate = 100;
-	sd->def2_rate = sd->mdef2_rate = 0; // DEF2/MDEF2 unusued. [ADGTH]
+	sd->def2_rate = sd->mdef2_rate = 100;
 	sd->regen.state.block = 0;
 
 	// Zeroed arrays, order follows the order in pc.h.
@@ -3443,7 +3443,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
   if((skill=pc_checkskill(sd,ALL_FEATHERFOOT))>0) 
 		sd->bonus.speed_add_rate -= skill*2;
   if((skill=pc_checkskill(sd,ALL_IRONWILL))>0) 
-		status->mdef += skill*2;
+		status->mdef += skill*20;
 				
 	if(sd->flee2_rate < 0)
 		sd->flee2_rate = 0;
@@ -3487,8 +3487,6 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		status->flee += (skill*3)>>1;
   if((skill=pc_checkskill(sd,ALL_REFLEXES))>0)
 		status->flee += skill;
-  if((skill=pc_checkskill(sd,WR_SHIELDBEARER))>0 && sd->status.shield)
-		status->flee += skill;
 	
 	if(status->flee > 90)
     status->flee = 90;
@@ -3502,12 +3500,15 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		i = status->def * sd->def_rate/100;
 		status->def = cap_value(i, DEFTYPE_MIN, DEFTYPE_MAX);
 	}
+	
+	if((skill=pc_checkskill(sd,WR_SHIELDBEARER))>0 && sd->status.shield) {
+		status->def2 += skill;
+		status->mdef2 += skill;
+	}
 
 	if(pc_ismadogear(sd) && pc_checkskill(sd, NC_MAINFRAME) > 0)
 		status->def += 20 + (pc_checkskill(sd, NC_MAINFRAME) * 20);
-		
-  if((skill=pc_checkskill(sd,WR_SHIELDBEARER))>0 && sd->status.shield)
-		status->def += skill;
+
 
 #ifndef RENEWAL
 	if (!battle_config.weapon_defense_type && status->def > battle_config.max_def) {
@@ -3516,8 +3517,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	}
 #endif
 
-	if(status->def > 90)
-    status->def = 90;
+	//if(status->def > 90)
+  //  status->def = 90;
 // ----- EQUIPMENT-MDEF CALCULATION -----
 
 	// Apply relative modifiers from equipment
@@ -3535,8 +3536,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	}
 #endif
 
-	if(status->mdef > 90)
-    status->mdef = 90;
+	//if(status->mdef > 90)
+  //  status->mdef = 90;
 
 // ----- ASPD CALCULATION -----
 
@@ -3982,7 +3983,11 @@ void status_calc_regen(struct block_list *bl, struct status_data *status, struct
 
 	sd = BL_CAST(BL_PC,bl);
 	//val = 1 + (status->vit/5) + (status->max_hp/200);
-	val = 1 + (status->vit/10) + (status->max_hp/200); // Base HP regen Forumula [ADGTH]
+	
+	// Base HP regen Forumula [ADGTH]
+	// 5 + 2% of Max HP
+	// Increased from before because players can no longer sit in combat to rapidly regenerate HP
+	val = 5 + (status->max_hp/50);
 
 	if( sd && sd->hprecov_rate != 100 )
 		val = val*sd->hprecov_rate/100;
@@ -3995,7 +4000,14 @@ void status_calc_regen(struct block_list *bl, struct status_data *status, struct
 	if( status->int_ >= 120 )
 		val += ((status->int_-120)>>1) + 4;*/
 		
-  val = status->max_sp/10; // Base SP regen Forumula  [ADGTH]
+	// Player SP regen Forumula  [ADGTH]
+	// 10% of base MP pool + 2.5% of bonus MP
+	// Clarity adds onto base MP
+	if( sd && bl->type == BL_PC ) {
+		skill = pc_checkskill(sd,ALL_CLARITY);
+		val = (100 + (skill * 3) + sd->battle_status.int_ + ((status->max_sp - 100 - (skill * 3) - sd->battle_status.int_) / 4)) / 10;		
+	} else
+		val = 10; 
 
 	if( sd && sd->sprecov_rate != 100 )
 		val = val*sd->sprecov_rate/100;
@@ -4431,7 +4443,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 		else
 			status->def2 = status_calc_def2(bl, sc, b_status->def2
 #ifdef RENEWAL
-			+ (int)( ((float)status->vit/2 - (float)b_status->vit/2) + ((float)status->agi/5 - (float)b_status->agi/5) )
+			//+ (int)( ((float)status->vit/2 - (float)b_status->vit/2) + ((float)status->agi/5 - (float)b_status->agi/5) )
 #else
 			+ (status->vit - b_status->vit)
 #endif
@@ -4453,9 +4465,9 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 			)
 			status->mdef2 = status_calc_mdef2(bl, sc, b_status->mdef2);
 		else
-			status->mdef2 = status_calc_mdef2(bl, sc, b_status->mdef2 +(status->int_ - b_status->int_)
+			status->mdef2 = status_calc_mdef2(bl, sc, b_status->mdef2// +(status->int_ - b_status->int_)
 #ifdef RENEWAL
-			+ (int)( ((float)status->dex/5 - (float)b_status->dex/5) + ((float)status->vit/5 - (float)b_status->vit/5) )
+			//+ (int)( ((float)status->dex/5 - (float)b_status->dex/5) + ((float)status->vit/5 - (float)b_status->vit/5) )
 #else
 			+ ((status->vit - b_status->vit)>>1)
 #endif
