@@ -843,6 +843,31 @@ int char_inventory_to_sql(const struct item items[], int max, int id) {
 	return errors;
 }
 
+/**
+ * Returns the correct gender ID for the given character and enum value.
+ *
+ * If the per-character sex is defined but not supported by the current packetver, the database entries are corrected.
+ *
+ * @param sd Character data, if available.
+ * @param p  Character status.
+ * @param sex Character sex (database enum)
+ *
+ * @retval SEX_MALE if the per-character sex is male
+ * @retval SEX_FEMALE if the per-character sex is female
+ * @retval 99 if the per-character sex is not defined or the current PACKETVER doesn't support it.
+ */
+int char_mmo_gender(const struct char_session_data *sd, const struct mmo_charstatus *p, char sex) {
+	(void)sd; (void)p; // Unused
+	switch (sex) {
+		case 'M':
+			return SEX_MALE;
+		case 'F':
+			return SEX_FEMALE;
+		case 'U':
+		default:
+			return 99;
+	}
+}
 
 int char_mmo_char_tobuf(uint8* buf, struct mmo_charstatus* p);
 
@@ -853,16 +878,16 @@ int char_mmo_chars_fromsql(struct char_session_data* sd, uint8* buf) {
 	struct mmo_charstatus p;
 	int j = 0, i;
 	char last_map[MAP_NAME_LENGTH_EXT];
+	char sex[2];
 
 	stmt = SqlStmt_Malloc(sql_handle);
-	if( stmt == NULL )
-	{
+	if( stmt == NULL ) {
 		SqlStmt_ShowDebug(stmt);
 		return 0;
 	}
 	memset(&p, 0, sizeof(p));
 
-	for( i = 0; i < MAX_CHARS; i++ ){
+	for( i = 0; i < MAX_CHARS; i++ ) {
 		sd->found_char[i] = -1;
 		sd->unban_time[i] = 0;
 	}
@@ -873,7 +898,7 @@ int char_mmo_chars_fromsql(struct char_session_data* sd, uint8* buf) {
 		"`str`,`agi`,`vit`,`int`,`dex`,`luk`,`max_hp`,`hp`,`max_sp`,`sp`,"
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`hair`,`hair_color`,"
 		"`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`rename`,`delete_date`,"
-		"`robe`,`moves`,`unban_time`,`font`,`uniqueitem_counter`"
+		"`robe`,`moves`,`unban_time`,`font`,`uniqueitem_counter`,`sex`"
 		" FROM `%s` WHERE `account_id`='%d' AND `char_num` < '%d'", schema_config.char_db, sd->account_id, MAX_CHARS)
 	||	SQL_ERROR == SqlStmt_Execute(stmt)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 0,  SQLDT_INT,    &p.char_id, 0, NULL, NULL)
@@ -916,6 +941,7 @@ int char_mmo_chars_fromsql(struct char_session_data* sd, uint8* buf) {
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 37, SQLDT_LONG,   &p.unban_time, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 38, SQLDT_UCHAR,  &p.font, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 39, SQLDT_UINT,   &p.uniqueitem_counter, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 40, SQLDT_ENUM,   &sex, sizeof(sex), NULL, NULL)
 	)
 	{
 		SqlStmt_ShowDebug(stmt);
@@ -923,11 +949,11 @@ int char_mmo_chars_fromsql(struct char_session_data* sd, uint8* buf) {
 		return 0;
 	}
 
-	for( i = 0; i < MAX_CHARS && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++ )
-	{
+	for( i = 0; i < MAX_CHARS && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++ ) {
 		p.last_point.map = mapindex_name2id(last_map);
 		sd->found_char[p.slot] = p.char_id;
 		sd->unban_time[p.slot] = p.unban_time;
+		p.sex = char_mmo_gender(sd, &p, sex[0]);
 		j += char_mmo_char_tobuf(WBUFP(buf, j), &p);
 
 		// Addon System
@@ -959,6 +985,7 @@ int char_mmo_char_fromsql(uint32 char_id, struct mmo_charstatus* p, bool load_ev
 	struct hotkey tmp_hotkey;
 	int hotkey_num;
 #endif
+	char sex[2];
 
 	memset(p, 0, sizeof(struct mmo_charstatus));
 
@@ -978,7 +1005,7 @@ int char_mmo_char_fromsql(uint32 char_id, struct mmo_charstatus* p, bool load_ev
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`party_id`,`guild_id`,`pet_id`,`homun_id`,`elemental_id`,`hair`,"
 		"`hair_color`,`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`last_x`,`last_y`,"
 		"`save_map`,`save_x`,`save_y`,`partner_id`,`father`,`mother`,`child`,`fame`,`rename`,`delete_date`,`robe`, `moves`,"
-		"`unban_time`,`font`,`uniqueitem_counter`"
+		"`unban_time`,`font`,`uniqueitem_counter`,`sex`"
 		" FROM `%s` WHERE `char_id`=? LIMIT 1", schema_config.char_db)
 	||	SQL_ERROR == SqlStmt_BindParam(stmt, 0, SQLDT_INT, &char_id, 0)
 	||	SQL_ERROR == SqlStmt_Execute(stmt)
@@ -1038,6 +1065,7 @@ int char_mmo_char_fromsql(uint32 char_id, struct mmo_charstatus* p, bool load_ev
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 53, SQLDT_LONG,   &p->unban_time, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 54, SQLDT_UCHAR,  &p->font, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 55, SQLDT_UINT,   &p->uniqueitem_counter, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 56, SQLDT_ENUM,   &sex, sizeof(sex), NULL, NULL)
 	)
 	{
 		SqlStmt_ShowDebug(stmt);
@@ -1050,6 +1078,8 @@ int char_mmo_char_fromsql(uint32 char_id, struct mmo_charstatus* p, bool load_ev
 		SqlStmt_Free(stmt);
 		return 0;
 	}
+	
+	p->sex = char_mmo_gender(NULL, p, sex[0]);
 	p->last_point.map = mapindex_name2id(last_map);
 	p->save_point.map = mapindex_name2id(save_map);
 
@@ -1357,7 +1387,7 @@ int char_check_char_name(char * name, char * esc_name)
 //int char_make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style) {
 //  int str = 1, agi = 1, vit = 1, int_ = 1, dex = 1, luk = 1;
 //#else
-int char_make_new_char_sql(struct char_session_data* sd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style) {
+int char_make_new_char_sql(struct char_session_data* sd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style, int sex, int job) {
 //#endif
 	char name[NAME_LENGTH];
 	char esc_name[NAME_LENGTH*2+1];
@@ -1371,6 +1401,18 @@ int char_make_new_char_sql(struct char_session_data* sd, char* name_, int str, i
 	flag = char_check_char_name(name,esc_name);
 	if( flag < 0 )
 		return flag;
+	ShowInfo("The sex number...%d\n", sex);
+	switch( sex ) {
+		case 0:
+			sex = 'F';
+			break;
+		case 1:
+			sex = 'M';
+			break;
+		default:
+			sex = 'U';
+			break;
+	}
 
 	//check other inputs
 #if PACKETVER >= 20120307
@@ -1412,11 +1454,11 @@ int char_make_new_char_sql(struct char_session_data* sd, char* name_, int str, i
 #if PACKETVER >= 20120307
 	//Insert the new char entry to the database
 	if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`account_id`, `char_num`, `name`, `zeny`, `status_point`,`str`, `agi`, `vit`, `int`, `dex`, `luk`, `max_hp`, `hp`,"
-		"`max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`) VALUES ("
-		"'%d', '%d', '%s', '%d',  '%d','%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d','%d', '%d','%d', '%d', '%s', '%d', '%d', '%s', '%d', '%d')",
+		"`max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`, `sex`, `class`) VALUES ("
+		"'%d', '%d', '%s', '%d',  '%d','%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d','%d', '%d','%d', '%d', '%s', '%d', '%d', '%s', '%d', '%d', '%c', '%d')",
 		schema_config.char_db, sd->account_id , slot, esc_name, charserv_config.start_zeny, 0, str, agi, vit, int_, dex, luk,
 		(50 * (10000 + vit * 666)) / 10000, (50 * (10000 + vit * 666)) / 10000,  100 + int_, 100 + int_, hair_style, hair_color,
-		mapindex_id2name(charserv_config.start_point.map), charserv_config.start_point.x, charserv_config.start_point.y, mapindex_id2name(charserv_config.start_point.map), charserv_config.start_point.x, charserv_config.start_point.y) )
+		mapindex_id2name(charserv_config.start_point.map), charserv_config.start_point.x, charserv_config.start_point.y, mapindex_id2name(charserv_config.start_point.map), charserv_config.start_point.x, charserv_config.start_point.y, sex, job) )
 	{
 		Sql_ShowDebug(sql_handle);
 		return -2; //No, stop the procedure!
@@ -1442,7 +1484,7 @@ int char_make_new_char_sql(struct char_session_data* sd, char* name_, int str, i
 			Sql_ShowDebug(sql_handle);
 	}
 
-	ShowInfo("Created char: account: %d, char: %d, slot: %d, name: %s\n", sd->account_id, char_id, slot, name);
+	ShowInfo("Created char: account: %d, char: %d, slot: %d, name: %s, sex: %c\n", sd->account_id, char_id, slot, name, sex);
 	return char_id;
 }
 
@@ -1675,10 +1717,12 @@ int char_mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 	WBUFW(buf,50) = DEFAULT_WALK_SPEED; // p->speed;
 	WBUFW(buf,52) = p->class_;
 	WBUFW(buf,54) = p->hair;
+	offset+=2;
+	buf = WBUFP(buffer,offset);
 
 	//When the weapon is sent and your option is riding, the client crashes on login!?
 	WBUFW(buf,56) = p->option&(0x20|0x80000|0x100000|0x200000|0x400000|0x800000|0x1000000|0x2000000|0x4000000|0x8000000) ? 0 : p->weapon;
-
+	
 	WBUFW(buf,58) = p->base_level;
 	WBUFW(buf,60) = min(p->skill_point, INT16_MAX);
 	WBUFW(buf,62) = p->head_bottom;
@@ -1730,6 +1774,9 @@ int char_mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 	#endif
 #endif
 
+	WBUFB(buf,140) = p->sex;// sex - (0 = female, 1 = male, 99 = logindefined)
+	offset += 1;
+	
 	return 106+offset;
 }
 
@@ -2868,7 +2915,7 @@ int do_init(int argc, char **argv)
 	add_timer_func_list(char_online_data_cleanup, "online_data_cleanup");
 	add_timer_interval(gettick() + 1000, char_online_data_cleanup, 0, 0, 600 * 1000);
 
-	//chek db tables
+	//check db tables
 	if(charserv_config.char_check_db && char_checkdb() == 0){
 		ShowFatalError("char : A tables is missing in sql-server, please fix it, see (sql-files main.sql for structure) \n");
 		exit(EXIT_FAILURE);

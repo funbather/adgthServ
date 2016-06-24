@@ -283,7 +283,6 @@ int chrif_save(struct map_session_data *sd, int flag) {
 			chrif_save_scdata(sd);
 			chrif_skillcooldown_save(sd);
 			chrif_save_bsdata(sd);
-			chrif_req_login_operation(sd->status.account_id, sd->status.name, CHRIF_OP_LOGIN_BANK, 0, 2, sd->status.bank_vault); //save Bank data
 		}
 		if ( flag != 3 && !chrif_auth_logout(sd,flag == 1 ? ST_LOGOUT : ST_MAPCHANGE) )
 			ShowError("chrif_save: Failed to set up player %d:%d for proper quitting!\n", sd->status.account_id, sd->status.char_id);
@@ -850,14 +849,16 @@ int chrif_req_login_operation(int aid, const char* character_name, unsigned shor
  * Send an account modification (changesex) request to the login server (via char server).
  * @sd : Player requesting operation
  */
-int chrif_changesex(struct map_session_data *sd) {
+int chrif_changesex(struct map_session_data *sd, bool change_account) {
 	chrif_check(-1);
 
 	WFIFOHEAD(char_fd,44);
 	WFIFOW(char_fd,0) = 0x2b0e;
 	WFIFOL(char_fd,2) = sd->status.account_id;
 	safestrncpy((char*)WFIFOP(char_fd,6), sd->status.name, NAME_LENGTH);
-	WFIFOW(char_fd,30) = CHRIF_OP_LOGIN_CHANGESEX;
+	WFIFOW(char_fd,30) = (change_account ? CHRIF_OP_LOGIN_CHANGESEX : CHRIF_OP_LOGIN_CHANGECHARSEX);
+	if (!change_account)
+		WFIFOB(char_fd,32) = sd->status.sex == SEX_MALE ? SEX_FEMALE : SEX_MALE;
 	WFIFOSET(char_fd,44);
 
 	clif_displaymessage(sd->fd, msg_txt(sd,408)); //"Need disconnection to perform change-sex request..."
@@ -900,17 +901,15 @@ static void chrif_ack_login_req(int aid, const char* player_name, uint16 type, u
 		case CHRIF_OP_LOGIN_UNBLOCK:
 		case CHRIF_OP_LOGIN_UNBAN:
 		case CHRIF_OP_LOGIN_CHANGESEX:
+		case CHRIF_OP_LOGIN_CHANGECHARSEX:
+			if (type == CHRIF_OP_LOGIN_CHANGECHARSEX)
+				type--; // So we don't have to create a new msgstring.
 			snprintf(action,25,"%s",msg_txt(sd,427+type)); //block|ban|unblock|unban|change the sex of
 			break;
 		case CHRIF_OP_LOGIN_VIP:
 			if (!battle_config.disp_servervip_msg)
 				return;
 			snprintf(action,25,"%s",msg_txt(sd,436)); //VIP
-			break;
-		case CHRIF_OP_LOGIN_BANK:
-			if (!battle_config.disp_serverbank_msg)
-				return;
-			snprintf(action,25,"%s","bank");
 			break;
 		default:
 			snprintf(action,25,"???");

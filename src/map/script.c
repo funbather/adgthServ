@@ -11183,6 +11183,19 @@ BUILDIN_FUNC(changebase)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+static bool script_charid2sd_(struct script_state *st, uint8 loc, struct map_session_data **sd, const char *func) {
+	if (script_hasdata(st, loc)) {
+		int id_ = script_getnum(st, loc);
+		if (!(*sd = map_charid2sd(id_)))
+			ShowError("%s: Player with char id '%d' is not found.\n", func, id_);
+	}
+	else
+		*sd = script_rid2sd(st);
+	return (*sd) ? true : false;
+}
+
+#define script_charid2sd(loc,sd) script_charid2sd_(st,(loc),&(sd),__FUNCTION__)
+
 /*==========================================
  * Unequip all item and request for a changesex to char-serv
  *------------------------------------------*/
@@ -11194,9 +11207,35 @@ BUILDIN_FUNC(changesex)
 
 	pc_resetskill(sd,4);
 	// to avoid any problem with equipment and invalid sex, equipment is unequiped.
-	for( i=0; i<EQI_MAX; i++ )
-		if( sd->equip_index[i] >= 0 ) pc_unequipitem(sd, sd->equip_index[i], 3);
-	chrif_changesex(sd);
+	for(i = 0; i < EQI_MAX; i++) {
+		if (sd->equip_index[i] >= 0)
+			pc_unequipitem(sd, sd->equip_index[i], 3);
+	}
+
+	chrif_changesex(sd, true);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+/**
+ * Change character's sex and unequip all item and request for a changesex to char-serv
+ * changecharsex({<char_id>});
+ */
+BUILDIN_FUNC(changecharsex)
+{
+	int i;
+	TBL_PC *sd = NULL;
+
+	if (!script_charid2sd(2,sd))
+		return SCRIPT_CMD_FAILURE;
+
+	pc_resetskill(sd,4);
+	// to avoid any problem with equipment and invalid sex, equipment is unequiped.
+	for (i = 0; i < EQI_MAX; i++) {
+		if (sd->equip_index[i] >= 0)
+			pc_unequipitem(sd, sd->equip_index[i], 3);
+	}
+
+	chrif_changesex(sd, false);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -19734,6 +19773,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(skillpointcount,""),
 	BUILDIN_DEF(changebase,"i?"),
 	BUILDIN_DEF(changesex,""),
+	BUILDIN_DEF(changecharsex,"?"),
 	BUILDIN_DEF(waitingroom,"si?????"),
 	BUILDIN_DEF(delwaitingroom,"?"),
 	BUILDIN_DEF2(waitingroomkickall,"kickwaitingroomall","?"),

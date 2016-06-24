@@ -125,6 +125,7 @@ CREATE TABLE IF NOT EXISTS `char` (
   `unban_time` int(11) unsigned NOT NULL default '0',
   `font` tinyint(3) unsigned NOT NULL default '0',
   `uniqueitem_counter` int(11) unsigned NOT NULL default '0',
+  `sex` ENUM('M','F','U') NOT NULL default 'U',
   PRIMARY KEY  (`char_id`),
   UNIQUE KEY `name_key` (`name`),
   KEY `account_id` (`account_id`),

@@ -1425,8 +1425,6 @@ void pc_reg_received(struct map_session_data *sd)
 	chrif_skillcooldown_request(sd->status.account_id, sd->status.char_id);
 	chrif_bsdata_request(sd->status.char_id);
 	sd->storage_size = MIN_STORAGE; //default to min
-	if(battle_config.feature_banking)
-		chrif_req_login_operation(sd->status.account_id, sd->status.name, CHRIF_OP_LOGIN_BANK, 0, 1, 0); //request Bank data
 #ifdef VIP_ENABLE
 	sd->vip.time = 0;
 	sd->vip.enabled = 0;
@@ -4177,6 +4175,7 @@ char pc_payzeny(struct map_session_data *sd,int zeny, enum e_log_pick_type type,
 
 	sd->status.zeny -= zeny;
 	clif_updatestatus(sd,SP_ZENY);
+	clif_updatestatus(sd, SP_ATK1);
 
 	if(!tsd) tsd = sd;
 	log_zeny(sd, type, tsd, -zeny);
@@ -4319,7 +4318,8 @@ char pc_getzeny(struct map_session_data *sd,int zeny, enum e_log_pick_type type,
 
 	sd->status.zeny += zeny;
 	clif_updatestatus(sd,SP_ZENY);
-
+  clif_updatestatus(sd, SP_ATK1);
+  
 	if(!tsd) tsd = sd;
 	log_zeny(sd, type, tsd, zeny);
 	if( zeny > 0 && sd->state.showzeny ) {

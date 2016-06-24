@@ -642,7 +642,7 @@ void clif_authok(struct map_session_data *sd)
 #endif
 	int fd = sd->fd;
 
-	WFIFOHEAD(fd,packet_len(cmd));
+	WFIFOHEAD(fd,14);
 	WFIFOW(fd, 0) = cmd;
 	WFIFOL(fd, 2) = gettick();
 	WFIFOPOS(fd, 6, sd->bl.x, sd->bl.y, sd->ud.dir);
@@ -651,7 +651,8 @@ void clif_authok(struct map_session_data *sd)
 #if PACKETVER >= 20080102
 	WFIFOW(fd,11) = sd->status.font;
 #endif
-	WFIFOSET(fd,packet_len(cmd));
+	WFIFOB(fd,13) = sd->status.sex;
+	WFIFOSET(fd,14);
 }
 
 
@@ -2880,14 +2881,8 @@ void clif_updatestatus(struct map_session_data *sd,int type)
 		WFIFOL(fd,4)=sd->battle_status.amotion;
 		break;
 	case SP_ATK1:
-	{ double dps; // This is still ugly, zzz
-    dps = sd->weapontype1 == W_STAFF ? sd->battle_status.matk_max : ( pc_leftside_atk(sd) + pc_rightside_atk(sd) ); // Base Damage
-    dps *= ( 50000 / (2000 - (2000 - sd->battle_status.amotion ) ) ); // Attacks per second
-    dps += ( dps * sd->battle_status.str ) / 100; // STR bonus
-    dps += ( dps * ( ( 125 + sd->bonus.crit_atk_rate + (sd->battle_status.dex) ) * ( sd->battle_status.cri ))) / 100000; // Critical Hits
-		WFIFOL(fd,4)=(uint32) dps;
+		WFIFOL(fd,4)=sd->status.zeny; // ATK -> Zeny, for use in the stat window
 		break;
-	}
 	case SP_DEF1:
 		WFIFOL(fd,4)=pc_leftside_def(sd);
 		break;
@@ -3241,12 +3236,6 @@ void clif_refreshlook(struct block_list *bl,int id,int type,int val,enum send_ta
 void clif_initialstatus(struct map_session_data *sd) {
 	int fd, mdef2;
 	unsigned char *buf;
-	
-	double dps;
-	dps = sd->weapontype1 == W_STAFF ? sd->battle_status.matk_max : ( pc_leftside_atk(sd) + pc_rightside_atk(sd) );
-  dps *= (50000/(2000-(2000-sd->battle_status.amotion)));
-  dps += (dps*sd->battle_status.str*.5)/100;
-  dps += (dps*((125+sd->bonus.crit_atk_rate+(sd->battle_status.dex/2))*(sd->battle_status.cri)))/100000;
 
 	nullpo_retv(sd);
 
@@ -3268,7 +3257,7 @@ void clif_initialstatus(struct map_session_data *sd) {
 	WBUFB(buf,13)=pc_need_status_point(sd,SP_DEX,1);
 	WBUFB(buf,14)=min(sd->status.luk, UINT8_MAX);
 	WBUFB(buf,15)=pc_need_status_point(sd,SP_LUK,1);
-	WBUFW(buf,16) = (uint16) dps;
+	WBUFW(buf,16) = sd->status.zeny; // ATK -> Zeny for stat window
 	WBUFW(buf,18) = pc_leftside_atk(sd) + pc_rightside_atk(sd); // [ADGTH]
 	WBUFW(buf,20) = sd->battle_status.matk_max;//pc_leftside_matk(sd);//pc_rightside_matk(sd); Messed something up lmao [ADGTH]
 	WBUFW(buf,22) = sd->battle_status.matk_max;//pc_leftside_matk(sd);
@@ -14266,13 +14255,6 @@ void clif_parse_AutoRevive(int fd, struct map_session_data *sd)
 ///      <criticalSuccessValue>.W <ASPD>.W <plusASPD>.W
 void clif_check(int fd, struct map_session_data* pl_sd)
 {
-  double dps;
-  //dps = pl_sd->battle_status.batk+pl_sd->battle_status.rhw.atk+pl_sd->battle_status.lhw.atk+pl_sd->battle_status.rhw.atk2+pl_sd->battle_status.lhw.atk2; ??? why was this like this lol
-  dps = pl_sd->weapontype1 == W_STAFF ? pl_sd->battle_status.matk_max : ( pc_leftside_atk(pl_sd) + pc_rightside_atk(pl_sd) );
-  dps *= (50000/(2000-(2000-pl_sd->battle_status.amotion)));
-  dps += (dps*pl_sd->status.str*1)/100;
-  dps += (dps*((125+pl_sd->bonus.crit_atk_rate+(pl_sd->battle_status.dex))*(pl_sd->battle_status.cri)))/100000;
-
 	WFIFOHEAD(fd,packet_len(0x214));
 	WFIFOW(fd, 0) = 0x214;
 	WFIFOB(fd, 2) = min(pl_sd->status.str, UINT8_MAX);
@@ -14287,7 +14269,7 @@ void clif_check(int fd, struct map_session_data* pl_sd)
 	WFIFOB(fd,11) = pc_need_status_point(pl_sd, SP_DEX, 1);
 	WFIFOB(fd,12) = min(pl_sd->status.luk, UINT8_MAX);
 	WFIFOB(fd,13) = pc_need_status_point(pl_sd, SP_LUK, 1);
-	WFIFOW(fd,14) = (uint16) dps;
+	WFIFOW(fd,14) = pl_sd->status.zeny;
 	WFIFOW(fd,16) = pl_sd->battle_status.batk+pl_sd->battle_status.rhw.atk+pl_sd->battle_status.lhw.atk+pl_sd->battle_status.rhw.atk2+pl_sd->battle_status.lhw.atk2;
 	WFIFOW(fd,18) = pl_sd->battle_status.matk_max;
 	WFIFOW(fd,20) = pl_sd->battle_status.matk_max;//pl_sd->battle_status.matk_min;

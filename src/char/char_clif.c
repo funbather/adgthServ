@@ -727,7 +727,8 @@ int chclif_parse_charselect(int fd, struct char_session_data* sd,uint32 ipl){
 
 		//Have to switch over to the DB instance otherwise data won't propagate [Kevin]
 		cd = (struct mmo_charstatus *)idb_get(char_db_, char_id);
-		cd->sex = sd->sex;
+		if (cd->sex == 99)
+			cd->sex = sd->sex;
 
 		if (charserv_config.log_char) {
 			char esc_name[NAME_LENGTH*2+1];
@@ -822,15 +823,15 @@ int chclif_parse_createnewchar(int fd, struct char_session_data* sd,int cmd){
 	int i = 0;
 
 	if (cmd == 0x970) FIFOSD_CHECK(31) //>=20120307
-	else if (cmd == 0x67) FIFOSD_CHECK(37)
+	else if (cmd == 0x67) FIFOSD_CHECK(40)
 	else return 0;
 
 	if( (charserv_config.char_new)==0 ) //turn character creation on/off [Kevin]
 		i = -2;
 	else {
 //#if PACKETVER < 20120307
-			i = char_make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOB(fd,27),RFIFOB(fd,28),RFIFOB(fd,29),RFIFOB(fd,30),RFIFOB(fd,31),RFIFOB(fd,32),RFIFOW(fd,33),RFIFOW(fd,35));
-			RFIFOSKIP(fd,37);
+			i = char_make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOB(fd,27),RFIFOB(fd,28),RFIFOB(fd,29),RFIFOB(fd,30),RFIFOB(fd,31),RFIFOB(fd,32),RFIFOW(fd,33),RFIFOW(fd,35),RFIFOB(fd,37),RFIFOW(fd,38));
+			RFIFOSKIP(fd,40);
 //#else
 //			i = char_make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOW(fd,27),RFIFOW(fd,29));
 //			RFIFOSKIP(fd,31);

@@ -6137,7 +6137,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
     break;
     
   case TR_STONESTANCE:
-		sc_start4(src,src,(enum sc_type)SC_STONESTANCE,100,skill_lv+5,pc_checkskill(sd,TR_STONESTANCE)*3,1,1,5000);
+		sc_start4(src,src,(enum sc_type)SC_STONESTANCE,100,skill_lv+5,pc_checkskill(sd,TR_STONESTANCE)*50,1,1,5000);
     clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
 		break;
 		

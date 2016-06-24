@@ -506,6 +506,7 @@ void trade_tradecancel(struct map_session_data *sd)
 
 	if (sd->deal.zeny) {
 		clif_updatestatus(sd, SP_ZENY);
+		clif_updatestatus(sd, SP_ATK1);
 		sd->deal.zeny = 0;
 	}
 
@@ -527,6 +528,7 @@ void trade_tradecancel(struct map_session_data *sd)
 
 	if (target_sd->deal.zeny) {
 		clif_updatestatus(target_sd, SP_ZENY);
+		clif_updatestatus(target_sd, SP_ATK1);
 		target_sd->deal.zeny = 0;
 	}
 
