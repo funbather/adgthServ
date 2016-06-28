@@ -185,6 +185,7 @@ struct item {
 	unsigned int expire_time;
 	char favorite, bound;
 	uint64 unique_id;
+	unsigned int rolls; // Stores rolls for each enchantment (card slot), 1 byte each [ADGTH] 
 };
 
 //Equip position constants

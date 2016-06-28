@@ -32,7 +32,7 @@ int storage_fromsql(uint32 account_id, struct storage_data* p)
 
 	// storage {`account_id`/`id`/`nameid`/`amount`/`equip`/`identify`/`refine`/`attribute`/`card0`/`card1`/`card2`/`card3`}
 	StringBuf_Init(&buf);
-	StringBuf_AppendStr(&buf, "SELECT `id`,`nameid`,`amount`,`equip`,`identify`,`refine`,`attribute`,`expire_time`,`bound`,`unique_id`");
+	StringBuf_AppendStr(&buf, "SELECT `id`,`nameid`,`amount`,`equip`,`identify`,`refine`,`attribute`,`expire_time`,`bound`,`unique_id`,`rolls`");
 	for( j = 0; j < MAX_SLOTS; ++j )
 		StringBuf_Printf(&buf, ",`card%d`", j);
 	StringBuf_Printf(&buf, " FROM `%s` WHERE `account_id`='%d' ORDER BY `nameid`", schema_config.storage_db, account_id);
@@ -57,8 +57,10 @@ int storage_fromsql(uint32 account_id, struct storage_data* p)
 		Sql_GetData(sql_handle, 7, &data, NULL); item->expire_time = (unsigned int)atoi(data);
 		Sql_GetData(sql_handle, 8, &data, NULL); item->bound = atoi(data);
 		Sql_GetData(sql_handle, 9, &data, NULL); item->unique_id = strtoull(data, NULL, 10);
+		Sql_GetData(sql_handle,10, &data, NULL); item->rolls = atoi(data);
+		
 		for( j = 0; j < MAX_SLOTS; ++j ){
-			Sql_GetData(sql_handle, 10+j, &data, NULL); item->card[j] = atoi(data);
+			Sql_GetData(sql_handle, 11+j, &data, NULL); item->card[j] = atoi(data);
 		}
 	}
 	p->storage_amount = i;
@@ -88,7 +90,7 @@ int guild_storage_fromsql(int guild_id, struct guild_storage* p)
 
 	// storage {`guild_id`/`id`/`nameid`/`amount`/`equip`/`identify`/`refine`/`attribute`/`card0`/`card1`/`card2`/`card3`}
 	StringBuf_Init(&buf);
-	StringBuf_AppendStr(&buf, "SELECT `id`,`nameid`,`amount`,`equip`,`identify`,`refine`,`attribute`,`bound`,`unique_id`");
+	StringBuf_AppendStr(&buf, "SELECT `id`,`nameid`,`amount`,`equip`,`identify`,`refine`,`attribute`,`bound`,`unique_id`,`rolls`");
 	for( j = 0; j < MAX_SLOTS; ++j )
 		StringBuf_Printf(&buf, ",`card%d`", j);
 	StringBuf_Printf(&buf, " FROM `%s` WHERE `guild_id`='%d' ORDER BY `nameid`", schema_config.guild_storage_db, guild_id);
@@ -112,9 +114,10 @@ int guild_storage_fromsql(int guild_id, struct guild_storage* p)
 		Sql_GetData(sql_handle, 6, &data, NULL); item->attribute = atoi(data);
 		Sql_GetData(sql_handle, 7, &data, NULL); item->bound = atoi(data);
 		Sql_GetData(sql_handle, 8, &data, NULL); item->unique_id = strtoull(data, NULL, 10);
+		Sql_GetData(sql_handle, 9, &data, NULL); item->rolls = atoi(data);
 		item->expire_time = 0;
 		for( j = 0; j < MAX_SLOTS; ++j ){
-			Sql_GetData(sql_handle, 9+j, &data, NULL); item->card[j] = atoi(data);
+			Sql_GetData(sql_handle, 10+j, &data, NULL); item->card[j] = atoi(data);
 		}
 	}
 	p->storage_amount = i;

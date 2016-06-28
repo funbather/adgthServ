@@ -2,19 +2,22 @@
 // A lot of this is cribbed from the existing rAthena refine scripts, so credit to Euphy and Haruna for this
 
 rachel,127,111,6	script	Vorser#adgth	813,{
+
 	disable_items;
 	mes "[Vorser]";
 	mes "Greetin's, kid. What can I do fer ya today?";
-	next;
 	menu "I'd like to upgrade an item!",menuUpgrade,"What are your services?",askServices,"Nothing today.",thatsAll;
 	
 backToMenu:
+
+	cleartext;
 	mes "[Vorser]";
 	mes "What do ya got fer me kid?";
-	next;
 	menu "I'd like to upgrade an item!",menuUpgrade,"What are your services?",askServices,"That's all.",thatsAll;
 	
 askServices:
+
+	cleartext;
 	mes "[Vorser]";
 	mes "Well, dependin' on what kinda materials ya got there, I can do a few things to yer items.";
 	next;
@@ -30,12 +33,15 @@ askServices:
 	goto backToMenu;
 	
 menuUpgrade:
+
+	cleartext;
 	mes "[Vorser]";
 	mes "Upgradin' eh? What material do ya got for me?";
-	next;
 	menu "Mythril Ore - Quality",upgQuality,"Orichalcum Ore - Level",upgLevel,"Divine Hammer - Type",upgType,"I've changed my mind.",thatsAll;	
 
 upgQuality:
+
+	cleartext;
 	setarray .@position$[1],"Body","Left Hand","Right Hand","Robe","Shoes";
 	set .@menu$,"";
 	for(set .@i,1; .@i<=5; set .@i,.@i+1)
@@ -59,7 +65,6 @@ upgQuality:
 		
 	mes "[Vorser]";	
 	mes "This is gonna set ya back ^FF0000"+.@price+"^000000 Munny, deal?";
-	next;
 	if(select("Sounds good!:I changed my mind.") == 2) {
 		mes "[Vorser]";
 		mes "I think we're done here then, kid.";
@@ -83,11 +88,14 @@ upgQuality:
 	
 	successrefitem .@part;
 	
+	cleartext;
 	mes "[Vorser]";
 	mes "Success! Enjoy, kid.";
 	close;
-	
+
 upgLevel:
+
+	cleartext;
 	setarray .@position$[1],"Body","Left Hand","Right Hand","Robe","Shoes";
 	set .@menu$,"";
 	for(set .@i,1; .@i<=5; set .@i,.@i+1)
@@ -105,7 +113,8 @@ upgLevel:
 	
 	mes "[Vorser]";		
 	mes "This is gonna set ya back ^FF0000"+.@price+"^000000 Munny, deal?";
-	next;
+	
+	cleartext;
 	if(select("Sounds good!:I changed my mind.") == 2) {
 		mes "[Vorser]";
 		mes "I think we're done here then, kid.";
@@ -128,12 +137,14 @@ upgLevel:
 	set Zeny, Zeny-.@price;
 	
 	successrefitem2 .@part;
-	
+	cleartext;	
 	mes "[Vorser]";
 	mes "Success! Enjoy, kid.";
 	close;
 	
 upgType:
+
+	cleartext;
 	setarray .@position$[1],"Body","Left Hand","Right Hand","Robe","Shoes";
 	set .@menu$,"";
 	for(set .@i,1; .@i<=5; set .@i,.@i+1)
@@ -207,15 +218,18 @@ upgType:
 	set .@price,(BaseLevel * (BaseLevel + 5)) + 1;
 	set .@material,57008;
 	
+	cleartext;
 	mes "[Vorser]";	
 	mes "This is gonna set ya back ^FF0000"+.@price+"^000000 Munny, deal?";
-	next;
+
 	if(select("Sounds good!:I changed my mind.") == 2) {
+		cleartext;
 		mes "[Vorser]";
 		mes "I think we're done here then, kid.";
 		close;
 	}	
-
+	
+	cleartext;
 	if (countitem(.@material) == 0) {
 		mes "[Vorser]";
 		mes "Huh? Kid, ya don't even got a Divine Hammer!";
@@ -238,12 +252,13 @@ upgType:
 	set .@ench2,getequipcardid(.@part,1);
 	set .@ench3,getequipcardid(.@part,2);
 	set .@ench4,getequipcardid(.@part,3);
+	set .@rolls,getequiprolls(.@part);
 	
 	unequip .@part;
 	delitem2 .@oldtype,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;
 	
 	autoequip .@upg,1;
-	getitem2 .@upg,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;
+	getitem4 .@upg,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4,.@rolls;
 	autoequip .@upg,0;
 	
 	specialeffect2 154;
@@ -253,6 +268,7 @@ upgType:
 	close;
 	
 thatsAll:
+	cleartext;
 	mes "[Vorser]";
 	mes "Nice doin' business with ya, kid.";
 	close;

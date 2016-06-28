@@ -46,6 +46,7 @@ static struct status_data dummy_status;
 
 short current_equip_item_index; /// Contains inventory index of an equipped item. To pass it into the EQUP_SCRIPT [Lupus]
 unsigned int current_equip_combo_pos; /// For combo items we need to save the position of all involved items here
+unsigned char card_pos;
 int current_equip_card_id; /// To prevent card-stacking (from jA) [Skotlex]
 // We need it for new cards 15 Feb 2005, to check if the combo cards are insrerted into the CURRENT weapon only to avoid cards exploits
 
@@ -3193,6 +3194,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 				continue;
 			for (j = 0; j < MAX_SLOTS; j++) { // Uses MAX_SLOTS to support Soul Bound system [Inkfish]
 				int c = sd->status.inventory[index].card[j];
+				card_pos = j;
 				current_equip_card_id= c;
 				if(!c)
 					continue;

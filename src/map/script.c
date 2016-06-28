@@ -296,6 +296,7 @@ static int parse_syntax_for_flag = 0;
 
 extern short current_equip_item_index; //for New CARDS Scripts. It contains Inventory Index of the EQUIP_SCRIPT caller item. [Lupus]
 extern unsigned int current_equip_combo_pos;
+extern unsigned char card_pos; // [ADGTH]
 
 int potion_flag=0; //For use on Alchemist improved potions/Potion Pitcher. [Skotlex]
 int potion_hp=0, potion_per_hp=0, potion_sp=0, potion_per_sp=0;
@@ -4561,6 +4562,20 @@ BUILDIN_FUNC(next)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+/// Tells the client to clear the textbox [ADGTH]
+/// cleartext;
+BUILDIN_FUNC(cleartext)
+{
+	TBL_PC* sd;
+
+	sd = script_rid2sd(st);
+	if( sd == NULL )
+		return 0;
+
+	clif_scriptcleartext(sd);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 /// Ends the script and displays the button 'close' on the npc dialog.
 /// The dialog is closed when the button is pressed.
 ///
@@ -6757,6 +6772,188 @@ BUILDIN_FUNC(getitem3)
 		item_tmp.card[1] = c2;
 		item_tmp.card[2] = c3;
 		item_tmp.card[3] = c4;
+
+		//Check if it's stackable.
+		if (!itemdb_isstackable2(item_data))
+			get_count = 1;
+		else
+			get_count = amount;
+
+		for (i = 0; i < amount; i += get_count)
+		{
+			// if not pet egg
+			if (!pet_create_egg(sd, nameid))
+			{
+        map_addflooritem(&item_tmp,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+			}
+		}
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getitem4)
+{
+	int amount;
+	unsigned short nameid;
+	int iden, ref, attr, rolls;
+	unsigned short c1, c2, c3, c4;
+	struct item_data *item_data = NULL;
+	struct item item_tmp;
+	TBL_PC *sd;
+	struct script_data *data;
+	const char* command = script_getfuncname(st);
+
+	sd = script_rid2sd(st); // Attached player
+
+	if( sd == NULL ) // no target
+		return SCRIPT_CMD_SUCCESS;
+
+	data = script_getdata(st,2);
+	get_val(st,data);
+	if( data_isstring(data) ) {
+		const char *name = conv_str(st,data);
+		if( (item_data = itemdb_searchname(name)) == NULL ){
+			ShowError("buildin_getitem3: Nonexistant item %s requested (by conv_str).\n", name);
+			return SCRIPT_CMD_FAILURE; //No item created.
+		}
+		nameid = item_data->nameid;
+	} else {
+		nameid = conv_num(st,data);
+		if( (item_data = itemdb_exists(nameid)) == NULL ){
+			ShowError("buildin_getitem3: Nonexistant item %d requested (by conv_num).\n", nameid);
+			return SCRIPT_CMD_FAILURE; //No item created.
+		}
+	}
+
+	amount = script_getnum(st,3);
+	iden = script_getnum(st,4);
+	ref = script_getnum(st,5);
+	attr = script_getnum(st,6);
+	c1 = (unsigned short)script_getnum(st,7);
+	c2 = (unsigned short)script_getnum(st,8);
+	c3 = (unsigned short)script_getnum(st,9);
+	c4 = (unsigned short)script_getnum(st,10);
+	rolls = script_getnum(st,11);
+
+	if( item_data ) {
+		int get_count = 0, i;
+		memset(&item_tmp,0,sizeof(item_tmp));
+		if( item_data->type == IT_WEAPON || item_data->type == IT_ARMOR || item_data->type == IT_SHADOWGEAR ) {
+			if(ref > MAX_REFINE)
+				ref = MAX_REFINE;
+		}
+		else if( item_data->type == IT_PETEGG ) {
+			iden = 1;
+			ref = 0;
+		}
+		else {
+			iden = 1;
+			ref = attr = 0;
+		}
+
+		item_tmp.nameid = nameid;
+		item_tmp.identify = iden;
+		item_tmp.refine = ref;
+		item_tmp.attribute = attr;
+		item_tmp.card[0] = c1;
+		item_tmp.card[1] = c2;
+		item_tmp.card[2] = c3;
+		item_tmp.card[3] = c4;
+		item_tmp.rolls = rolls;
+
+		//Check if it's stackable.
+		if (!itemdb_isstackable2(item_data))
+			get_count = 1;
+		else
+			get_count = amount;
+
+		for (i = 0; i < amount; i += get_count)
+		{
+			// if not pet egg
+			if (!pet_create_egg(sd, nameid))
+			{
+				unsigned char flag = 0;
+				if ((flag = pc_additem(sd, &item_tmp, get_count, LOG_TYPE_SCRIPT)))
+				{
+					clif_additem(sd, 0, 0, flag);
+					if( pc_candrop(sd,&item_tmp) )
+						map_addflooritem(&item_tmp,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+				}
+			}
+		}
+	}
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(getitem5)
+{
+	int amount;
+	unsigned short nameid;
+	int iden, ref, attr, rolls;
+	unsigned short c1, c2, c3, c4;
+	struct item_data *item_data = NULL;
+	struct item item_tmp;
+	TBL_PC *sd;
+	struct script_data *data;
+	const char* command = script_getfuncname(st);
+
+	sd = script_rid2sd(st); // Attached player
+
+	if( sd == NULL ) // no target
+		return SCRIPT_CMD_SUCCESS;
+
+	data = script_getdata(st,2);
+	get_val(st,data);
+	if( data_isstring(data) ) {
+		const char *name = conv_str(st,data);
+		if( (item_data = itemdb_searchname(name)) == NULL ){
+			ShowError("buildin_getitem3: Nonexistant item %s requested (by conv_str).\n", name);
+			return SCRIPT_CMD_FAILURE; //No item created.
+		}
+		nameid = item_data->nameid;
+	} else {
+		nameid = conv_num(st,data);
+		if( (item_data = itemdb_exists(nameid)) == NULL ){
+			ShowError("buildin_getitem3: Nonexistant item %d requested (by conv_num).\n", nameid);
+			return SCRIPT_CMD_FAILURE; //No item created.
+		}
+	}
+
+	amount = script_getnum(st,3);
+	iden = script_getnum(st,4);
+	ref = script_getnum(st,5);
+	attr = script_getnum(st,6);
+	c1 = (unsigned short)script_getnum(st,7);
+	c2 = (unsigned short)script_getnum(st,8);
+	c3 = (unsigned short)script_getnum(st,9);
+	c4 = (unsigned short)script_getnum(st,10);
+	rolls = script_getnum(st,11);
+
+	if( item_data ) {
+		int get_count = 0, i;
+		memset(&item_tmp,0,sizeof(item_tmp));
+		if( item_data->type == IT_WEAPON || item_data->type == IT_ARMOR || item_data->type == IT_SHADOWGEAR ) {
+			if(ref > MAX_REFINE)
+				ref = MAX_REFINE;
+		}
+		else if( item_data->type == IT_PETEGG ) {
+			iden = 1;
+			ref = 0;
+		}
+		else {
+			iden = 1;
+			ref = attr = 0;
+		}
+
+		item_tmp.nameid = nameid;
+		item_tmp.identify = iden;
+		item_tmp.refine = ref;
+		item_tmp.attribute = attr;
+		item_tmp.card[0] = c1;
+		item_tmp.card[1] = c2;
+		item_tmp.card[2] = c3;
+		item_tmp.card[3] = c4;
+		item_tmp.rolls = rolls;
 
 		//Check if it's stackable.
 		if (!itemdb_isstackable2(item_data))
@@ -12373,6 +12570,27 @@ BUILDIN_FUNC(getequipcardcnt)
 	return SCRIPT_CMD_SUCCESS;
 }
 
+/// Returns the enchantment rolls of equipped item
+/// getequipcardcnt(<equipment slot>);
+BUILDIN_FUNC(getequiprolls)
+{
+	int i=-1,num;
+	TBL_PC *sd;
+
+	num=script_getnum(st,2);
+	sd=script_rid2sd(st);
+	if (num > 0 && num <= ARRAYLENGTH(equip))
+		i=pc_checkequip(sd,equip[num-1]);
+
+	if (i < 0 || !sd->inventory_data[i]) {
+		script_pushint(st,0);
+		return 0;
+	}
+
+	script_pushint(st,sd->status.inventory[i].rolls);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 /// Removes all cards from the item found in the specified equipment slot of the invoking character,
 /// and give them to the character. If any cards were removed in this manner, it will also show a success effect.
 /// successremovecards <slot>;
@@ -13145,6 +13363,7 @@ BUILDIN_FUNC(getinventorylist)
 			}
 			pc_setreg(sd,reference_uid(add_str("@inventorylist_expire"), j),sd->status.inventory[i].expire_time);
 			pc_setreg(sd,reference_uid(add_str("@inventorylist_bound"), j),sd->status.inventory[i].bound);
+			pc_setreg(sd,reference_uid(add_str("@inventorylist_rolls"), j),sd->status.inventory[i].rolls);
 			j++;
 		}
 	}
@@ -14642,6 +14861,35 @@ BUILDIN_FUNC(getilvl)
 		script_pushint(st,sd->status.inventory[current_equip_item_index].attribute);
 	else
 		script_pushint(st,0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+/*=======================================================
+ * Returns the roll value for the current card position [ADGTH]
+ *-------------------------------------------------------*/
+BUILDIN_FUNC(getrolls)
+{
+	TBL_PC *sd;
+	if ((sd = script_rid2sd(st))!= NULL) {
+		script_pushint(st,(sd->status.inventory[current_equip_item_index].rolls >> (8 * card_pos)) & 0x000000FF);
+	 } else
+		script_pushint(st,0);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+/*=======================================================
+ * Returns the bonus value using the enchantment's base
+ * and multiplier values [ADGTH]
+ *-------------------------------------------------------*/
+BUILDIN_FUNC(rollbonus)
+{
+	int base, multiplier, roll;
+	base = script_getnum(st,2);
+	multiplier = script_getnum(st,3) - 1; // -1 to account for the base value
+	roll = script_getnum(st,4);
+	
+	script_pushint(st,base + ((base * multiplier + 1) * roll / 100));
+	
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -19598,6 +19846,7 @@ struct script_function buildin_func[] = {
 	// NPC interaction
 	BUILDIN_DEF(mes,"s*"),
 	BUILDIN_DEF(next,""),
+	BUILDIN_DEF(cleartext,""),
 	BUILDIN_DEF(close,""),
 	BUILDIN_DEF(close2,""),
 	BUILDIN_DEF(menu,"sl*"),
@@ -19631,6 +19880,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(rentitem2,"viiiiiiii"),
 	BUILDIN_DEF(getitem2,"viiiiiiii?"),
 	BUILDIN_DEF(getitem3,"viiiiiiii?"),
+	BUILDIN_DEF(getitem4,"viiiiiiiii"),
+	BUILDIN_DEF(getitem5,"viiiiiiiii"),
 	BUILDIN_DEF(getnameditem,"vv"),
 	BUILDIN_DEF2(grouprandomitem,"groupranditem","i?"),
 	BUILDIN_DEF(makeitem,"visii"),
@@ -19806,6 +20057,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setcastledata,"sii"),
 	BUILDIN_DEF(requestguildinfo,"i?"),
 	BUILDIN_DEF(getequipcardcnt,"i"),
+	BUILDIN_DEF(getequiprolls,"i"), //[ADGTH]
 	BUILDIN_DEF(successremovecards,"i"),
 	BUILDIN_DEF(failedremovecards,"ii"),
 	BUILDIN_DEF(marriage,"s"),
@@ -19871,6 +20123,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(cardscnt,"i*"), // check how many items/cards are being equipped in the same arm [Lupus]
 	BUILDIN_DEF(getrefine,""), // returns the refined number of the current item, or an item with index specified [celest]
   BUILDIN_DEF(getilvl,""), // returns ilvl [ADGTH]
+  BUILDIN_DEF(getrolls,""), // returns roll @ card position [ADGTH]
+  BUILDIN_DEF(rollbonus,"iii"), // returns result from dynamic enchantment formula [ADGTH]
 	BUILDIN_DEF(night,""), // sets the server to night time
 	BUILDIN_DEF(day,""), // sets the server to day time
 #ifdef PCRE_SUPPORT

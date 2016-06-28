@@ -4400,7 +4400,8 @@ char pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_p
 #ifdef ENABLE_ITEM_GUID
 				sd->status.inventory[i].unique_id == item->unique_id &&
 #endif
-				memcmp(&sd->status.inventory[i].card, &item->card, sizeof(item->card)) == 0
+				memcmp(&sd->status.inventory[i].card, &item->card, sizeof(item->card)) == 0 && 
+				item->nameid != 57003
 				)
 			{
 				if( amount > MAX_AMOUNT - sd->status.inventory[i].amount || ( id->stack.inventory && amount > id->stack.amount - sd->status.inventory[i].amount ) )

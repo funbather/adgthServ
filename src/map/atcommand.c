@@ -1378,6 +1378,85 @@ ACMD_FUNC(item2)
 	return 0;
 }
 
+ACMD_FUNC(item3)
+{
+	struct item item_tmp;
+	struct item_data *item_data;
+	char item_name[100];
+	unsigned short item_id;
+	int number = 0, bound = BOUND_NONE;
+	int identify = 0, refine = 0, attr = 0;
+	int c1 = 0, c2 = 0, c3 = 0, c4 = 0, rolls = 0;
+	nullpo_retr(-1, sd);
+
+	memset(item_name, '\0', sizeof(item_name));
+
+	parent_cmd = atcommand_checkalias(command+1);
+
+	if ( !message || !*message || (
+		sscanf(message, "\"%99[^\"]\" %d %d %d %d %d %d %d %d %d", item_name, &number, &identify, &refine, &attr, &c1, &c2, &c3, &c4, &rolls) < 10 &&
+		sscanf(message, "%99s %d %d %d %d %d %d %d %d %d", item_name, &number, &identify, &refine, &attr, &c1, &c2, &c3, &c4, &rolls) < 10
+		)) {
+		clif_displaymessage(fd, msg_txt(sd,984)); // Please enter all parameters (usage: @item2 <item name/ID> <quantity>
+		clif_displaymessage(fd, msg_txt(sd,985)); //   <identify_flag> <refine> <attribute> <card1> <card2> <card3> <card4>).
+		return -1;
+	}
+
+	if (number <= 0)
+		number = 1;
+
+	item_id = 0;
+	if ((item_data = itemdb_searchname(item_name)) != NULL ||
+	    (item_data = itemdb_exists(atoi(item_name))) != NULL)
+		item_id = item_data->nameid;
+
+	if (item_id > 500) {
+		int loop, get_count, i;
+		char flag = 0;
+		loop = 1;
+		get_count = number;
+		if (item_data->type == IT_WEAPON || item_data->type == IT_ARMOR ||
+			item_data->type == IT_PETEGG || item_data->type == IT_PETARMOR) {
+			loop = number;
+			get_count = 1;
+			if (item_data->type == IT_PETEGG) {
+				identify = 1;
+				refine = 0;
+			}
+			if (item_data->type == IT_PETARMOR)
+				refine = 0;
+			if (refine > MAX_REFINE)
+				refine = MAX_REFINE;
+		} else {
+			identify = 1;
+			refine = attr = 0;
+		}
+		for (i = 0; i < loop; i++) {
+			memset(&item_tmp, 0, sizeof(item_tmp));
+			item_tmp.nameid = item_id;
+			item_tmp.identify = identify;
+			item_tmp.refine = refine;
+			item_tmp.attribute = attr;
+			item_tmp.card[0] = c1;
+			item_tmp.card[1] = c2;
+			item_tmp.card[2] = c3;
+			item_tmp.card[3] = c4;
+			item_tmp.bound = bound;
+			item_tmp.rolls = rolls;
+			if ((flag = pc_additem(sd, &item_tmp, get_count, LOG_TYPE_COMMAND)))
+				clif_additem(sd, 0, 0, flag);
+		}
+
+		if (flag == 0)
+			clif_displaymessage(fd, msg_txt(sd,18)); // Item created.
+	} else {
+		clif_displaymessage(fd, msg_txt(sd,19)); // Invalid item ID or name.
+		return -1;
+	}
+
+	return 0;
+}
+
 /*==========================================
  *
  *------------------------------------------*/
@@ -9779,6 +9858,7 @@ void atcommand_basecommands(void) {
 		ACMD_DEF(heal),
 		ACMD_DEF(item),
 		ACMD_DEF(item2),
+		ACMD_DEF(item3),
 		ACMD_DEF2("itembound",item),
 		ACMD_DEF2("itembound2",item2),
 		ACMD_DEF(itemreset),

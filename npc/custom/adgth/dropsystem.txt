@@ -1,9 +1,7 @@
 // my dumbo drop system by ben age 8
 -	script	DropSystem	-1,{
-  OnNPCKillEvent: // Three chances, starting at a base of 20%, 10%, 5%
-		callfunc("HeyAnItemDrop",20,getmonsterinfo(killedrid,1),1);
-		callfunc("HeyAnItemDrop",10,getmonsterinfo(killedrid,1),1);
-		callfunc("HeyAnItemDrop",5,getmonsterinfo(killedrid,1),1);
+  OnNPCKillEvent: // 25% Base item drop chance
+		callfunc("HeyAnItemDrop",25,getmonsterinfo(killedrid,1),1);
 
 		if(rand(1,10000) <= 300) // Mythril 3%
 			getitem3 57000,1,1,0,0,0,0,0,0;
@@ -37,6 +35,7 @@ function	script	HeyAnItemDrop	{
     set .@quality,0;
     set .@itemfind,0;
     set .@magicfind,0;
+    set .@rolls,0;
     
     set .@itemfind,100 + readparam(bLuk2);
     set .@magicfind,readparam(bLuk2);
@@ -46,23 +45,20 @@ function	script	HeyAnItemDrop	{
       set .@random,rand(1,10000);
       
       if(.@random >= 9750-(.@magicfind * 5 / 2)) { // Check for unique - 2.5% base
-        switch(gettimetick(0) % 3) { // 0 - Armor, 1 - Accessory, 2 - Weapon
+        switch(rand(0,2)) { // 0 - Armor, 1 - Accessory, 2 - Weapon
           case 0: set .@item,52000+rand(0,34); break;
           case 1: set .@item,53000+rand(0,9); break;
           case 2: set .@item,54000+rand(0,34); break;
         }
       } else { // Common Item
-        switch(gettimetick(0) % 2) { // 0 - Armor, 1 - Weapon
+        switch(rand(0,1)) { // 0 - Armor, 1 - Weapon
           case 0: set .@item,50000+rand(0,17); break;
           case 1: set .@item,51000+rand(0,11); break;
         }
       }
       
       if(.@item < 53000 || .@item > 53999) { // FIX LATER!!!!  I hate it. Accessory check. They don't get quality/ilvl
-        if(BaseLevel > .@monlvl) { set .@ilvl,rand(.@monlvl,BaseLevel); }
-        else if(.@monlvl > BaseLevel) { set .@ilvl,rand(BaseLevel,.@monlvl); }
-        else { set .@ilvl,BaseLevel; }
-        
+        set .@ilvl,.@monlvl;
         set .@quality,rand(50,125);
       }
       
@@ -90,7 +86,12 @@ function	script	HeyAnItemDrop	{
         set .@socket2,rand(55000,55018);     
       } else if(.@random >= 4000-(.@magicfind * 30)) {
         set .@socket1,rand(55000,55018);
-      } 
+      }
+      
+      set .@rolls,rand(0,99);
+      set .@rolls,.@rolls + (rand(0,99) << 8);
+      set .@rolls,.@rolls + (rand(0,99) << 16);
+      set .@rolls,.@rolls + (rand(0,99) << 24);
        
        
       // Finally, generate the item!
@@ -98,7 +99,7 @@ function	script	HeyAnItemDrop	{
       // 0 - Give to player
       // 1 - Drop on the ground (monster kills, etc)
       if(getarg(2))
-				getitem3 .@item,1,1,.@quality,.@ilvl,.@socket1,.@socket2,.@socket3,.@socket4;
+				getitem5 .@item,1,1,.@quality,.@ilvl,.@socket1,.@socket2,.@socket3,.@socket4,.@rolls;
 			else
 				getitem2 .@item,1,1,.@quality,.@ilvl,.@socket1,.@socket2,.@socket3,.@socket4;
     }

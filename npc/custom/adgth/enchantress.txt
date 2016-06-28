@@ -4,16 +4,19 @@ rachel,132,111,3	script	Undina#adgth	504,{
 	disable_items;
 	mes "[Undina]";
 	mes "Welcome! What do ya need?";
-	next;
 	menu "I need some enchanting done!",menuEnchant,"What are your services?",askServices,"Nothing today.",thatsAll;
+	cleartext;
 	
 backToMenu:
+
+	cleartext;
 	mes "[Undina]";
 	mes "So, what's up?";
-	next;
 	menu "I need some enchanting done!",menuEnchant,"What are your services?",askServices,"That's all.",thatsAll;
 	
 askServices:
+
+	cleartext;
 	mes "[Undina]";
 	mes "Well, I'm an enchantress... so I can, you know, enchant items. As long as you got the right stuff for me!";
 	next;
@@ -40,12 +43,16 @@ askServices:
 	goto backToMenu;
 	
 menuEnchant:
+
+	cleartext;
 	mes "[Undina]";
 	mes "Oh yeah? What kind?";
-	next;
-	menu "Enscribe Empty Bijou.",enchEmpty,"Enchant Item.",enchBijou,"I've changed my mind.",thatsAll;	
+	menu "Enscribe Empty Bijou.",enchEmpty,"Enchant Item.",enchBijou,"I've changed my mind.",thatsAll;
+	cleartext;
 
 enchEmpty:
+
+	cleartext;
 	mes "[Undina]";
 	mes "Let's get to it, then! Remember, taking a Shard from an item will ^FF0000irreversably destroy it^000000! Like, totally wreck it! Be sure it's nothing you're gonna miss, yeah?";
 	next;
@@ -60,7 +67,6 @@ enchEmpty:
 		}
 		set .@menu$, .@menu$ + ":";
 	}
-	next;
 	
 	if (.@equipped == 0) {
 		mes "[Undina]";
@@ -108,27 +114,36 @@ enchEmpty:
 	}
 
 enchEmpty2:
-	next;
+
+	cleartext;
 	mes "[Undina]";
 	mes "Nice! So which of these am I ripping out?";
 	set .@menu2$,"";
 	for(set .@i,0; .@i<=2; set .@i,.@i+1)
 		set .@menu2$, .@menu2$+((getequipcardid(.@part,.@i))?getitemname((getequipcardid(.@part,.@i))):"")+ ":";
-	set .@ench, getequipcardid(.@part,select(.@menu2$) - 1);
-
-	next;
+	set .@slot, select(.@menu2$) - 1;
+	set .@ench, getequipcardid(.@part,.@slot);
+	
+	switch (.@slot) {
+		case 0: set .@roll,getequiprolls(.@part) & 0x000000FF; break;
+		case 1: set .@roll,(getequiprolls(.@part) & 0x0000FF00) >> 8; break;
+		case 2: set .@roll,(getequiprolls(.@part) & 0x00FF0000) >> 16; break;
+	}
 
 	delitem 57002,1;
 	delequip .@part;
-	getitem2 57003,1,1,0,0,.@ench,0,0,0;
+	getitem4 57003,1,1,0,0,.@ench,0,0,0,.@roll;
 	
 	specialeffect2 610;
 	
+	cleartext;
 	mes "[Undina]";
 	mes "Tada! Simple as that! Sorry about your stuff, but uh... I'm sure Vorser will appreciate the scrap metal!";
 	close;
 	
 enchBijou:
+
+	cleartext;
 	mes "[Undina]";
 	mes "What're we working with?";
 	getinventorylist;
@@ -143,11 +158,13 @@ enchBijou:
 		}
 		set .@menu$, .@menu$ + ":";
 	}
-	next;
+	
 	set .@selection, select(.@menu$);
 	set .@bijou,@inventorylist_id[.@selection-1];
+	set .@bijouroll,@inventorylist_rolls[.@selection-1];
 	set .@shard,@inventorylist_card1[.@selection-1];
-
+	
+	cleartext;
 	mes "[Undina]";
 	mes "Nice, nice. Which item are we working on?";
 	setarray .@position$[1],"Head","Body","Left Hand","Right Hand","Robe","Shoes","Accessory 1","Accessory 2","Head 2","Head 3";
@@ -159,7 +176,6 @@ enchBijou:
 		}
 		set .@menu2$, .@menu2$ + ":";
 	}
-	next;
 	
 	if (.@equipped == 0) {
 		mes "[Undina]";
@@ -167,7 +183,8 @@ enchBijou:
 		close;
 	}
 	set .@part, select(.@menu2$);
-	
+
+	cleartext;	
 	mes "[Undina]";
 	mes "Alright! Let's get to it!";
 	next;
@@ -180,6 +197,8 @@ enchBijou:
 	}
 	
 enchFervent:
+
+	cleartext;
 	if (getequipcardcnt(.@part) == 0) {
 		mes "[Undina]";
 		mes "Hey! I can only replace enchantments with these, not add them! Give me something already enchanted to work on!";
@@ -193,8 +212,6 @@ enchFervent:
 		set .@menu3$, .@menu3$+((getequipcardid(.@part,.@i))?getitemname((getequipcardid(.@part,.@i))):"")+ ":";
 	set .@selection,select(.@menu3$) - 1;
 	set .@ench, getequipcardid(.@part,.@selection);
-
-	next;
 	
 	set .@type,getequipid(.@part);
 	set .@qual,getequiprefinerycnt(.@part);
@@ -204,26 +221,46 @@ enchFervent:
 	set .@ench3,getequipcardid(.@part,2);
 	set .@ench4,getequipcardid(.@part,3);
 	
+	set .@partroll,getequiprolls(.@part);
+	set .@newroll,0;
+	
 	unequip .@part;
 	delitem2 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;	
 	delitem2 .@bijou,1,1,0,0,.@shard,0,0,0;
 	
 	switch(.@selection) {
-		case 0: set .@ench1,.@shard; break;
-		case 1: set .@ench2,.@shard; break;
-		case 2: set .@ench3,.@shard; break;
+		case 0: 
+			set .@ench1,.@shard;
+			set .@partroll,.@partroll & ~(0xFF);
+			set .@newroll,.@partroll | .@bijouroll;
+			break;
+		case 1: 
+			set .@ench2,.@shard; 
+			set .@partroll,.@partroll & ~(0xFF00);
+			set .@bijouroll,.@bijouroll << 8;
+			set .@newroll,.@partroll | .@bijouroll;
+			break;
+		case 2: 
+			set .@ench3,.@shard; 
+			set .@partroll,.@partroll & ~(0xFF0000);
+			set .@bijouroll,.@bijouroll << 16;
+			set .@newroll,.@partroll | .@bijouroll;
+			break;
 	}
 	
-	autoequip .@type,1;
-	getitem2 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;
-	autoequip .@type,0;
 	
+	autoequip .@type,1;
+	getitem4 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4,.@newroll;
+	autoequip .@type,0;
+
+	cleartext;	
 	mes "[Undina]";
 	mes "Tada! Simple as that! Enjoy your stuff!";
 	close;
 	
 enchArcane:
 
+	cleartext;
 	if (getequipcardcnt(.@part) >= 3) {
 		mes "[Undina]";
 		mes "Ah, this item already has the maximum number of Shards in it, I can't add any more with one of these. Bring me something less... enchanted, yeah?";
@@ -237,6 +274,9 @@ enchArcane:
 	set .@ench2,getequipcardid(.@part,1);
 	set .@ench3,getequipcardid(.@part,2);
 	set .@ench4,getequipcardid(.@part,3);
+	set .@partroll,getequiprolls(.@part);
+	set .@newroll,0;
+	set .@rand99,rand(0,99);
 
 	set .@numEnch,getequipcardcnt(.@part);
 	unequip .@part;
@@ -244,21 +284,35 @@ enchArcane:
 	delitem .@bijou,1;
 	
 	switch(.@numEnch) {
-		case 0: set .@ench1,rand(55000,55018); break;
-		case 1: set .@ench2,rand(55000,55018); break;
-		case 2: set .@ench3,rand(55000,55018); break;
+		case 0: 
+			set .@ench1,rand(55000,55018);
+			set .@partroll,.@partroll & ~(0xFF);
+			set .@newroll,.@partroll | .@rand99;
+			break;
+		case 1: 
+			set .@ench2,rand(55000,55018); 
+			set .@partroll,.@partroll & ~(0xFF00);
+			set .@newroll,.@partroll | (.@rand99 << 8);
+			break;
+		case 2: 
+			set .@ench3,rand(55000,55018); 
+			set .@partroll,.@partroll & ~(0xFF0000);
+			set .@newroll,.@partroll | (.@rand99 << 16);
+			break;
 	}
 	
 	autoequip .@type,1;
-	getitem2 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;
+	getitem4 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4,.@newroll;
 	autoequip .@type,0;
-	
+
+	cleartext;	
 	mes "[Undina]";
 	mes "Tada! Simple as that! Enjoy your stuff!";
 	close;
 	
 enchBlessed:
 
+	cleartext;
 	if (getequipcardcnt(.@part) < 3) {
 		mes "[Undina]";
 		mes "This item can't quite handle a Seal yet... I can only use this on items with at least three Shards.";
@@ -272,23 +326,30 @@ enchBlessed:
 	set .@ench2,getequipcardid(.@part,1);
 	set .@ench3,getequipcardid(.@part,2);
 	set .@ench4,getequipcardid(.@part,3);
+	set .@partroll,getequiprolls(.@part);
+	set .@newroll,0;
+	set .@rand99,rand(0,99);
 
 	unequip .@part;
 	delitem2 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;	
 	delitem .@bijou,1;
 
 	set .@ench4,rand(55100,55118);
+	set .@partroll, .@partroll & 0xFFFFFF;
+	set .@newroll, .@partroll | (.@rand99 << 24);
 
 	autoequip .@type,1;
-	getitem2 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;
+	getitem4 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4,.@newroll;
 	autoequip .@type,0;
-	
+
+	cleartext;	
 	mes "[Undina]";
 	mes "Tada! Simple as that! Enjoy your stuff!";
 	close;
 	
 enchCapricious:
 
+	cleartext;
 	if (getequipcardcnt(.@part) == 0) {
 		mes "[Undina]";
 		mes "This Bijou can only work on items that are already enchanted. Add some Shards, and then we can talk, yeah?";
@@ -311,6 +372,7 @@ enchCapricious:
 	set .@ench2,getequipcardid(.@part,1);
 	set .@ench3,getequipcardid(.@part,2);
 	set .@ench4,getequipcardid(.@part,3);
+	set .@newroll,0;
 
 	unequip .@part;
 	delitem2 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;	
@@ -320,18 +382,23 @@ enchCapricious:
 	set .@ench2,.@ench2 ? rand(55000,55018) : 0;
 	set .@ench3,.@ench3 ? rand(55000,55018) : 0;
 	set .@ench4,.@ench4 ? rand(55100,55118) : 0;
-	
+	set .@newroll,.@newroll | rand(0,99);
+	set .@newroll,.@newroll | (rand(0,99) << 8);
+	set .@newroll,.@newroll | (rand(0,99) << 16);
+	set .@newroll,.@newroll | (rand(0,99) << 24);
 
 	autoequip .@type,1;
-	getitem2 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;
+	getitem4 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4,.@newroll;
 	autoequip .@type,0;
-	
+
+	cleartext;
 	mes "[Undina]";
 	mes "Tada! Simple as that! Enjoy your stuff!";
 	close;
 	
 enchDiscordant:
-	
+
+	cleartext;
 	mes "[Undina]";		
 	mes "Now, this Discordant Bijou will ^FF0000completely warp^000000 this item... You sure you're okay with that?";
 	next;
@@ -348,35 +415,31 @@ enchDiscordant:
 	set .@ench2,getequipcardid(.@part,1);
 	set .@ench3,getequipcardid(.@part,2);
 	set .@ench4,getequipcardid(.@part,3);
+	set .@newroll,0;
 
 	unequip .@part;
 	delitem2 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;	
 	delitem .@bijou,1;
 
-	if(rand(0,10) > 7)
+	if(rand(0,1))
 		set .@qual,rand(50,100);
 	else
 		set .@qual,rand(101,125);
 
 
-	if(rand(0,100) > 85) {
+	if(rand(0,99) > 75) {
 		set .@ench1,rand(55000,55018);
 		set .@ench2,rand(55000,55018);
 		set .@ench3,rand(55000,55018);
 		set .@ench4,rand(55100,55118);
-	} else if(rand(0,100) > 65) {
+	} else if(rand(0,99) > 50) {
 		set .@ench1,rand(55000,55018);
 		set .@ench2,rand(55000,55018);
 		set .@ench3,rand(55000,55018);
 		set .@ench4,0;
-	} else if(rand(0,100) > 35) {
+	} else if(rand(0,99) > 25) {
 		set .@ench1,rand(55000,55018);
 		set .@ench2,rand(55000,55018);
-		set .@ench3,0;
-		set .@ench4,0;
-	} else if(rand(0,100) > 15) {
-		set .@ench1,rand(55000,55018);
-		set .@ench2,0;
 		set .@ench3,0;
 		set .@ench4,0;
 	} else {
@@ -386,16 +449,23 @@ enchDiscordant:
 		set .@ench4,0;
 	}
 	
+	set .@newroll,.@newroll | rand(0,99);
+	set .@newroll,.@newroll | (rand(0,99) << 8);
+	set .@newroll,.@newroll | (rand(0,99) << 16);
+	set .@newroll,.@newroll | (rand(0,99) << 24);
 
 	autoequip .@type,1;
-	getitem2 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;
+	getitem4 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4,.@newroll;
 	autoequip .@type,0;
-	
+
+	cleartext;
 	mes "[Undina]";
 	mes "Tada! Simple as that! Enjoy your stuff!";
 	close;
 
 thatsAll:
+
+	cleartext;
 	mes "[Undine]";
 	mes "I'll see you around!";
 	close;

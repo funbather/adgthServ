@@ -75,7 +75,7 @@
 52022,_goldenshawl,Golden Shawl,            4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bLuk,35; bonus bDef,(((getilvl()*2*6*5 / 100) + 6) * getrefine() / 100); bonus bFlee,(((getilvl()*2*5 / 100) + 5) * getrefine() / 100);},{},{}
 52023,_prismaticcloak,Prismatic Cloak,      4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus2 bAddEffWhenHit,Eff_Blind,1000; bonus bDef,(((getilvl()*2*7*5 / 100) + 7) * getrefine() / 100); bonus bFlee,(((getilvl()*2*8 / 100) + 8) * getrefine() / 100);},{},{}
 52024,_midnightmantle,Midnight Mantle,      4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus2 bHPDrainRate,1000,(((getilvl()*2*10 / 100) + 10) * getrefine() / 100); bonus bDef,(((getilvl()*2*3*5 / 100) + 3) * getrefine() / 100); bonus bFlee,(((getilvl()*2*6 / 100) + 6) * getrefine() / 100);},{},{}
-52025,_pathofbravery,Path of Bravery,       4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bBrave,2; bonus bDef,(((getilvl()*2*24*5 / 100) + 24) * getrefine() / 100); bonus bFlee,(((getilvl()*3*2 / 100) + 3) * getrefine() / 100);},{},{}
+52025,_pathofbravery,Path of Bravery,       4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bBrave,3; bonus bDef,(((getilvl()*2*24*5 / 100) + 24) * getrefine() / 100); bonus bFlee,(((getilvl()*3*2 / 100) + 3) * getrefine() / 100);},{},{}
 52026,_felinesguile,Feline's Guile,         4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bSpeedAddRate,(((getilvl()*2*4*2 / 100) + 4) * getrefine() / 100); bonus bFlee,(((getilvl()*2*12 / 100) + 12) * getrefine() / 100);},{},{}
 52027,_assassinsscarf,Assassin's Scarf,     4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus2 bAddEff,Eff_Marked,1500; bonus bDef,(((getilvl()*2*5*5 / 100) + 5) * getrefine() / 100); bonus bFlee,(((getilvl()*2*6 / 100) + 6) * getrefine() / 100);},{},{}
 52028,_tyrantscape,Tyrant's Cape,           4,10,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{skill 4055,1; bonus bDef,(((getilvl()*2*15*5 / 100) + 15) * getrefine() / 100); bonus bFlee,(((getilvl()*2*4 / 100) + 4) * getrefine() / 100);},{},{}
@@ -140,45 +140,45 @@
 54034,_blightcaster,Blightcaster,        5,100,,50,0,,6,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMagicStatus,(0x2|0x4|0x8|0x10); bonus bMatk,(((getilvl()*2*8*10 / 100) + 8) * getrefine() / 100);},{},{}
 
 // 55K - ENCHANTMENTS
-55000,_str,Shard of Strength,6,20,,10,,,,,,,,,,,,,{ bonus bStr,7; },{},{}
-55001,_agi,Shard of Agility,6,20,,10,,,,,,,,,,,,,{ bonus bAgi,7; },{},{}
-55002,_vit,Shard of Vitality,6,20,,10,,,,,,,,,,,,,{ bonus bVit,7; },{},{}
-55003,_int,Shard of Intelligence,6,20,,10,,,,,,,,,,,,,{ bonus bInt,7; },{},{}
-55004,_pre,Shard of Precision,6,20,,10,,,,,,,,,,,,,{ bonus bDex,7; },{},{}
-55005,_luk,Shard of Luck,6,20,,10,,,,,,,,,,,,,{ bonus bLuk,10; },{},{}
-55006,_hp,Shard of Health,6,20,,10,,,,,,,,,,,,,{ bonus bMaxHPrate,10; },{},{}
-55007,_sp,Shard of Mana,6,20,,10,,,,,,,,,,,,,{ bonus bMaxSP,15; },{},{}
-55008,_def,Shard of Defense,6,20,,10,,,,,,,,,,,,,{ bonus bDef,13; },{},{}
-55009,_mdef,Shard of Magic Defense,6,20,,10,,,,,,,,,,,,,{ bonus bMdef,20; },{},{}
-55010,_crit,Shard of Critical Chance,6,20,,10,,,,,,,,,,,,,{ bonus bCritical,4; },{},{}
-55011,_cd,Shard of Critical Damage,6,20,,10,,,,,,,,,,,,,{ bonus bCritAtkRate,11; },{},{}
-55012,_aspd,Shard of Attack Speed,6,20,,10,,,,,,,,,,,,,{ bonus bAspdRate,10; },{},{}
-55013,_eva,Shard of Evasion,6,20,,10,,,,,,,,,,,,,{ bonus bFlee,3; },{},{}
-55014,_cel,Shard of Celerity,6,20,,10,,,,,,,,,,,,,{ bonus bSpeedAddRate,5; },{},{}
-55015,_hpregen,Shard of Health Regen,6,20,,10,,,,,,,,,,,,,{ bonus bHPrecovRate,20; },{},{}
-55016,_spregen,Shard of Mana Regen,6,20,,10,,,,,,,,,,,,,{ bonus bSPrecovRate,20; },{},{}
-55017,_lifesteal,Shard of Lifesteal,6,20,,10,,,,,,,,,,,,,{ bonus2 bHPDrainRate,1000,3; },{},{}
-55018,_spsteal,Shard of Soulsteal,6,20,,10,,,,,,,,,,,,,{ bonus bSPGainValue,10; bonus bMagicSPGainValue,10; },{},{}
+55000,_str,Shard of Strength,6,20,,10,,,,,,,,,,,,,{ bonus bStr,rollbonus(2,5,getrolls()); },{},{}
+55001,_agi,Shard of Agility,6,20,,10,,,,,,,,,,,,,{ bonus bAgi,rollbonus(2,5,getrolls()); },{},{}
+55002,_vit,Shard of Vitality,6,20,,10,,,,,,,,,,,,,{ bonus bVit,rollbonus(2,5,getrolls()); },{},{}
+55003,_int,Shard of Intelligence,6,20,,10,,,,,,,,,,,,,{ bonus bInt,rollbonus(2,5,getrolls()); },{},{}
+55004,_pre,Shard of Precision,6,20,,10,,,,,,,,,,,,,{ bonus bDex,rollbonus(2,5,getrolls()); },{},{}
+55005,_luk,Shard of Luck,6,20,,10,,,,,,,,,,,,,{ bonus bLuk,rollbonus(5,4,getrolls()); },{},{}
+55006,_hp,Shard of Health,6,20,,10,,,,,,,,,,,,,{ bonus bMaxHPrate,rollbonus(5,3,getrolls()); },{},{}
+55007,_sp,Shard of Mana,6,20,,10,,,,,,,,,,,,,{ bonus bMaxSP,rollbonus(5,3,getrolls()); },{},{}
+55008,_def,Shard of Defense,6,20,,10,,,,,,,,,,,,,{ bonus bDef,rollbonus(3,5,getrolls()); },{},{}
+55009,_mdef,Shard of Magic Defense,6,20,,10,,,,,,,,,,,,,{ bonus bMdef,rollbonus(5,5,getrolls()); },{},{}
+55010,_crit,Shard of Critical Chance,6,20,,10,,,,,,,,,,,,,{ bonus bCritical,rollbonus(1,6,getrolls()); },{},{}
+55011,_cd,Shard of Critical Damage,6,20,,10,,,,,,,,,,,,,{ bonus bCritAtkRate,rollbonus(6,2,getrolls()); },{},{}
+55012,_aspd,Shard of Attack Speed,6,20,,10,,,,,,,,,,,,,{ bonus bAspdRate,rollbonus(7,2,getrolls()); },{},{}
+55013,_eva,Shard of Evasion,6,20,,10,,,,,,,,,,,,,{ bonus bFlee,rollbonus(1,4,getrolls()); },{},{}
+55014,_cel,Shard of Movespeed,6,20,,10,,,,,,,,,,,,,{ bonus bSpeedAddRate,rollbonus(4,2,getrolls()); },{},{}
+55015,_hpregen,Shard of Health Regen,6,20,,10,,,,,,,,,,,,,{ bonus bHPrecovRate,rollbonus(15,2,getrolls()); },{},{}
+55016,_spregen,Shard of Mana Regen,6,20,,10,,,,,,,,,,,,,{ bonus bSPrecovRate,rollbonus(15,2,getrolls()); },{},{}
+55017,_lifesteal,Shard of Lifesteal,6,20,,10,,,,,,,,,,,,,{ bonus2 bHPDrainRate,1000,rollbonus(1,5,getrolls()); },{},{}
+55018,_spsteal,Shard of Soulsteal,6,20,,10,,,,,,,,,,,,,{ bonus bSPGainValue,10; bonus bMagicSPGainValue,rollbonus(3,5,getrolls()); },{},{}
 // 55.1K - SEALS
-55100,_hp2,Seal of Health,6,20,,10,,,,,,,,,,,,,{ bonus bMaxHPrate,20; },{},{}
-55101,_sp2,Seal of Mana,6,20,,10,,,,,,,,,,,,,{ bonus bMaxSPrate,25; },{},{}
-55102,_critcd,Seal of Lethality,6,20,,10,,,,,,,,,,,,,{ bonus bCritical,7; bonus bCritAtkRate,15;},{},{}
-55103,_spdown,Seal of Mastery,6,20,,10,,,,,,,,,,,,,{ bonus bUseSPrate,-15; },{},{}
-55104,_physdef,Seal of Body,6,20,,10,,,,,,,,,,,,,{ bonus bNearAtkDef,10; bonus bLongAtkDef,10;},{},{}
-55105,_magdef,Seal of Mind,6,20,,10,,,,,,,,,,,,,{ bonus bMagicAtkDef,25; },{},{}
-55106,_fortune,Seal of Fortune,6,20,,10,,,,,,,,,,,,,{ bonus bLuk,25; bonus2 bAddGetZenyNum,-1,100; },{},{}
-55107,_physpierce,Seal of Broken Will,6,20,,10,,,,,,,,,,,,,{ bonus2 bIgnoreDefRaceRate,RC_All,40; bonus2 bIgnoreDefRaceRate,RC_All,40; },{},{}
-55108,_magpierce,Seal of Broken Spirit,6,20,,10,,,,,,,,,,,,,{ bonus2 bIgnoreMdefRaceRate,RC_All,40; bonus2 bIgnoreMdefRaceRate,RC_All,40; },{},{}
-55109,_stun,Seal of Paralysis,6,20,,10,,,,,,,,,,,,,{ bonus2 bAddEff,Eff_Stun,800; bonus2 bAddEffWhenHit,Eff_Stun,800; },{},{}
-55110,_poison,Seal of Venom,6,20,,10,,,,,,,,,,,,,{ bonus2 bAddEff,Eff_Poison,800; bonus2 bAddEffWhenHit,Eff_Poison,800; },{},{}
-55111,_freeze,Seal of Hoarfrost,6,20,,10,,,,,,,,,,,,,{ bonus2 bAddEff,Eff_Freeze,800; bonus2 bAddEffWhenHit,Eff_Freeze,800; },{},{}
-55112,_double,Seal of Echoes,6,20,,10,,,,,,,,,,,,,{ bonus bDoubleAddRate,20; },{},{}
+55100,_hp2,Seal of Health,6,20,,10,,,,,,,,,,,,,{ bonus bMaxHPrate,rollbonus(15,2,getrolls()); },{},{}
+55101,_sp2,Seal of Mana,6,20,,10,,,,,,,,,,,,,{ bonus bMaxSPrate,rollbonus(20,2,getrolls()); },{},{}
+55102,_critcd,Seal of Lethality,6,20,,10,,,,,,,,,,,,,{ bonus bCritical,rollbonus(4,3,getrolls()); bonus bCritAtkRate,rollbonus(10,3,getrolls());},{},{}
+55103,_spdown,Seal of Mastery,6,20,,10,,,,,,,,,,,,,{ bonus bUseSPrate,rollbonus(10,2,getrolls()); },{},{}
+55104,_physdef,Seal of Body,6,20,,10,,,,,,,,,,,,,{ bonus bNearAtkDef,rollbonus(5,3,getrolls()); bonus bLongAtkDef,rollbonus(5,3,getrolls());;},{},{}
+55105,_magdef,Seal of Mind,6,20,,10,,,,,,,,,,,,,{ bonus bMagicAtkDef,rollbonus(15,2,getrolls()); },{},{}
+55106,_fortune,Seal of Fortune,6,20,,10,,,,,,,,,,,,,{ bonus bLuk,rollbonus(15,3,getrolls()); bonus2 bAddGetZenyNum,-1,100; },{},{}
+55107,_physpierce,Seal of Broken Will,6,20,,10,,,,,,,,,,,,,{ bonus2 bIgnoreDefRaceRate,RC_All,rollbonus(30,2,getrolls()); bonus2 bIgnoreDefRaceRate,RC_All,rollbonus(30,2,getrolls()); },{},{}
+55108,_magpierce,Seal of Broken Spirit,6,20,,10,,,,,,,,,,,,,{ bonus2 bIgnoreMdefRaceRate,RC_All,rollbonus(30,2,getrolls()); bonus2 bIgnoreMdefRaceRate,RC_All,rollbonus(30,2,getrolls()); },{},{}
+55109,_stun,Seal of Paralysis,6,20,,10,,,,,,,,,,,,,{ bonus2 bAddEff,Eff_Stun,rollbonus(500,2,getrolls()); bonus2 bAddEffWhenHit,Eff_Stun,rollbonus(500,2,getrolls()); },{},{}
+55110,_poison,Seal of Venom,6,20,,10,,,,,,,,,,,,,{ bonus2 bAddEff,Eff_Poison,rollbonus(1000,2,getrolls()); bonus2 bAddEffWhenHit,Eff_Poison,rollbonus(1000,2,getrolls()); },{},{}
+55111,_freeze,Seal of Hoarfrost,6,20,,10,,,,,,,,,,,,,{ bonus2 bAddEff,Eff_Freeze,rollbonus(500,2,getrolls()); bonus2 bAddEffWhenHit,Eff_Freeze,rollbonus(500,2,getrolls()); },{},{}
+55112,_double,Seal of Echoes,6,20,,10,,,,,,,,,,,,,{ bonus bDoubleAddRate,rollbonus(15,2,getrolls()); },{},{}
 55113,_wrsunder,Seal of Sunder,6,20,,10,,,,,,,,,,,,,{ skill "WR_SUNDER",1,8; },{},{}
 55114,_wrcleave,Seal of Cleave,6,20,,10,,,,,,,,,,,,,{ skill "WR_CLEAVE",1,8; },{},{}
 55115,_wrecho,Seal of Echo Blade,6,20,,10,,,,,,,,,,,,,{ skill "WR_ECHOBLADE",1,8; },{},{}
 55116,_trterraspine,Seal of Terraspine,6,20,,10,,,,,,,,,,,,,{ skill "TR_TERRASPINE",1,8; },{},{}
-55117,_trexpunge,Seal of Expunge,6,20,,10,,,,,,,,,,,,,{ skill "TR_EXPUNGE",1,8; },{},{}
-55118,_trearthshudder,Seal of Earth Shudder,6,20,,10,,,,,,,,,,,,,{ skill "TR_EARTHSHUDDER",1,8; },{},{}
+55117,_trexpunge,Seal of Expunge,6,20,,10,,,,,,,,,,,,,{ skill "TR_EXPUNGE",2,8; },{},{}
+55118,_trearthshudder,Seal of Earth Shudder,6,20,,10,,,,,,,,,,,,,{ skill "TR_EARTHSHUDDER",2,8; },{},{}
 
 // 56K - CONSUMABLES 
 56000,_fruitjuice,Fruit Juice,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 0,20; percentheal 10,0; },{},{}

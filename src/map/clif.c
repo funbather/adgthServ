@@ -745,7 +745,7 @@ void clif_dropflooritem(struct flooritem_data* fitem)
 {
 #if PACKETVER >= 20130000
 //	uint8 buf[19];
-  uint8 buf[25];
+  uint8 buf[29];
 	uint32 header=0x84b;
 #else
 	uint8 buf[17];
@@ -783,8 +783,9 @@ void clif_dropflooritem(struct flooritem_data* fitem)
 	WBUFB(buf, offset+20) = (uint8) fitem->item.card[1];
 	WBUFB(buf, offset+21) = (uint8) fitem->item.card[2];
 	WBUFB(buf, offset+22) = (uint8) fitem->item.card[3];
+	WBUFL(buf, offset+23) = fitem->item.rolls;
 
-	clif_send(buf, packet_len(header)+6, &fitem->bl, AREA);
+	clif_send(buf, packet_len(header)+10, &fitem->bl, AREA);
 }
 
 
@@ -1895,6 +1896,19 @@ void clif_scriptnext(struct map_session_data *sd,int npcid)
 	WFIFOSET(fd,packet_len(0xb5));
 }
 
+// Simply notifies the client to clean up the textbox without
+// having to click a 'next' button
+// ZC_CLEAR_TEXT [ADGTH]
+void clif_scriptcleartext(struct map_session_data *sd) {
+	int fd;
+
+	nullpo_retv(sd);
+
+	fd=sd->fd;
+	WFIFOHEAD(fd,2);
+	WFIFOW(fd,0)=0xDEE5;
+	WFIFOSET(fd,2);
+}
 
 /// Adds a 'close' button to an NPC dialog (ZC_CLOSE_DIALOG).
 /// 00b6 <npc id>.L
@@ -2208,7 +2222,7 @@ void clif_additem(struct map_session_data *sd, int n, int amount, unsigned char 
 	if( !session_isActive(fd) )  //Sasuke-
 		return;
 
-	WFIFOHEAD(fd,packet_len(header));
+	WFIFOHEAD(fd,packet_len(header)+4);
 	if( fail )
 	{
 		WFIFOW(fd,offs+0)=header;
@@ -2236,6 +2250,7 @@ void clif_additem(struct map_session_data *sd, int n, int amount, unsigned char 
 #if PACKETVER >= 20071002
 		WFIFOW(fd,offs+27)=0;  //  HireExpireDate
 #endif
+		WFIFOL(fd,offs+29)=0;
 	}
 	else
 	{
@@ -2268,9 +2283,10 @@ void clif_additem(struct map_session_data *sd, int n, int amount, unsigned char 
 		/* Yellow color only for non-stackable item */
 		WFIFOW(fd,offs+27)=(sd->status.inventory[n].bound && !itemdb_isstackable(sd->status.inventory[n].nameid)) ? BOUND_DISPYELLOW : sd->inventory_data[n]->flag.bindOnEquip ? BOUND_ONEQUIP : 0;
 #endif
+		WFIFOL(fd,offs+29)=sd->status.inventory[n].rolls;
 	}
 
-	WFIFOSET(fd,packet_len(header));
+	WFIFOSET(fd,packet_len(header)+4);
 }
 
 
@@ -2342,6 +2358,7 @@ void clif_item_sub_v5(unsigned char *buf, int n, int idx, struct item *it, struc
 		//WBUFB(buf,n+30) |= (it->attribute) ? 0x2 : 0; //0x2 IsDamaged
 		WBUFB(buf,n+30) = it->attribute; //0x2 IsDamaged
 		//WBUFB(buf,n+30) |= (it->favorite) ? 0x4 : 0; //0x4 PlaceETCTab
+		WBUFL(buf,n+31) = it->rolls;
 	}
 	else { //normal 24B
 		WBUFW(buf,n+5) = it->amount;
@@ -2351,6 +2368,7 @@ void clif_item_sub_v5(unsigned char *buf, int n, int idx, struct item *it, struc
 		//V5_ITEM_flag
 		WBUFB(buf,n+23) = it->identify; //0x1 IsIdentified
 		WBUFB(buf,n+23) |= (it->favorite) ? 0x2 : 0; //0x4,0x2 PlaceETCTab
+		WBUFL(buf,n+24) = it->rolls;
 	}
 }
 
@@ -2405,7 +2423,7 @@ void clif_inventorylist(struct map_session_data *sd) {
 #elif PACKETVER < 20120925
 	const int s = 22;
 #else
-	const int s = 24;
+	const int s = 28;
 #endif
 #if PACKETVER < 20071002
 	const int se = 20;
@@ -2414,7 +2432,7 @@ void clif_inventorylist(struct map_session_data *sd) {
 #elif PACKETVER < 20120925
 	const int se = 28;
 #else
-	const int se = 31;
+	const int se = 35;
 #endif
 
 	buf = (unsigned char*)aMalloc(MAX_INVENTORY * s + 4);
@@ -2490,7 +2508,7 @@ void clif_equiplist(struct map_session_data *sd)
 #elif PACKETVER < 20120925
 	const int cmd = 28;
 #else
-	const int cmd = 31;
+	const int cmd = 35;
 #endif
 
 	WFIFOHEAD(fd, MAX_INVENTORY * cmd + 4);
@@ -2539,7 +2557,7 @@ void clif_storagelist(struct map_session_data* sd, struct item* items, int items
 	const int sidx=4;
 	const int cmd = 0x2ea;
 #else
-	const int s = 24;
+	const int s = 28;
 	const int sidx = 4+24;
 	const int cmd = 0x995;
 #endif
@@ -2556,7 +2574,7 @@ void clif_storagelist(struct map_session_data* sd, struct item* items, int items
 	const int sidxe = 4;
 	const int cmde = 0x2d1;
 #else
-	const int se = 31;
+	const int se = 35;
 	const int sidxe = 4+24;
 	const int cmde = 0x996;
 #endif
@@ -3930,7 +3948,7 @@ void clif_tradeadditem(struct map_session_data* sd, struct map_session_data* tsd
 
 	fd = tsd->fd;
 	buf = WFIFOP(fd,0);
-	WFIFOHEAD(fd,packet_len(cmd));
+	WFIFOHEAD(fd,packet_len(cmd)+4);
 	WBUFW(buf,0) = cmd;
 	if( index == 0 )
 	{
@@ -3950,6 +3968,7 @@ void clif_tradeadditem(struct map_session_data* sd, struct map_session_data* tsd
 		WBUFW(buf,13)= 0; //card (4w)
 		WBUFW(buf,15)= 0; //card (4w)
 		WBUFW(buf,17)= 0; //card (4w)
+		WBUFL(buf,19)= 0; //rolls
 	}
 	else
 	{
@@ -3973,8 +3992,9 @@ void clif_tradeadditem(struct map_session_data* sd, struct map_session_data* tsd
 		WBUFB(buf,9) = sd->status.inventory[index].attribute; // attribute
 		WBUFB(buf,10)= sd->status.inventory[index].refine; //refine
 		clif_addcards(WBUFP(buf, 11), &sd->status.inventory[index]);
+		WBUFL(buf,19)= sd->status.inventory[index].rolls; //rolls
 	}
-	WFIFOSET(fd,packet_len(cmd));
+	WFIFOSET(fd,packet_len(cmd)+4);
 }
 
 
@@ -4092,7 +4112,7 @@ void clif_storageitemadded(struct map_session_data* sd, struct item* i, int inde
 	view = itemdb_viewid(i->nameid);
 
 #if PACKETVER < 5
-	WFIFOHEAD(fd,packet_len(0xf4));
+	WFIFOHEAD(fd,packet_len(0xf4)+4);
 	WFIFOW(fd, 0) = 0xf4; // Storage item added
 	WFIFOW(fd, 2) = index+1; // index
 	WFIFOL(fd, 4) = amount; // amount
@@ -4113,7 +4133,8 @@ void clif_storageitemadded(struct map_session_data* sd, struct item* i, int inde
 	WFIFOB(fd,12) = i->attribute; // attribute
 	WFIFOB(fd,13) = i->refine; //refine
 	clif_addcards(WFIFOP(fd,14), i);
-	WFIFOSET(fd,packet_len(0x1c4));
+	WFIFOL(fd, 22) = i->rolls; // amount
+	WFIFOSET(fd,packet_len(0x1c4)+4);
 #endif
 }
 
@@ -4516,7 +4537,7 @@ void clif_getareachar_item(struct map_session_data* sd,struct flooritem_data* fi
     if(fitem->item.card[i] > 0) { rarity++; }
 	}
 
-	WFIFOHEAD(fd,packet_len(0x9d));
+	WFIFOHEAD(fd,packet_len(0x9d)+4);
 	WFIFOW(fd,0)=0x9d;
 	WFIFOL(fd,2)=fitem->bl.id;
 	if((view = itemdb_viewid(fitem->item.nameid)) > 0)
@@ -4531,7 +4552,8 @@ void clif_getareachar_item(struct map_session_data* sd,struct flooritem_data* fi
 	WFIFOB(fd,16)=fitem->suby;
 	WFIFOB(fd,17)=fitem->item.refine;
 	WFIFOB(fd,18)=fitem->item.attribute;
-	WFIFOSET(fd,packet_len(0x9d)+2);
+	WFIFOL(fd,19)=fitem->item.rolls;
+	WFIFOSET(fd,packet_len(0x9d)+6);
 }
 
 /// Notifes client about Graffiti
@@ -6280,7 +6302,7 @@ void clif_cart_additem(struct map_session_data *sd,int n,int amount,int fail)
 	clif_addcards(WBUFP(buf,13), &sd->status.cart[n]);
 	WFIFOSET(fd,packet_len(0x124));
 #else
-	WFIFOHEAD(fd,packet_len(0x1c5));
+	WFIFOHEAD(fd,packet_len(0x1c5)+4);
 	buf=WFIFOP(fd,0);
 	WBUFW(buf,0)=0x1c5;
 	WBUFW(buf,2)=n+2;
@@ -6294,7 +6316,8 @@ void clif_cart_additem(struct map_session_data *sd,int n,int amount,int fail)
 	WBUFB(buf,12)=sd->status.cart[n].attribute;
 	WBUFB(buf,13)=sd->status.cart[n].refine;
 	clif_addcards(WBUFP(buf,14), &sd->status.cart[n]);
-	WFIFOSET(fd,packet_len(0x1c5));
+	WBUFB(buf,22)=sd->status.cart[n].rolls;
+	WFIFOSET(fd,packet_len(0x1c5)+4);
 #endif
 }
 
@@ -6629,9 +6652,9 @@ void clif_vendinglist(struct map_session_data* sd, int id, struct s_vending* ven
 	fd = sd->fd;
 	count = vsd->vend_num;
 
-	WFIFOHEAD(fd, offset+count*22);
+	WFIFOHEAD(fd, offset+count*26);
 	WFIFOW(fd,0) = cmd;
-	WFIFOW(fd,2) = offset+count*22;
+	WFIFOW(fd,2) = offset+count*26;
 	WFIFOL(fd,4) = id;
 #if PACKETVER >= 20100105
 	WFIFOL(fd,8) = vsd->vender_id;
@@ -6641,15 +6664,16 @@ void clif_vendinglist(struct map_session_data* sd, int id, struct s_vending* ven
 	{
 		int index = vending[i].index;
 		struct item_data* data = itemdb_search(vsd->status.cart[index].nameid);
-		WFIFOL(fd,offset+ 0+i*22) = vending[i].value;
-		WFIFOW(fd,offset+ 4+i*22) = vending[i].amount;
-		WFIFOW(fd,offset+ 6+i*22) = vending[i].index + 2;
-		WFIFOB(fd,offset+ 8+i*22) = itemtype(data->nameid);
-		WFIFOW(fd,offset+ 9+i*22) = ( data->view_id > 0 ) ? data->view_id : vsd->status.cart[index].nameid;
-		WFIFOB(fd,offset+11+i*22) = vsd->status.cart[index].identify;
-		WFIFOB(fd,offset+12+i*22) = vsd->status.cart[index].attribute;
-		WFIFOB(fd,offset+13+i*22) = vsd->status.cart[index].refine;
-		clif_addcards(WFIFOP(fd,offset+14+i*22), &vsd->status.cart[index]);
+		WFIFOL(fd,offset+ 0+i*26) = vending[i].value;
+		WFIFOW(fd,offset+ 4+i*26) = vending[i].amount;
+		WFIFOW(fd,offset+ 6+i*26) = vending[i].index + 2;
+		WFIFOB(fd,offset+ 8+i*26) = itemtype(data->nameid);
+		WFIFOW(fd,offset+ 9+i*26) = ( data->view_id > 0 ) ? data->view_id : vsd->status.cart[index].nameid;
+		WFIFOB(fd,offset+11+i*26) = vsd->status.cart[index].identify;
+		WFIFOB(fd,offset+12+i*26) = vsd->status.cart[index].attribute;
+		WFIFOB(fd,offset+13+i*26) = vsd->status.cart[index].refine;
+		clif_addcards(WFIFOP(fd,offset+14+i*26), &vsd->status.cart[index]);
+		WFIFOL(fd,offset+ 22+i*26) = vsd->status.cart[index].rolls;
 	}
 	WFIFOSET(fd,WFIFOW(fd,2));
 }
@@ -6693,22 +6717,23 @@ void clif_openvending(struct map_session_data* sd, int id, struct s_vending* ven
 	fd = sd->fd;
 	count = sd->vend_num;
 
-	WFIFOHEAD(fd, 8+count*22);
+	WFIFOHEAD(fd, 8+count*26);
 	WFIFOW(fd,0) = 0x136;
-	WFIFOW(fd,2) = 8+count*22;
+	WFIFOW(fd,2) = 8+count*26;
 	WFIFOL(fd,4) = id;
 	for( i = 0; i < count; i++ ) {
 		int index = vending[i].index;
 		struct item_data* data = itemdb_search(sd->status.cart[index].nameid);
-		WFIFOL(fd, 8+i*22) = vending[i].value;
-		WFIFOW(fd,12+i*22) = vending[i].index + 2;
-		WFIFOW(fd,14+i*22) = vending[i].amount;
-		WFIFOB(fd,16+i*22) = itemtype(data->nameid);
-		WFIFOW(fd,17+i*22) = ( data->view_id > 0 ) ? data->view_id : sd->status.cart[index].nameid;
-		WFIFOB(fd,19+i*22) = sd->status.cart[index].identify;
-		WFIFOB(fd,20+i*22) = sd->status.cart[index].attribute;
-		WFIFOB(fd,21+i*22) = sd->status.cart[index].refine;
-		clif_addcards(WFIFOP(fd,22+i*22), &sd->status.cart[index]);
+		WFIFOL(fd, 8+i*26) = vending[i].value;
+		WFIFOW(fd,12+i*26) = vending[i].index + 2;
+		WFIFOW(fd,14+i*26) = vending[i].amount;
+		WFIFOB(fd,16+i*26) = itemtype(data->nameid);
+		WFIFOW(fd,17+i*26) = ( data->view_id > 0 ) ? data->view_id : sd->status.cart[index].nameid;
+		WFIFOB(fd,19+i*26) = sd->status.cart[index].identify;
+		WFIFOB(fd,20+i*26) = sd->status.cart[index].attribute;
+		WFIFOB(fd,21+i*26) = sd->status.cart[index].refine;
+		clif_addcards(WFIFOP(fd,22+i*26), &sd->status.cart[index]);
+		WFIFOL(fd,30+i*26) = sd->status.cart[index].rolls;
 	}
 	WFIFOSET(fd,WFIFOW(fd,2));
 }
@@ -16098,7 +16123,8 @@ void clif_party_show_picker(struct map_session_data * sd, struct item * item_dat
 	clif_addcards(WBUFP(buf,11), item_data);
 	WBUFW(buf,19) = id->equip; // equip location
 	WBUFB(buf,21) = itemtype(id->nameid); // item type
-	clif_send(buf, packet_len(0x2b8), &sd->bl, PARTY_SAMEMAP_WOS);
+	WBUFL(buf,22) = item_data->rolls;
+	clif_send(buf, packet_len(0x2b8)+4, &sd->bl, PARTY_SAMEMAP_WOS);
 #endif
 }
 

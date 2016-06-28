@@ -7199,13 +7199,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			map_foreachinrange(skill_attack_area, src,
 			skill_get_splash(skill_id, skill_lv), splash_target(src),
 			BF_MAGIC, src, src, skill_id, skill_lv, tick, flag, BCT_ENEMY);
-			
-			switch(rnd()%30 / 10) {
-				case 0: clif_talkiebox(src,"Scatter your chilly sharp blades!"); break;
-				case 1: clif_talkiebox(src,"Drifting breeze, come down with fury!"); break;
-				case 2: clif_talkiebox(src,"Freezing wind, speak of forgotten truths!"); break;
-				case 3: clif_talkiebox(src,"Effortless water, break your silence, attack!"); break;
-			}
 		}
 		break;
 		

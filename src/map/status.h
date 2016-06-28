@@ -1598,6 +1598,7 @@ enum e_joint_break
 extern short current_equip_item_index;
 extern unsigned int current_equip_combo_pos;
 extern int current_equip_card_id;
+extern unsigned char card_pos; // Position of the 'card' within the item, for dynamic enchantments [ADGTH]
 
 //Mode definitions to clear up code reading. [Skotlex]
 enum e_mode {
