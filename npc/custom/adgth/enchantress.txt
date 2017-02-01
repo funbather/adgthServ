@@ -1,6 +1,6 @@
 // Enchantress Script v1.0
 
-rachel,132,111,3	script	Undina#adgth	504,{
+valkyrie,45,52,6	script	Undina#adgth	504,{
 	disable_items;
 	mes "[Undina]";
 	mes "Welcome! What do ya need?";
@@ -58,11 +58,11 @@ enchEmpty:
 	next;
 	mes "[Undina]";
 	mes "What're we working with?";
-	setarray .@position$[1],"Head","Body","Left Hand","Right Hand","Robe","Shoes","Accessory 1","Accessory 2","Head 2","Head 3";
+	setarray .@position$[1],"Body","Left Hand","Right Hand","Gloves","Belt","Robe","Shoes","Accessory 1", "Accessory 2";
 	set .@menu$,"";
-	for(set .@i,1; .@i<=10; set .@i,.@i+1) {
-		if (getequipisequiped(.@i)) {
-			set .@menu$, .@menu$ + .@position$[.@i] + " - " + "[" + getequipname(.@i) + "]";
+	for(set .@i,1; .@i<=9; set .@i,.@i+1) {
+		if (getequipisequiped(.@i+1)) {
+			set .@menu$, .@menu$ + getequipname(.@i+1);
 			set .@equipped,1;
 		}
 		set .@menu$, .@menu$ + ":";
@@ -73,41 +73,46 @@ enchEmpty:
 		mes "Uh... you actually need some equipment if we're gonna do this...";
 		close;
 	}
-	set .@part, select(.@menu$);
+	set .@part, select(.@menu$)+1;
 
 	if (!getequipisequiped(.@part)) { //custom check
+		cleartext;	
 		mes "[Undina]";
 		mes "Uh... you actually need some equipment if we're gonna do this...";
 		close;
 	}
 	
 	if (getequipcardcnt(.@part) == 0) {
+		cleartext;	
 		mes "[Undina]";
 		mes "I can't make something from nothing, pal. Bring me something enchanted!";
 		close;
 	}
 		
 	if (countitem(57002) == 0) {
+		cleartext;	
 		mes "[Undina]";
 		mes "You know you need an Empty Bijou for this, right?";
 		close;
 	}
 	
 	if (getequipcardcnt(.@part) == 4) {
+		cleartext;	
 		mes "[Undina]";
 		mes "Are you sure you want to use this item...? It's overflowing with magic energy!";
 		menu "On second thought...",-,"Yeah, I'm sure.",enchEmpty2;
-		next;
+		cleartext;	
 		mes "[Undina]";
 		mes "Phew, okay. I'd hate to have to destroy something like that!";
 		close;
 	}
 	
 	if (getequipid(.@part) > 51999) {
+		cleartext;	
 		mes "[Undina]";
 		mes "Are you sure you want to use this item...? It looks pretty rare!";
 		menu "On second thought...",-,"Yeah, I'm sure.",enchEmpty2;
-		next;
+		cleartext;	
 		mes "[Undina]";
 		mes "Phew, okay. I'd hate to have to destroy something like that!";
 		close;
@@ -167,27 +172,24 @@ enchBijou:
 	cleartext;
 	mes "[Undina]";
 	mes "Nice, nice. Which item are we working on?";
-	setarray .@position$[1],"Head","Body","Left Hand","Right Hand","Robe","Shoes","Accessory 1","Accessory 2","Head 2","Head 3";
+	setarray .@position$[1],"Body","Left Hand","Right Hand","Gloves","Belt","Robe","Shoes","Accessory 1", "Accessory 2";
 	set .@menu2$,"";
-	for(set .@i,1; .@i<=10; set .@i,.@i+1) {
-		if (getequipisequiped(.@i)) {
-			set .@menu2$, .@menu2$ + .@position$[.@i] + " - " + "[" + getequipname(.@i) + "]";
+	for(set .@i,1; .@i<=9; set .@i,.@i+1) {
+		if (getequipisequiped(.@i+1)) {
+			set .@menu2$, .@menu2$ + getequipname(.@i+1);
 			set .@equipped,1;
 		}
 		set .@menu2$, .@menu2$ + ":";
 	}
 	
 	if (.@equipped == 0) {
+		cleartext;	
 		mes "[Undina]";
 		mes "Uh... you actually need some equipment if we're gonna do this...";
 		close;
 	}
-	set .@part, select(.@menu2$);
+	set .@part, select(.@menu2$)+1;
 
-	cleartext;	
-	mes "[Undina]";
-	mes "Alright! Let's get to it!";
-	next;
 	
 	switch(.@bijou) {
 		case 57004: goto enchArcane; break;
@@ -253,7 +255,7 @@ enchFervent:
 	getitem4 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4,.@newroll;
 	autoequip .@type,0;
 
-	cleartext;	
+	cleartext;
 	mes "[Undina]";
 	mes "Tada! Simple as that! Enjoy your stuff!";
 	close;
@@ -334,7 +336,7 @@ enchBlessed:
 	delitem2 .@type,1,1,.@qual,.@ilvl,.@ench1,.@ench2,.@ench3,.@ench4;	
 	delitem .@bijou,1;
 
-	set .@ench4,rand(55100,55118);
+	set .@ench4,rand(55100,55112);
 	set .@partroll, .@partroll & 0xFFFFFF;
 	set .@newroll, .@partroll | (.@rand99 << 24);
 
@@ -381,7 +383,7 @@ enchCapricious:
 	set .@ench1,.@ench1 ? rand(55000,55018) : 0;
 	set .@ench2,.@ench2 ? rand(55000,55018) : 0;
 	set .@ench3,.@ench3 ? rand(55000,55018) : 0;
-	set .@ench4,.@ench4 ? rand(55100,55118) : 0;
+	set .@ench4,.@ench4 ? rand(55100,55112) : 0;
 	set .@newroll,.@newroll | rand(0,99);
 	set .@newroll,.@newroll | (rand(0,99) << 8);
 	set .@newroll,.@newroll | (rand(0,99) << 16);
@@ -422,16 +424,22 @@ enchDiscordant:
 	delitem .@bijou,1;
 
 	if(rand(0,1))
-		set .@qual,rand(50,100);
+		set .@qual,rand(60,100);
 	else
-		set .@qual,rand(101,125);
+		set .@qual,rand(90,135);
 
+	if(rand(0,1))
+		set .@ilvl,rand(BaseLevel)+1;
+	else {
+		set .@rnd,BaseLevel + 5 - rand(20);
+		set .@ilvl,(.@rnd < 1 ? 1 : .@rnd);
+	}
 
 	if(rand(0,99) > 75) {
 		set .@ench1,rand(55000,55018);
 		set .@ench2,rand(55000,55018);
 		set .@ench3,rand(55000,55018);
-		set .@ench4,rand(55100,55118);
+		set .@ench4,rand(55100,55112);
 	} else if(rand(0,99) > 50) {
 		set .@ench1,rand(55000,55018);
 		set .@ench2,rand(55000,55018);

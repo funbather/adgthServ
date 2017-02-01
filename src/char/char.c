@@ -898,7 +898,7 @@ int char_mmo_chars_fromsql(struct char_session_data* sd, uint8* buf) {
 		"`str`,`agi`,`vit`,`int`,`dex`,`luk`,`max_hp`,`hp`,`max_sp`,`sp`,"
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`hair`,`hair_color`,"
 		"`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`rename`,`delete_date`,"
-		"`robe`,`moves`,`unban_time`,`font`,`uniqueitem_counter`,`sex`"
+		"`robe`,`moves`,`unban_time`,`font`,`uniqueitem_counter`,`sex`,`classes`"
 		" FROM `%s` WHERE `account_id`='%d' AND `char_num` < '%d'", schema_config.char_db, sd->account_id, MAX_CHARS)
 	||	SQL_ERROR == SqlStmt_Execute(stmt)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 0,  SQLDT_INT,    &p.char_id, 0, NULL, NULL)
@@ -942,6 +942,7 @@ int char_mmo_chars_fromsql(struct char_session_data* sd, uint8* buf) {
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 38, SQLDT_UCHAR,  &p.font, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 39, SQLDT_UINT,   &p.uniqueitem_counter, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 40, SQLDT_ENUM,   &sex, sizeof(sex), NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 41, SQLDT_UINT,   &p.classes_, 0, NULL, NULL)
 	)
 	{
 		SqlStmt_ShowDebug(stmt);
@@ -1005,7 +1006,7 @@ int char_mmo_char_fromsql(uint32 char_id, struct mmo_charstatus* p, bool load_ev
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`party_id`,`guild_id`,`pet_id`,`homun_id`,`elemental_id`,`hair`,"
 		"`hair_color`,`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`last_x`,`last_y`,"
 		"`save_map`,`save_x`,`save_y`,`partner_id`,`father`,`mother`,`child`,`fame`,`rename`,`delete_date`,`robe`, `moves`,"
-		"`unban_time`,`font`,`uniqueitem_counter`,`sex`"
+		"`unban_time`,`font`,`uniqueitem_counter`,`sex`,`classes`"
 		" FROM `%s` WHERE `char_id`=? LIMIT 1", schema_config.char_db)
 	||	SQL_ERROR == SqlStmt_BindParam(stmt, 0, SQLDT_INT, &char_id, 0)
 	||	SQL_ERROR == SqlStmt_Execute(stmt)
@@ -1066,6 +1067,7 @@ int char_mmo_char_fromsql(uint32 char_id, struct mmo_charstatus* p, bool load_ev
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 54, SQLDT_UCHAR,  &p->font, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 55, SQLDT_UINT,   &p->uniqueitem_counter, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 56, SQLDT_ENUM,   &sex, sizeof(sex), NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 57, SQLDT_UINT,   &p->classes_, 0, NULL, NULL)
 	)
 	{
 		SqlStmt_ShowDebug(stmt);
@@ -1389,7 +1391,7 @@ int char_check_char_name(char * name, char * esc_name)
 //int char_make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style) {
 //  int str = 1, agi = 1, vit = 1, int_ = 1, dex = 1, luk = 1;
 //#else
-int char_make_new_char_sql(struct char_session_data* sd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style, int sex, int job) {
+int char_make_new_char_sql(struct char_session_data* sd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style, int sex, int job, int classes) {
 //#endif
 	char name[NAME_LENGTH];
 	char esc_name[NAME_LENGTH*2+1];
@@ -1456,11 +1458,11 @@ int char_make_new_char_sql(struct char_session_data* sd, char* name_, int str, i
 #if PACKETVER >= 20120307
 	//Insert the new char entry to the database
 	if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`account_id`, `char_num`, `name`, `zeny`, `status_point`,`str`, `agi`, `vit`, `int`, `dex`, `luk`, `max_hp`, `hp`,"
-		"`max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`, `sex`, `class`) VALUES ("
-		"'%d', '%d', '%s', '%d',  '%d','%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d','%d', '%d','%d', '%d', '%s', '%d', '%d', '%s', '%d', '%d', '%c', '%d')",
+		"`max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`, `sex`, `class`, `classes`) VALUES ("
+		"'%d', '%d', '%s', '%d',  '%d','%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d','%d', '%d','%d', '%d', '%s', '%d', '%d', '%s', '%d', '%d', '%c', '%d', '%d')",
 		schema_config.char_db, sd->account_id , slot, esc_name, charserv_config.start_zeny, 0, str, agi, vit, int_, dex, luk,
-		(50 * (10000 + vit * 666)) / 10000, (50 * (10000 + vit * 666)) / 10000,  100 + int_, 100 + int_, hair_style, hair_color,
-		mapindex_id2name(charserv_config.start_point.map), charserv_config.start_point.x, charserv_config.start_point.y, mapindex_id2name(charserv_config.start_point.map), charserv_config.start_point.x, charserv_config.start_point.y, sex, job) )
+		(50 * (10000 + vit * 666)) / 10000, (50 * (10000 + vit * 666)) / 10000,  100, 100, hair_style, hair_color,
+		mapindex_id2name(charserv_config.start_point.map), charserv_config.start_point.x, charserv_config.start_point.y, mapindex_id2name(charserv_config.start_point.map), charserv_config.start_point.x, charserv_config.start_point.y, sex, job, classes) )
 	{
 		Sql_ShowDebug(sql_handle);
 		return -2; //No, stop the procedure!
@@ -1486,7 +1488,7 @@ int char_make_new_char_sql(struct char_session_data* sd, char* name_, int str, i
 			Sql_ShowDebug(sql_handle);
 	}
 
-	ShowInfo("Created char: account: %d, char: %d, slot: %d, name: %s, sex: %c\n", sd->account_id, char_id, slot, name, sex);
+	ShowInfo("Created char: account: %d, char: %d, slot: %d, name: %s, sex: %c, class: %d\n", sd->account_id, char_id, slot, name, sex, classes);
 	return char_id;
 }
 
@@ -1778,6 +1780,8 @@ int char_mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 
 	WBUFB(buf,140) = p->sex;// sex - (0 = female, 1 = male, 99 = logindefined)
 	offset += 1;
+	WBUFL(buf,141) = p->classes_;
+	offset += 4;
 	
 	return 106+offset;
 }

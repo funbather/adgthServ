@@ -1,3 +1,0 @@
-valkyrie,49,49,4	script	Valkyrie#valk	811,{
-
-}

@@ -68,6 +68,44 @@
 // 17 Name
 // 18 Description
 
+// [ADGTH]
+// INF2 0x40000 - innate skill
+
+// SWORDSMAN
+4062,0,6,0,0,0x1,0,1 ,1,no,0,0x40000,0,none,0,0,SWD_SOUL,Swordsman Soul
+
+4063,0,6,0,0,0x1,0,15,1,no,0,0,0,none,0,0,SWD_HARDHEARTED,Hardhearted
+4064,0,6,0,0,0x1,0,15,1,no,0,0,0,none,0,0,SWD_DAUNTLESS  ,Dauntless
+4065,0,6,0,0,0x1,0,15,1,no,0,0,0,none,0,0,SWD_MAINTENANCE,Maintenance
+4066,0,6,0,0,0x1,0,15,1,no,0,0,0,none,0,0,SWD_PAVISE     ,Pavise
+
+4067,0,6,4,0,0x1,5:5:6:6:6:7:7:7:8:8:8:9:9:9:10,15,1,no,0,0,0,none,0,0,SWD_SWASHBUCKLING,Swashbuckling
+4068,0,6,4,0,0x1,0,15,1,no,0,0,0,none,0,0,SWD_SECONDWIND,Second Wind
+4069,8,6,1,0,0x1,0,15,1,no,0,0,0,none,0,0,SWD_EYETOEYE  ,Eye To Eye
+4070,0,6,4,0,0x1,0,15,1,no,0,0,0,none,0,0,SWD_ENDURE    ,Endure
+
+4071,1,6,1,0,0,0,15,1,no,0,0,0,weapon,0,0,SWD_UMBOBLOW       ,Umbo Blow
+4072,8,6,1,0,0,0,15,1,no,0,0,0,weapon,0,0,SWD_SHIELDBOOMERANG,Shield Boomerang
+4073,1,6,1,0,0,0,15,1,no,0,0,0,weapon,0,0,SWD_HILTBASH       ,Hilt Bash
+4074,1,6,1,0,0,0,15,1,no,0,0,0,weapon,0,0,SWD_HEAVYSWING     ,Heavy Swing
+4075,1,6,4,0,0,0,15,1,no,0,0x200,0,weapon,0,0,SWD_SLEDGEHAMMER   ,Sledgehammer
+
+4076,0,6,0,0,0x1,0,1 ,1,no,0,0x40000,0,none,0,0,THF_SOUL,Thief Soul
+
+4077,0,6,0,0,0x1,0,15,1,no,0,0,0,none,0,0,THF_QUICKHANDS    ,Quick Hands
+4078,0,6,0,0,0x1,0,15,1,no,0,0,0,none,0,0,THF_REFLEXES      ,Reflexes
+4079,0,6,0,0,0x1,0,15,1,no,0,0,0,none,0,0,THF_MERCILESS     ,Merciless
+4080,0,6,0,0,0x1,0,15,1,no,0,0,0,none,0,0,THF_ADRENALINERUSH,Adrenaline Rush
+
+4081,0,6,4,0,0x1,0,15,1,no,0,0,0,none,0,0,THF_CAMOFLAUGE,Camoflauge
+4082,0,6,4,0,0x1,0,15,1,no,0,0,0,none,0,0,THF_DOUBLETEAM,Double Team
+
+4083,6:6:7:7:7:8:8:8:9:9:9:10:10:10:11,6,1,0,0,0,15,1,no,0,0,0,weapon,0,0,THF_SONICSTRIKE  ,Sonic Strike
+4084,1,6,1,0,0,0,15,1,no,0,0,0,weapon,0,0,THF_BONECUTTER   ,Bonecutter
+4085,1,6,4,0,0x2,4,15,1,no,0,0,0,weapon,0,0,THF_BLADEFLOURISH,Blade Flourish
+4086,1,6,1,0,0,0,15,1,no,0,0,0,weapon,0,0,THF_HAMSTRING    ,Hamstring
+4087,1,6,1,0,0,0,15,1,no,0,0,0,weapon,0,0,THF_STIFLE       ,Stifle
+4088,1,6,1,0,0,0,15,1,no,0,0,0,weapon,0,0,THF_PUNCTURE     ,Puncture
 // SORCERER
 4000,0,6,4,0,0x1,0,1 ,1,yes,0,0,0,magic,0,0,      SC_INVOKE    ,Invoke
 4001,0,6,4,0,0x1,0,50,1,no,0,0,0,weapon,0,0,      SC_ICESPIRIT ,Summon Ice Spirit

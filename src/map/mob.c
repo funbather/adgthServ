@@ -2811,6 +2811,17 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 	}
 
+	if( sd ) {
+		if( pc_checkskill(sd,THF_SONICSTRIKE) ) {
+			ARR_FIND(0, MAX_SKILLCOOLDOWN, i, sd->scd[i] && sd->scd[i]->skill_id == THF_SONICSTRIKE);
+			if (i < MAX_SKILLCOOLDOWN) { // Skill already with cooldown
+				delete_timer(sd->scd[i]->timer, skill_blockpc_end);
+				aFree(sd->scd[i]);
+				sd->scd[i] = NULL;
+			}
+		}
+	}
+
 	if(!md->spawn) //Tell status_damage to remove it from memory.
 		return 5; // Note: Actually, it's 4. Oh well...
 
@@ -2820,6 +2831,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 	if( !rebirth )
 		mob_setdelayspawn(md); //Set respawning.
+	
 	return 3; //Remove from map.
 }
 

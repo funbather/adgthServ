@@ -823,15 +823,15 @@ int chclif_parse_createnewchar(int fd, struct char_session_data* sd,int cmd){
 	int i = 0;
 
 	if (cmd == 0x970) FIFOSD_CHECK(31) //>=20120307
-	else if (cmd == 0x67) FIFOSD_CHECK(40)
+	else if (cmd == 0x67) FIFOSD_CHECK(44)
 	else return 0;
 
 	if( (charserv_config.char_new)==0 ) //turn character creation on/off [Kevin]
 		i = -2;
 	else {
 //#if PACKETVER < 20120307
-			i = char_make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOB(fd,27),RFIFOB(fd,28),RFIFOB(fd,29),RFIFOB(fd,30),RFIFOB(fd,31),RFIFOB(fd,32),RFIFOW(fd,33),RFIFOW(fd,35),RFIFOB(fd,37),RFIFOW(fd,38));
-			RFIFOSKIP(fd,40);
+			i = char_make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOB(fd,27),RFIFOB(fd,28),RFIFOB(fd,29),RFIFOB(fd,30),RFIFOB(fd,31),RFIFOB(fd,32),RFIFOW(fd,33),RFIFOW(fd,35),RFIFOB(fd,37),RFIFOW(fd,38),RFIFOL(fd,40));
+			RFIFOSKIP(fd,44);
 //#else
 //			i = char_make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOW(fd,27),RFIFOW(fd,29));
 //			RFIFOSKIP(fd,31);

@@ -14,6 +14,25 @@
 //                  in field Value. Depending on the implementation values assigned by scripts to parameters will affect
 //                  runtime values, such as Zeny, as well (see pc_readparam/pc_setparam).
 
+HPM 15
+MPM 12
+DEFM 6
+MDEFM 6
+DEF2M 2
+MDEF2M 2
+WPM 11
+MAGM 11
+EVAM 7
+ASPDM 2
+MSPDM 3
+CRITM 2
+INCCRITM 2
+INCCASTSPDM 2
+INCSKILLDMGM 2
+INCDEFM 2
+INCMDEFM 2
+BASEHPM 5
+
 Job_Novice	0
 Job_Swordman	1
 Job_Mage	2
@@ -48,6 +67,7 @@ Job_Oktoberfest	29
 Job_Sorc_ 30
 Job_Warrior 31
 Job_Terramancer 32
+Job_Common 33
 
 Job_Novice_High	4001
 Job_Swordman_High	4002
@@ -198,6 +218,7 @@ EAJ_SORC_ 0x0B
 EAJ_WARRIOR 0x0C
 EAJ_TERRAMANCER 0x0D
 EAJ_GANGSI	0x0E
+EAJ_COMMON 0x13
 
 EAJ_KNIGHT	0x101
 EAJ_WIZARD	0x102
@@ -662,6 +683,9 @@ bLastStand 3025
 bSkipCooldown 3026
 bBasicAtk 3027
 bMagicStatus 3028
+bSpellDamage 3029
+bCastSpeed 3030
+bBaseHP 3031
 
 EQI_HEAD_TOP	1
 EQI_ARMOR	2

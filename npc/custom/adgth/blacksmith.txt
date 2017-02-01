@@ -1,7 +1,7 @@
 // Blacksmith Script v1.0
 // A lot of this is cribbed from the existing rAthena refine scripts, so credit to Euphy and Haruna for this
 
-rachel,127,111,6	script	Vorser#adgth	813,{
+valkyrie,43,50,6	script	Vorser#adgth	813,{
 
 	disable_items;
 	mes "[Vorser]";
@@ -42,10 +42,10 @@ menuUpgrade:
 upgQuality:
 
 	cleartext;
-	setarray .@position$[1],"Body","Left Hand","Right Hand","Robe","Shoes";
+	setarray .@position$[1],"Body","Left Hand","Right Hand","Gloves","Belt","Robe","Shoes","Accessory 1", "Accessory 2";
 	set .@menu$,"";
-	for(set .@i,1; .@i<=5; set .@i,.@i+1)
-		set .@menu$, .@menu$+((getequipisequiped(.@i+1))?.@position$[.@i] + " - [" +getequipname(.@i+1)+"]":"")+":";
+	for(set .@i,1; .@i<=9; set .@i,.@i+1)
+		set .@menu$, .@menu$+((getequipisequiped(.@i+1))?getequipname(.@i+1) + " - " + getequiprefinerycnt(.@i+1) + "%":"")+":";
 	set .@part, select(.@menu$)+1;
 	
 	if (getequiprefinerycnt(.@part) == 100) {
@@ -60,7 +60,7 @@ upgQuality:
 		close;
 	}
 	
-	set .@price,((getequiprefinerycnt(.@part) * getequiprefinerycnt(.@part) * BaseLevel) / 1000) + 1;
+	set .@price,1;
 	set .@material,57000;
 		
 	mes "[Vorser]";	
@@ -96,10 +96,10 @@ upgQuality:
 upgLevel:
 
 	cleartext;
-	setarray .@position$[1],"Body","Left Hand","Right Hand","Robe","Shoes";
+	setarray .@position$[1],"Body","Left Hand","Right Hand","Gloves","Belt","Robe","Shoes","Accessory 1", "Accessory 2";
 	set .@menu$,"";
-	for(set .@i,1; .@i<=5; set .@i,.@i+1)
-		set .@menu$, .@menu$+((getequipisequiped(.@i+1))?.@position$[.@i] + " - [" +getequipname(.@i+1)+"]":"")+":";
+	for(set .@i,1; .@i<=9; set .@i,.@i+1)
+		set .@menu$, .@menu$+((getequipisequiped(.@i+1))?getequipname(.@i+1) + " - Lv" + getequipilvlcnt(.@i+1):"")+":";
 	set .@part, select(.@menu$)+1;
 	
 	if (getequipilvlcnt(.@part) >= BaseLevel) {
@@ -108,7 +108,7 @@ upgLevel:
 		close;
 	}
 	
-	set .@price,((getequipilvlcnt(.@part) * getequipilvlcnt(.@part) * BaseLevel * 2) / 250) + 1;
+	set .@price,1;
 	set .@material,57001;
 	
 	mes "[Vorser]";		
@@ -145,30 +145,16 @@ upgLevel:
 upgType:
 
 	cleartext;
-	setarray .@position$[1],"Body","Left Hand","Right Hand","Robe","Shoes";
+	setarray .@position$[1],"Body","Left Hand","Right Hand","Gloves","Belt","Robe","Shoes","Accessory 1", "Accessory 2";
 	set .@menu$,"";
-	for(set .@i,1; .@i<=5; set .@i,.@i+1)
-		set .@menu$, .@menu$+((getequipisequiped(.@i+1))?.@position$[.@i] + " - [" +getequipname(.@i+1)+"]":"")+":";
+	for(set .@i,1; .@i<=9; set .@i,.@i+1)
+		set .@menu$, .@menu$+((getequipisequiped(.@i+1))?getequipname(.@i+1):"")+":";
 	set .@part, select(.@menu$)+1;
+	set .@upg,-1;
 	
 	if (getequipid(.@part) > 51999) {
 		mes "[Vorser]";
 		mes "Kid... ya got a unique here! I can't improve on this!";
-		close;
-	}
-	
-	if (getequipid(.@part) == 50002 ||
-			getequipid(.@part) == 50005 ||
-			getequipid(.@part) == 50008 ||
-			getequipid(.@part) == 50011 ||
-			getequipid(.@part) == 50014 ||
-			getequipid(.@part) == 50017 ||
-			getequipid(.@part) == 51002 ||
-			getequipid(.@part) == 51005 ||
-			getequipid(.@part) == 51008 ||
-			getequipid(.@part) == 51011) {
-		mes "[Vorser]";
-		mes "Kid, this is already the best of its kind. Nothin' to do here.";
 		close;
 	}
 	
@@ -197,6 +183,26 @@ upgType:
 		case 50016:
 			set .@upg,50017;
 			break;
+		case 50018:
+		case 50019:
+			set .@upg,50020;
+			break;
+		case 50024:
+		case 50025:
+			set .@upg,50026;
+			break;
+		case 50027:
+		case 50028:
+			set .@upg,50029;
+			break;
+		case 50030:
+		case 50031:
+			set .@upg,50032;
+			break;
+		case 50033:
+		case 50034:
+			set .@upg,50035;
+			break;
 		case 51000:
 		case 51001:
 			set .@upg,51002;
@@ -213,9 +219,28 @@ upgType:
 		case 51010:
 			set .@upg,51011;
 			break;
+		case 51012:
+		case 51013:
+			set .@upg,51014;
+			break;
+		case 51015:
+		case 51016:
+			set .@upg,51017;
+			break;
+		case 51018:
+		case 51019:
+			set .@upg,51020;
+			break;
+	}
+
+	
+	if (.@upg == -1) {
+		mes "[Vorser]";
+		mes "Kid, this is already the best of its kind. Nothin' to do here.";
+		close;
 	}
 	
-	set .@price,(BaseLevel * (BaseLevel + 5)) + 1;
+	set .@price,1;
 	set .@material,57008;
 	
 	cleartext;

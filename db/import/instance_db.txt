@@ -3,5 +3,5 @@
 // Structure of Database:
 // ID,Name,LimitTime,EnterMap,EnterX,EnterY,Map1,Map2,Map3,Map4,Map5,Map6,Map7,Map8
 
-12,New Zepore,1800,gld2_ald,104,251,gld2_ald
+12,Trial1,1800,gld2_ald,104,251,gld2_ald
 13,Instanced Prontera,3600,prontera,155,150,prontera

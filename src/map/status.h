@@ -16,7 +16,7 @@ struct status_change;
  * Changing this limit requires edits to refine_db.txt
  **/
 #ifdef RENEWAL
-#	define MAX_REFINE 125
+#	define MAX_REFINE 150
 #else
 #	define MAX_REFINE 10
 #endif
@@ -739,6 +739,13 @@ typedef enum sc_type {
 	SC_BOOSTER,
 	SC_MANABATTERY,
 	SC_LODESTONECHARGED,
+	SC_SWASHBUCKLING,
+	SC_SECONDWIND,
+	SC_EYETOEYE,
+	SC_ENDURE_,
+	SC_ADRRUSH,
+	SC_CAMO,
+	SC_DOUBLETEAM,
 
 #ifdef RENEWAL
 	SC_EXTREMITYFIST2, //! NOTE: This SC should be right before SC_MAX, so it doesn't disturb if RENEWAL is disabled
@@ -1580,6 +1587,12 @@ enum si_type {
 	SI_EARTHENSHIELD = 837,
 	SI_MANABATTERY = 838,
 	SI_LODESTONECHARGED = 839,
+	SI_SWASHBUCKLING = 840,
+	SI_SECONDWIND  = 841,
+	SI_EYETOEYE    = 842,
+	SI_ENDURE_     = 843,
+	SI_CAMO        = 844,
+	SI_DOUBLETEAM  = 845,
 	SI_MAX,
 };
 
@@ -1657,7 +1670,8 @@ enum sc_opt2 {
 	OPT2_FEAR		= 0x0100,
 	OPT2_IGNITE = 0x0200,
 	OPT2_MARKED = 0x0400,
-	OPT2_SHATTER = 0x0800
+	OPT2_SHATTER = 0x0800,
+	OPT2_CAMO   = 0x1000
 };
 
 ///opt3: (SHOW_EFST_*)
@@ -1681,6 +1695,7 @@ enum sc_opt3 {
 	OPT3_SOULLINK		= 0x00008000,
 	OPT3_UNDEAD		= 0x00010000,
 	OPT3_CONTRACT		= 0x00020000,
+	OPT3_DT         = 0x00040000
 };
 
 ///Option

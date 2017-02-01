@@ -1493,8 +1493,9 @@ static int pc_calc_skillpoint(struct map_session_data* sd)
  *------------------------------------------*/
 void pc_calc_skilltree(struct map_session_data *sd)
 {
-	int i,flag;
+	int i,j,flag;
 	int c=0;
+	int cc=0;
 
 	nullpo_retv(sd);
 	i = pc_calc_skilltree_normalize_job(sd);
@@ -1659,6 +1660,37 @@ void pc_calc_skilltree(struct map_session_data *sd)
 			}
 		}
 	} while(flag);
+
+	// Grant common skills if unlearned
+	{
+		short skid=0;
+		for( j = 0; j < MAX_SKILL_TREE && (skid = skill_tree[JOB_COMMON][j].id) > 0; j++ ) {
+			if( sd->status.skill[skid].id == 0 || sd->status.skill[skid].lv == 0 ) {
+				sd->status.skill[skid].id = skid;
+				sd->status.skill[skid].flag = SKILL_FLAG_PERMANENT;
+				sd->status.skill[skid].lv = 1;
+			}
+		}
+	}
+	
+	// Grant skill trees for base and advanced classes [AGDTH]
+	for( i=0; i<6; i++ ) { // 6 Base Classes x 3 Ranks
+		short skid=0;
+		cc = (sd->status.classes_>>(i*4) & 0xF) + (i*3);
+		
+		if( cc > 0 ) {
+			for( j = 0; j < MAX_SKILL_TREE && (skid = skill_tree[cc][j].id) > 0; j++ ) {
+				if( sd->status.skill[skid].id == 0 ) {
+					sd->status.skill[skid].id = skid;
+					sd->status.skill[skid].flag = SKILL_FLAG_PERMANENT;
+					
+					if(skill_get_inf2(skid)&INF2_INNATE)
+						sd->status.skill[skid].lv = 1;
+				}
+			}
+		}
+	}
+
 
 	if( c > 0 && sd->status.skill_point == 0 && pc_is_taekwon_ranker(sd) ) {
 		short skid=0;
@@ -1842,32 +1874,35 @@ int pc_calc_skilltree_normalize_job(struct map_session_data *sd)
  */
 void pc_updateweightstatus(struct map_session_data *sd)
 {
-	int old_overweight;
-	int new_overweight;
+	//int old_overweight;
+	//int new_overweight;
 
 	nullpo_retv(sd);
 
-	old_overweight = (sd->sc.data[SC_WEIGHT90]) ? 2 : (sd->sc.data[SC_WEIGHT50]) ? 1 : 0;
-	new_overweight = (pc_is90overweight(sd)) ? 2 : (pc_is50overweight(sd)) ? 1 : 0;
+	return;
+	//old_overweight = (sd->sc.data[SC_WEIGHT90]) ? 2 : (sd->sc.data[SC_WEIGHT50]) ? 1 : 0;
+	//new_overweight = (pc_is90overweight(sd)) ? 2 : (pc_is50overweight(sd)) ? 1 : 0;
 
-	if( old_overweight == new_overweight )
-		return; // no change
+	//if( old_overweight == new_overweight )
+	//	return; // no change
 
 	// stop old status change
-	if( old_overweight == 1 )
-		status_change_end(&sd->bl, SC_WEIGHT50, INVALID_TIMER);
-	else if( old_overweight == 2 )
-		status_change_end(&sd->bl, SC_WEIGHT90, INVALID_TIMER);
+	//if( old_overweight == 1 )
+	//	status_change_end(&sd->bl, SC_WEIGHT50, INVALID_TIMER);
+	//else if( old_overweight == 2 )
+	//	status_change_end(&sd->bl, SC_WEIGHT90, INVALID_TIMER);
 
 	// start new status change
-	if( new_overweight == 1 )
-		sc_start(&sd->bl,&sd->bl, SC_WEIGHT50, 100, 0, 0);
-	else if( new_overweight == 2 )
-		sc_start(&sd->bl,&sd->bl, SC_WEIGHT90, 100, 0, 0);
+	//if( new_overweight == 1 )
+	//	sc_start(&sd->bl,&sd->bl, SC_WEIGHT50, 100, 0, 0);
+	//else if( new_overweight == 2 )
+	//	sc_start(&sd->bl,&sd->bl, SC_WEIGHT90, 100, 0, 0);
 
 	// update overweight status
-	sd->regen.state.overweight = new_overweight;
+	//sd->regen.state.overweight = new_overweight;
 }
+
+
 
 int pc_disguise(struct map_session_data *sd, int class_)
 {
@@ -2434,7 +2469,7 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 		case SP_FLEE1:
 			if(sd->state.lr_flag != 2) {
 				bonus = status->flee + val;
-				status->flee = cap_value(bonus, SHRT_MIN, 90);
+				status->flee = cap_value(bonus, SHRT_MIN, SHRT_MAX);
 			}
 			break;
 		case SP_FLEE2:
@@ -2445,7 +2480,7 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 			break;
 		case SP_CRITICAL:
 			if(sd->state.lr_flag != 2) {
-				bonus = status->cri + val*10;
+				bonus = status->cri + val;
 				status->cri = cap_value(bonus, SHRT_MIN, SHRT_MAX);
 			} else
 				sd->bonus.arrow_cri += val*10;
@@ -3002,6 +3037,15 @@ void pc_bonus(struct map_session_data *sd,int type,int val)
 			break;
 		case SP_MAGICSTATUS:
 				sd->bonus.magicstatus |= val;
+			break;
+		case SP_SPELLDAMAGE:
+				sd->bonus.spelldamage += val;
+			break;
+		case SP_CASTSPEED:
+				sd->bonus.castspeed += val;
+			break;
+		case SP_BASEHP:
+				sd->bonus.basehp += val;
 			break;
 		default:
 			ShowWarning("pc_bonus: unknown type %d %d !\n",type,val);
@@ -5707,6 +5751,7 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_SORC_:                 return MAPID_SORC_;
 		case JOB_WARRIOR:               return MAPID_WARRIOR;
 		case JOB_TERRAMANCER:           return MAPID_TERRAMANCER;
+		case JOB_COMMON:                return MAPID_COMMON;
 	//2-1 Jobs
 		case JOB_SUPER_NOVICE:          return MAPID_SUPER_NOVICE;
 		case JOB_KNIGHT:                return MAPID_KNIGHT;
@@ -5854,6 +5899,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_SORC_:                 return JOB_SORC_;
 		case MAPID_WARRIOR:               return JOB_WARRIOR;
 		case MAPID_TERRAMANCER:           return JOB_TERRAMANCER;
+		case MAPID_COMMON:                return JOB_COMMON;
 	//2-1 Jobs
 		case MAPID_SUPER_NOVICE:          return JOB_SUPER_NOVICE;
 		case MAPID_KNIGHT:                return JOB_KNIGHT;
@@ -6793,28 +6839,24 @@ int pc_skillup(struct map_session_data *sd,uint16 skill_id)
 		return 0;
 
 	if( sd->status.skill_point > 0 && sd->status.skill[skill_id].id ) {// Can now upgrade skills that have bonuses [ADGTH]
-		if ( sd->status.skill[skill_id].flag == SKILL_FLAG_PERMANENT && sd->status.skill[skill_id].lv < skill_tree_get_max(skill_id, sd->status.class_) ) {
+		if ( sd->status.skill[skill_id].flag == SKILL_FLAG_PERMANENT && sd->status.skill[skill_id].lv < skill_tree_get_max(skill_id, sd->status.classes_) ) {
 			int lv,range, upgradable;
 			sd->status.skill[skill_id].lv++;
 			sd->status.skill_point--;
 			
 			status_calc_pc(sd,SCO_NONE); // Some actives may give passive bonuses, recalculate for all skillups [ADGTH]
-				
-			if( sd->status.skill_point == 0 && pc_is_taekwon_ranker(sd) ) // Hope this don't break anything [ADGTH]
-				pc_calc_skilltree(sd); // Required to grant all TK Ranker skills.
-			else
-				pc_check_skilltree(sd, skill_id); // Check if a new skill can Lvlup
+			pc_calc_skilltree(sd); // Check for new skills from class choices
 
 			lv = sd->status.skill[skill_id].lv;
 			range = skill_get_range2(&sd->bl, skill_id, lv);
-			upgradable = (lv < skill_tree_get_max(sd->status.skill[skill_id].id, sd->status.class_)) ? 1 : 0;
+			upgradable = (lv < skill_tree_get_max(sd->status.skill[skill_id].id, sd->status.classes_)) ? 1 : 0;
 			clif_skillup(sd,skill_id,lv,range,upgradable);
 			clif_updatestatus(sd,SP_SKILLPOINT);
 			if( skill_id == GN_REMODELING_CART ) /* cart weight info was updated by status_calc_pc */
 				clif_updatestatus(sd,SP_CARTINFO);
 			if (!pc_has_permission(sd, PC_PERM_ALL_SKILL)) // may skill everything at any time anyways, and this would cause a huge slowdown
 				clif_skillinfoblock(sd);
-		} else if ( sd->status.skill[skill_id].flag >= SKILL_FLAG_REPLACED_LV_0 && (sd->status.skill[skill_id].flag - SKILL_FLAG_REPLACED_LV_0) < skill_tree_get_max(skill_id, sd->status.class_) ) {
+		} else if ( sd->status.skill[skill_id].flag >= SKILL_FLAG_REPLACED_LV_0 && (sd->status.skill[skill_id].flag - SKILL_FLAG_REPLACED_LV_0) < skill_tree_get_max(skill_id, sd->status.classes_) ) {
 			// Just copying the above for this condition to avoid a massive headache [ADGTH]
 			int lv,range, upgradable;
 			sd->status.skill[skill_id].lv++;
@@ -6827,7 +6869,7 @@ int pc_skillup(struct map_session_data *sd,uint16 skill_id)
 
 			lv = sd->status.skill[skill_id].lv;
 			range = skill_get_range2(&sd->bl, skill_id, lv);
-			upgradable = ((sd->status.skill[skill_id].flag - SKILL_FLAG_REPLACED_LV_0) < skill_tree_get_max(sd->status.skill[skill_id].id, sd->status.class_)) ? 1 : 0;
+			upgradable = ((sd->status.skill[skill_id].flag - SKILL_FLAG_REPLACED_LV_0) < skill_tree_get_max(sd->status.skill[skill_id].id, sd->status.classes_)) ? 1 : 0;
 			clif_skillup(sd,skill_id,lv,range,upgradable);
 			clif_updatestatus(sd,SP_SKILLPOINT);
 			
@@ -7291,6 +7333,9 @@ void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int h
 
 	if( sd->status.ele_id > 0 )
 		elemental_set_target(sd,src);
+
+	if(pc_checkskill(sd,THF_ADRENALINERUSH))
+		sc_start(src,src,SC_ADRRUSH,100,pc_checkskill(sd,THF_ADRENALINERUSH),5000);
 
 	sd->canlog_tick = gettick();
 }
@@ -9316,7 +9361,7 @@ bool pc_equipitem(struct map_session_data *sd,short n,int req_pos)
 		return false;
 	pos = pc_equippoint(sd,n); //With a few exceptions, item should go in all specified slots.
 
-	if(battle_config.battle_log)
+	//if(battle_config.battle_log)
 		ShowInfo("equip %hu(%d) %x:%x\n",sd->status.inventory[n].nameid,n,id?id->equip:0,req_pos);
 
 	if(!pc_isequip(sd,n) || !(pos&req_pos) || sd->status.inventory[n].equip != 0){// || sd->status.inventory[n].attribute==1 ) { // [Valaris]

@@ -627,7 +627,7 @@ int unit_walktoxy( struct block_list *bl, short x, short y, unsigned char flag)
 		unit_unattackable(bl);
 		unit_stop_attack(bl);
 
-		if(DIFF_TICK(ud->canmove_tick, gettick()) > 0 && DIFF_TICK(ud->canmove_tick, gettick()) < 2000) { // Delay walking command. [Skotlex]
+		if(DIFF_TICK(ud->canmove_tick, gettick()) > 0 && DIFF_TICK(ud->canmove_tick, gettick()) < 100) { // Delay walking command. [Skotlex]
 			add_timer(ud->canmove_tick+1, unit_delay_walktoxy_timer, bl->id, (x<<16)|(y&0xFFFF));
 			return 1;
 		}
@@ -1708,7 +1708,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	}
 
 	if(ud->attacktimer != INVALID_TIMER) // Continue attacking after skill use
-		ud->attackabletime = tick + status_get_adelay(src);
+		ud->attackabletime = (int) (tick + status_get_adelay(src) * 1.5); // Skills have a x1.5 adelay modifier
 
 	ud->state.skillcastcancel = castcancel;
 
@@ -1882,8 +1882,12 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	} else
 		skill_castend_id(ud->skilltimer,tick,src->id,0);
 
-	if( sd )
+	if( sd ) {
 		sd->canlog_tick = gettick();
+		
+		if(pc_checkskill(sd,THF_ADRENALINERUSH))
+			sc_start(src,src,SC_ADRRUSH,100,pc_checkskill(sd,THF_ADRENALINERUSH),5000);
+	}
 
 	return 1;
 }
@@ -2077,9 +2081,12 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 		skill_castend_pos(ud->skilltimer,tick,src->id,0);
 	}
 
-	if( sd )
+	if( sd ) {
 		sd->canlog_tick = gettick();
-
+		
+		if(pc_checkskill(sd,THF_ADRENALINERUSH))
+			sc_start(src,src,SC_ADRRUSH,100,pc_checkskill(sd,THF_ADRENALINERUSH),5000);
+	}
 	return 1;
 }
 
@@ -2604,8 +2611,12 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, unsigned int t
 		ud->attacktimer = add_timer(ud->attackabletime,unit_attack_timer,src->id,0);
 	}
 
-	if( sd )
+	if( sd ) {
 		sd->canlog_tick = gettick();
+		
+		if(pc_checkskill(sd,THF_ADRENALINERUSH))
+			sc_start(src,src,SC_ADRRUSH,100,pc_checkskill(sd,THF_ADRENALINERUSH),5000);
+	}
 
 	return 1;
 }

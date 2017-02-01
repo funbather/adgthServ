@@ -360,10 +360,10 @@ static void itemdb_jobid2mapid(unsigned int *bclass, unsigned int jobmask)
 	}
 	if (jobmask & 1<<JOB_SORC_) { // [ADGTH]
 		bclass[0] |= 1<<MAPID_SORC_;
-		bclass[0] |= 1<<MAPID_TERRAMANCER; // whoops can't bitshift an int 32 times thanks rathena lmao
-	}
-	if (jobmask & 1<<JOB_WARRIOR) // [ADGTH]
 		bclass[0] |= 1<<MAPID_WARRIOR;
+		bclass[0] |= 1<<MAPID_TERRAMANCER;
+		bclass[0] |= 1<<MAPID_COMMON;
+	}
 	if (jobmask & 1<<26) //Bongun/Munak
 		bclass[0] |= 1<<MAPID_GANGSI;
 	if (jobmask & 1<<27) //Death Knight
@@ -1222,11 +1222,11 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 		id->type = IT_ETC;
 	}
 
-	if( id->type != IT_SHADOWGEAR && id->equip&EQP_SHADOW_GEAR )
-	{
-		ShowWarning("Item %hu (%s) have invalid equipment slot! Making it an etc item.\n", nameid, id->jname);
-		id->type = IT_ETC;
-	}
+	//if( id->type != IT_SHADOWGEAR && id->equip&EQP_SHADOW_GEAR )
+	//{
+	//	ShowWarning("Item %hu (%s) have invalid equipment slot! Making it an etc item.\n", nameid, id->jname);
+	//	id->type = IT_ETC;
+	//}
 
 	id->wlv = cap_value(atoi(str[15]), REFINE_TYPE_ARMOR, REFINE_TYPE_MAX);
 #ifdef RENEWAL

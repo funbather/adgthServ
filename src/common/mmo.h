@@ -423,6 +423,7 @@ struct mmo_charstatus {
 	bool cashshop_sent; // Whether the player has received the CashShop list
 
 	uint32 uniqueitem_counter;
+	unsigned int classes_; // Class selections + levels [ADGTH]
 };
 
 typedef enum mail_status {
@@ -660,6 +661,7 @@ enum e_job {
 	JOB_SORC_,
 	JOB_WARRIOR,
 	JOB_TERRAMANCER,
+	JOB_COMMON,
 	JOB_MAX_BASIC,
 
 	JOB_NOVICE_HIGH = 4001,

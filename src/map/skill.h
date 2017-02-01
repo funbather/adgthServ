@@ -72,6 +72,7 @@ enum e_skill_inf2 {
 	INF2_NO_BG_DMG		 = 0x08000, // Skill that ignore bg reduction
 	INF2_NO_GVG_DMG		 = 0x10000, // Skill that ignore gvg reduction
 	INF2_NO_NEARNPC      = 0x20000, // disable to cast skill if near with NPC [Cydh]
+	INF2_INNATE          = 0x40000, // Skill will be learned upon being added to the skilltree [ADGTH]
 };
 
 /// Skill info type 3
@@ -1736,6 +1737,34 @@ enum e_skill {
   ALL_DRAGONFAMILIAR,
   ALL_LODESTONEBURST,
   
+  SWD_SOUL,
+  SWD_HARDHEARTED,
+  SWD_DAUNTLESS,
+  SWD_MAINTENANCE,
+  SWD_PAVISE,
+  SWD_SWASHBUCKLING,
+  SWD_SECONDWIND,
+  SWD_EYETOEYE,
+  SWD_ENDURE,
+  SWD_UMBOBLOW,
+  SWD_SHIELDBOOMERANG,
+  SWD_HILTBASH,
+  SWD_HEAVYSWING,
+  SWD_SLEDGEHAMMER,
+  
+  THF_SOUL,
+  THF_QUICKHANDS,
+  THF_REFLEXES,
+  THF_MERCILESS,
+  THF_ADRENALINERUSH,
+  THF_CAMOUFLAGE,
+  THF_DOUBLETEAM,
+  THF_SONICSTRIKE,
+  THF_BONECUTTER,
+  THF_BLADEFLOURISH,
+  THF_HAMSTRING,
+  THF_STIFLE,
+  THF_PUNCTURE,
 
 	GC_DARKCROW = 5001,
 	RA_UNLIMIT,

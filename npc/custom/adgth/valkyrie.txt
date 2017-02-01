@@ -1,0 +1,97 @@
+valkyrie,49,49,4	script	Valkyrie#valk	811,{
+	cleartext;
+	mes "[Valkyrie]";
+	mes "Greetings, warrior.\n\nDo you wish to test your might in one of my ^AA5555Trials^000000?";
+	menu "Yeah!",trStart,"Trial?",trDescription,"Maybe another time...",trExit;
+	
+	trBackToMenu:
+		cleartext;
+		mes "[Valkyrie]";
+		mes "So? Will you take on a ^AA5555Trial^000000?";
+		menu "Yeah!",trStart,"Trial?",trDescription,"Maybe another time...",trExit;
+		
+	trStart:
+		cleartext;
+		mes "[Valkyrie]";
+		mes "Select your Trial Site.";
+		menu "TRIAL 1",tr1,"Back",trBackToMenu;
+	
+	trDescription:
+		cleartext;
+		mes "[Valkyrie]";
+		mes "Trials are short, self-contained, semi-randomized missions. Your objective can be anything from eliminating a Boss Monster to trying to survive while fending off waves of smaller creatures.";
+		mes " ";
+		mes "They are scaled to your level and have adjustable difficulty, and provide a bonus upon completion.";
+		next;
+		mes "[Valkyrie]";
+		mes "Trials are meant to provide a challenge even at their default difficulty, but those who want to push their limits will be greatly rewarded with greatly increased EXP and drop rates.";
+		mes " ";
+		mes "Those who are struggling to keep up can lower the difficulty for reduced EXP gain. Drop rates will never fall below the base rate, and you can claim the completion reward regardless of difficulty.";
+		next;
+		goto trBackToMenu;
+		
+	trExit:
+		cleartext;
+		mes "[Valkyrie]";
+		mes "See me again if you'd like a challenge.";
+		close;
+		
+	// Trial1
+	tr1:
+		set .@party_id, getcharid(1);
+		set .@md_name$, "Trial1";
+		
+		if (!instance_check_party(.@party_id,1)) {
+			cleartext;
+			mes "[Valkyrie]";
+			mes "You must be in party to begin a Trial, even if you wish to challenge it solo.";
+			close;
+		}
+		
+		if (getcharid(0) == getpartyleader(.@party_id,2)) {
+			cleartext;
+			mes "[Valkyrie]";
+			mes "You are the party leader. Are you ready to begin this Trial?";
+			next;
+			switch(select("Begin Trial - "+.@md_name$+":Rejoin Trial:Cancel")) {
+			case 1:
+				if (instance_create(.@md_name$) < 0) {
+					cleartext;
+					mes "[Valkyrie]";
+					mes "Instancing failed. Is one already open?";
+					mes " ";
+					mes "If this keeps up, report it. Thanks In Advance.";
+					close;
+				}
+				callsub L_Enter,0;
+				close;
+			case 2:
+				callsub L_Enter,0;
+			case 3:
+				close;
+			}
+		}
+		
+		switch(select("Join Trial - "+.@md_name$+":Cancel")) {
+			case 1:
+				callsub L_Enter,1;
+			case 2:
+				end;
+		}
+		
+	L_Enter:
+		switch(instance_enter("Trial1")) {
+		case 3:
+			mes "Unspecified Error. Please report this.";
+			close;
+		case 2:
+			mes "Your party has not started a Trial yet. Tell your party leader to start one.";
+			close;
+		case 1:
+			mes "You must have a party to take on a Trial.";
+			close;
+		case 0:
+			if (getarg(0) == 0) close;
+			else end;
+		}
+}

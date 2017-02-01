@@ -8065,6 +8065,8 @@ static unsigned int equip[] = {
 	EQP_ARMOR,
 	EQP_HAND_L,
 	EQP_HAND_R,
+	EQP_SHADOW_ARMOR,
+	EQP_SHADOW_SHOES,
 	EQP_GARMENT,
 	EQP_SHOES,
 	EQP_ACC_L,
@@ -8076,10 +8078,8 @@ static unsigned int equip[] = {
 	EQP_COSTUME_HEAD_TOP,
 	EQP_COSTUME_GARMENT,
 	EQP_AMMO,
-	EQP_SHADOW_ARMOR,
 	EQP_SHADOW_WEAPON,
 	EQP_SHADOW_SHIELD,
-	EQP_SHADOW_SHOES,
 	EQP_SHADOW_ACC_R,
 	EQP_SHADOW_ACC_L
 };
@@ -9920,23 +9920,23 @@ BUILDIN_FUNC(monster_dynamic)
 		md = mob_once_spawn_sub(&sd->bl, m, x, y, str, class_, event, size, ai);
 		mob_spawn(md);
 
-		md->bexp = 3 + pow(level,1.2);
+		md->bexp = (int) (3 + pow(level,1.2));
 		md->bexp = md->bexp * difficulty / 100;
 
-		md->jexp = 3 + pow(level,1.2);
+		md->jexp = (int) (3 + pow(level,1.2));
 		md->jexp = md->jexp * difficulty / 100;
 
 		md->level = level;
 
-		md->status.max_hp = 65 * pow(level+1,1.15);
+		md->status.max_hp = (unsigned int) (65 * pow(level+1,1.15));
 		md->status.max_hp = difficulty > 100 ? md->status.max_hp * (difficulty * 3 / 2) / 100 : md->status.max_hp * difficulty / 100;
 
 		md->status.hp = md->status.max_hp;
 
-		md->status.batk = 10 + pow(level,1.2);
+		md->status.batk = (unsigned int) (10 + pow(level,1.2));
 		md->status.batk = difficulty > 100 ? md->status.batk * (100 + ((difficulty-100) / 3)) / 100 : md->status.batk * difficulty / 100;
 
-		md->status.matk_min = md->status.matk_max = 10 + pow(level,1.3);
+		md->status.matk_min = md->status.matk_max = (unsigned short) (10 + pow(level,1.3));
 		md->status.matk_min = md->status.matk_max = difficulty > 100 ? md->status.matk_min * (100 + ((difficulty-100) / 3)) / 100 : md->status.matk_min * difficulty / 100;
 
 		md->status.adelay = difficulty > 100 ? 800 - (level * (5 + ((difficulty-100) / 20))) : 800 - (level * 5);
@@ -14878,18 +14878,31 @@ BUILDIN_FUNC(getrolls)
 }
 
 /*=======================================================
- * Returns the bonus value using the enchantment's base
- * and multiplier values [ADGTH]
+ * Returns bonus stat value based on ilvl, quality, etc
+ * Enchantments use a different equation (calcbonus2)
+ * [ADGTH]
  *-------------------------------------------------------*/
-BUILDIN_FUNC(rollbonus)
+BUILDIN_FUNC(calcbonus)
+{
+	int base, multiplier, quality, level;
+	base = script_getnum(st,2);
+	multiplier = script_getnum(st,3) - 1; // -1 to account for the base value
+	quality = script_getnum(st,4);
+	level = script_getnum(st,5) * 2;
+	
+	script_pushint(st,((level * base * multiplier / 100) + base) * quality / 100);
+	
+	return SCRIPT_CMD_SUCCESS;
+}
+
+BUILDIN_FUNC(calcbonus2)
 {
 	int base, multiplier, roll;
 	base = script_getnum(st,2);
-	multiplier = script_getnum(st,3) - 1; // -1 to account for the base value
+	multiplier = script_getnum(st,3) - 1;
 	roll = script_getnum(st,4);
 	
-	script_pushint(st,base + ((base * multiplier + 1) * roll / 100));
-	
+	script_pushint(st,(roll * (base * multiplier + 1) / 100) + base);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -20124,7 +20137,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getrefine,""), // returns the refined number of the current item, or an item with index specified [celest]
   BUILDIN_DEF(getilvl,""), // returns ilvl [ADGTH]
   BUILDIN_DEF(getrolls,""), // returns roll @ card position [ADGTH]
-  BUILDIN_DEF(rollbonus,"iii"), // returns result from dynamic enchantment formula [ADGTH]
+  BUILDIN_DEF(calcbonus,"iiii"), // returns stat bonus value from equips [ADGTH]
+  BUILDIN_DEF(calcbonus2,"iii"), // returns stat bonus value from enchantments [ADGTH]
 	BUILDIN_DEF(night,""), // sets the server to night time
 	BUILDIN_DEF(day,""), // sets the server to day time
 #ifdef PCRE_SUPPORT

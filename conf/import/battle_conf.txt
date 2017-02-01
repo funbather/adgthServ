@@ -129,7 +129,7 @@ night_duration: 1800000
 // 0x400: Set this to make mobs have a range of 9 for all skills. Otherwise, they 
 //        will obey the normal skill range rules.
 // Example: 0x140 -> Chase players through warps + use skills in random order.
-monster_ai: 0x9
+monster_ai: 0x119
 
 // How often should a monster rethink its chase?
 // 0: Every 100ms (MIN_MOBTHINKTIME)
@@ -188,16 +188,16 @@ display_party_name: yes
 basic_skill_check: no
 
 // The time interval for HP to restore naturally. (in milliseconds)
-natural_healhp_interval: 100
+natural_healhp_interval: 200
 
 // The time interval for SP to restore naturally. (in milliseconds)
-natural_healsp_interval: 100
+natural_healsp_interval: 200
 
 // The maximum weight for a character to carry when the character stops healing naturally. (in %)
 natural_heal_weight_rate: 100
 
 // Maximum atk speed. (Default 190, Highest allowed 199)
-max_aspd: 193
+max_aspd: 195
 
 // Max armor def/mdef
 // NOTE: This setting have no effect if server is run on Renewal Mode (RENEWAL) 
@@ -263,7 +263,7 @@ bowling_bash_area: 7
 max_parameter: 999
 
 // Delay time after casting (Note 2)
-delay_rate: 10
+delay_rate: 100
 
 // Minimum allowed delay for ANY skills after casting (in milliseconds) (Note 1)
 // Note: Setting this to anything above 0 can stop speedhacks.

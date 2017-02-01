@@ -451,8 +451,21 @@ struct map_session_data {
 		unsigned short walkregen;
 		unsigned int   summon;
 		unsigned short skipcooldown;
-		unsigned short basicatk;
+		short basicatk;
 		unsigned int   magicstatus;
+		int   spelldamage;
+		int   castspeed;
+		int   basehp;
+		short incbhp;
+		short incbatk;
+		short incmag;
+		short incdef;
+		short incmdef;
+		short inceva;
+		short inccrit;
+		short incskilldmg;
+		short incphysres;
+		short incmagres;
 	} bonus;
 	// zeroed vars end here.
 
@@ -776,8 +789,15 @@ struct {
 #define pc_isfalcon(sd)       ( (sd)->sc.option&OPTION_FALCON )
 #define pc_isriding(sd)       ( (sd)->sc.option&OPTION_RIDING )
 #define pc_isinvisible(sd)    ( (sd)->sc.option&OPTION_INVISIBLE )
-#define pc_is50overweight(sd) ( (sd)->weight*100 >= (sd)->max_weight*battle_config.natural_heal_weight_rate )
-#define pc_is90overweight(sd) ( (sd)->weight*10 >= (sd)->max_weight*9 )
+
+// 50/90% Weight Check removed, easiest to just disable the checks here [ADGTH]
+#define pc_is50overweight(sd) ( 0 ) //( (sd)->weight*100 >= (sd)->max_weight*battle_config.natural_heal_weight_rate )
+#define pc_is90overweight(sd) ( 0 ) //( (sd)->weight*10 >= (sd)->max_weight*9 )
+
+// Check for Critical HP (hp <= 35%), used for certain skills and items [ADGTH]
+#define pc_iscritical(sd) ( ((sd)->battle_status.hp * 100 / (sd)->battle_status.max_hp) <= 35 )
+// Check if player is in combat (dealt/recieved damage in the past 5 seconds)
+#define pc_incombat(sd) ( DIFF_TICK(gettick(), (sd)->canlog_tick) < 5000 )
 
 /// Enum of Player's Parameter
 enum e_params {

@@ -1,7 +1,7 @@
 // my dumbo drop system by ben age 8
 -	script	DropSystem	-1,{
   OnNPCKillEvent: // 25% Base item drop chance
-		callfunc("HeyAnItemDrop",25,getmonsterinfo(killedrid,1),1);
+		callfunc("HeyAnItemDrop",100,getmonsterinfo(killedrid,1),1);
 
 		if(rand(1,10000) <= 300) // Mythril 3%
 			getitem3 57000,1,1,0,0,0,0,0,0;
@@ -36,6 +36,10 @@ function	script	HeyAnItemDrop	{
     set .@itemfind,0;
     set .@magicfind,0;
     set .@rolls,0;
+    setarray .@rank1[0],50000,50003,50006,50009,50012,50015,50018,50024,50027,50030,50033,51000,51003,51006,51009,51012,51015,51018;
+    setarray .@rank2[0],50001,50004,50007,50010,50013,50016,50019,50025,50028,50031,50034,51001,51004,51007,51010,51013,51016,51019;
+    setarray .@rank3[0],50002,50005,50008,50011,50014,50017,50020,50021,50022,50023,50036,50037,50038,50039,50040,50041,50042,50043,50044,50045,50026,50029,50032,50035,51002,51005,51008,51011,51014,51017,51020;
+    setarray .@uniques[0],50000;
     
     set .@itemfind,100 + readparam(bLuk2);
     set .@magicfind,readparam(bLuk2);
@@ -44,23 +48,29 @@ function	script	HeyAnItemDrop	{
     if((.@drop * .@itemfind) > .@random) {
       set .@random,rand(1,10000);
       
-      if(.@random >= 9750-(.@magicfind * 5 / 2)) { // Check for unique - 2.5% base
-        switch(rand(0,2)) { // 0 - Armor, 1 - Accessory, 2 - Weapon
-          case 0: set .@item,52000+rand(0,34); break;
-          case 1: set .@item,53000+rand(0,9); break;
-          case 2: set .@item,54000+rand(0,34); break;
-        }
-      } else { // Common Item
-        switch(rand(0,1)) { // 0 - Armor, 1 - Weapon
-          case 0: set .@item,50000+rand(0,17); break;
-          case 1: set .@item,51000+rand(0,11); break;
-        }
+      if(.@random < 6000) {
+				set .@rnd,rand(getarraysize(.@rank1));
+				set .@item,.@rank1[.@rnd];
+      } else if (.@random < 9000) {
+				set .@rnd,rand(getarraysize(.@rank2));
+				set .@item,.@rank2[.@rnd];
+      } else {
+				set .@rnd,rand(getarraysize(.@rank3));
+				set .@item,.@rank3[.@rnd];
       }
       
-      if(.@item < 53000 || .@item > 53999) { // FIX LATER!!!!  I hate it. Accessory check. They don't get quality/ilvl
-        set .@ilvl,.@monlvl;
-        set .@quality,rand(50,125);
-      }
+      //if(.@random >= 9750-(.@magicfind * 5 / 2)) { // Check for unique - 2.5% base
+      //  switch(rand(0,2)) { // 0 - Armor, 1 - Accessory, 2 - Weapon
+      //    case 0: set .@item,52000+rand(0,34); break;
+      //    case 1: set .@item,53000+rand(0,9); break;
+      //    case 2: set .@item,54000+rand(0,34); break;
+      //  }
+      //} else { // Common Item
+      //  switch(rand(0,1)) { // 0 - Armor, 1 - Weapon
+      //    case 0: set .@item,50000+rand(0,17); break;
+      //    case 1: set .@item,51000+rand(0,11); break;
+      //  }
+      //}
       
       // Random Bonuses
       // Base
@@ -70,28 +80,42 @@ function	script	HeyAnItemDrop	{
       //  30%   1
       //  40%   0
       
-      set .@random,rand(1,10000);
+      set .@random,(rand(1,10000) * (100+.@magicfind)) / 100;
       
-      if(.@random >= 9500-(.@magicfind * 5)) { // there's probably a less shitty way to do this but w/e lol
+      if(.@random >= 9500) {
         set .@socket1,rand(55000,55018);
         set .@socket2,rand(55000,55018);
         set .@socket3,rand(55000,55018);
-        set .@socket4,rand(55100,55118);
-      } else if (.@random >= 8500-(.@magicfind * 10)) {
+        set .@socket4,rand(55100,55112);
+      } else if (.@random >= 8500) {
         set .@socket1,rand(55000,55018);
         set .@socket2,rand(55000,55018);
         set .@socket3,rand(55000,55018);      
-      } else if (.@random >= 7000-(.@magicfind * 15)) {
+      } else if (.@random >= 7000) {
         set .@socket1,rand(55000,55018);
         set .@socket2,rand(55000,55018);     
-      } else if(.@random >= 4000-(.@magicfind * 30)) {
+      } else if(.@random >= 4000) {
         set .@socket1,rand(55000,55018);
       }
+
+      set .@ilvl,.@monlvl;
+      set .@rnd,rand(100);
       
-      set .@rolls,rand(0,99);
-      set .@rolls,.@rolls + (rand(0,99) << 8);
-      set .@rolls,.@rolls + (rand(0,99) << 16);
-      set .@rolls,.@rolls + (rand(0,99) << 24);
+      // Quality Roll
+      // 80% Chance 65~100
+      // 15% Chance 101~115
+      // 5%  Chance 116~125
+      if(.@rnd < 80)
+				set .@quality,rand(65,100);
+			else if(.@rnd < 95)
+				set .@quality,rand(101,115);
+			else
+				set .@quality,rand(116,125);
+      
+      set .@rolls,rand(BaseLevel,49+BaseLevel);
+      set .@rolls,.@rolls + (rand(BaseLevel,49+BaseLevel) << 8);
+      set .@rolls,.@rolls + (rand(BaseLevel,49+BaseLevel) << 16);
+      set .@rolls,.@rolls + (rand(BaseLevel,49+BaseLevel) << 24);
        
        
       // Finally, generate the item!
@@ -101,7 +125,7 @@ function	script	HeyAnItemDrop	{
       if(getarg(2))
 				getitem5 .@item,1,1,.@quality,.@ilvl,.@socket1,.@socket2,.@socket3,.@socket4,.@rolls;
 			else
-				getitem2 .@item,1,1,.@quality,.@ilvl,.@socket1,.@socket2,.@socket3,.@socket4;
+				getitem4 .@item,1,1,.@quality,.@ilvl,.@socket1,.@socket2,.@socket3,.@socket4,.@rolls;
     }
     
     return 1;

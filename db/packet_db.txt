@@ -33,8 +33,8 @@
 // Main packet version of the DB to use (default = max available version)
 // Client detection is faster when all clients use this version.
 // Version 23 is the latest Sakexe (above versions are for Renewal clients)
-//packet_db_ver: 46
-packet_db_ver: default
+packet_db_ver: 46
+//packet_db_ver: default
 
 packet_ver: 5
 0x0064,55
@@ -1822,7 +1822,7 @@ packet_ver: 34
 0x0849,16 //clif_cashshop_result
 0x0848,-1,cashshopbuy,2:6:4:10
 0x084a,2,cashshopclose,0
-0x084b,21 //fallitem4
+0x084b,33 //fallitem4
 0x085a,90,useskilltoposinfo,2:4:6:8:10
 0x085d,18,bookingregreq,2:4:6
 0x0868,-1,itemlistwindowselected,2:4:8:12
@@ -1860,7 +1860,7 @@ packet_ver: 34
 0x0979,50 //ackworldinfo
 0x097b,16,ZC_PERSONAL_INFOMATION,2:4:8:12:16:17:21:25 //Still need further information
 //0x0981,12,ZC_PERSONAL_INFOMATION_CHN,2:4:6:8:12:13:15:17:10 // Disabled until further information is found.
-0x0990,31 //additem
+0x0990,35 //additem
 0x0991,-1 //inv itemlist normal
 0x0992,-1 //inv itemlist equip
 0x0993,-1 //cart itemlist normal
@@ -2287,6 +2287,8 @@ packet_ver: 46
 0x09D6,-1,dull,0 //npcmarketpurchase
 0x09D8,2,dull,0 //npcmarketclosed
 0x09DF,7
+//ADGTH
+0x0555,2
 
 //Add new packets here
 //packet_ver: 47

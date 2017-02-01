@@ -253,14 +253,30 @@ int skill_get_itemeq( uint16 skill_id, int idx )            { skill_get3 (skill_
 
 int skill_tree_get_max(uint16 skill_id, int b_class)
 {
-	int i;
-	b_class = pc_class2idx(b_class);
+	int i,j,c;
+	int classes[6] = { 0 };
+	
+	for( j=0; j<6; j++) {
+		if( ( b_class>>(j*4) & 0xF) > 0 )
+			classes[j] = b_class>>(j*4) & 0xF;
+	}
 
-	ARR_FIND( 0, MAX_SKILL_TREE, i, skill_tree[b_class][i].id == 0 || skill_tree[b_class][i].id == skill_id );
-	if( i < MAX_SKILL_TREE && skill_tree[b_class][i].id == skill_id )
-		return skill_tree[b_class][i].max;
-	else
-		return skill_get_max(skill_id);
+	//ShowError("CLASSES[%d,%d,%d,%d,%d,%d] %d\n",classes[0],classes[1],classes[2],classes[3],classes[4],classes[5],b_class);	
+	
+	// CHECK FOR COMMON SKILLS FIRST
+	ARR_FIND( 0, MAX_SKILL_TREE, i, skill_tree[JOB_COMMON][i].id == 0 || skill_tree[JOB_COMMON][i].id == skill_id );
+	if( i < MAX_SKILL_TREE && skill_tree[JOB_COMMON][i].id == skill_id )
+		return skill_tree[JOB_COMMON][i].max;
+	
+	// CHECK SKILLTREES FOR BASIC & ADVANCED CLASSES
+	for( j=0; j<6; j++) {
+		c = classes[j]+(3*j);
+		ARR_FIND( 0, MAX_SKILL_TREE, i, skill_tree[c][i].id == 0 || skill_tree[c][i].id == skill_id );
+		if( i < MAX_SKILL_TREE && skill_tree[c][i].id == skill_id )
+			return skill_tree[c][i].max;
+	}
+
+	return skill_get_max(skill_id);
 }
 int skill_frostjoke_scream(struct block_list *bl,va_list ap);
 int skill_attack_area(struct block_list *bl,va_list ap);
@@ -1053,6 +1069,30 @@ int skill_additional_effect(struct block_list* src, struct block_list *bl, uint1
 			}
 		break;
     
+	case SWD_HILTBASH:
+		sc_start(src,bl,SC_STUN,100,skill_lv,skill_get_time(skill_id,skill_lv));
+		unit_skillcastcancel(bl, 2);
+		break;
+		
+	case SWD_SHIELDBOOMERANG:
+		if( dstmd ) {
+			dstmd->state.provoke_flag = src->id;
+			mob_target(dstmd, src, 15);
+		}
+		break;
+		
+	case THF_HAMSTRING:
+		sc_start(src,bl,SC_STUN,100,skill_lv,skill_get_time(skill_id,skill_lv));
+		break;
+		
+	case THF_STIFLE:
+		sc_start(src,bl,SC_SILENCE,100,skill_lv,skill_get_time(skill_id,skill_lv));
+		break;
+		
+	case THF_PUNCTURE:
+		sc_start(src,bl,SC_BLEEDING,100,skill_lv,skill_get_time(skill_id,skill_lv));
+		break	;
+					
   case WR_HILTBASH: //[ADGTH]
     sc_start(src,bl,SC_STUN,100,skill_lv,1500+skill_lv*500);
     break;
@@ -2612,6 +2652,7 @@ static int skill_magic_reflect(struct block_list* src, struct block_list* bl, in
  */
 bool skill_is_combo(uint16 skill_id) {
 	switch(skill_id) {
+		case SWD_SLEDGEHAMMER:
 		case MO_CHAINCOMBO:
 		case MO_COMBOFINISH:
 		case CH_TIGERFIST:
@@ -2709,6 +2750,10 @@ void skill_combo(struct block_list* src,struct block_list *dsrc, struct block_li
 	//start new combo
 	if(sd){ //player only
 		switch(skill_id) {
+		case SWD_HEAVYSWING:
+			duration = 4000;
+			nodelay = 1;
+			break;
 		case MO_TRIPLEATTACK:
 			if (pc_checkskill(sd, MO_CHAINCOMBO) > 0 || pc_checkskill(sd, SR_DRAGONCOMBO) > 0)
 				duration = 1;
@@ -3158,17 +3203,6 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	type = (skill_id == 0) ? 5 : skill_get_hit(skill_id);
 	type = dmg.type;
 
-	if( skill_id ) {
-		if(tsd && tsd->bonus.magiccounter) {
-			if(tsd->bonus.magiccounter & 1) // Flag 1 - Silence when casted on
-				sc_start(src,src,SC_SILENCE,10000,1,8000);
-				
-			if(tsd->bonus.magiccounter & 2 && dmg.flag & BF_MAGIC && damage > 0) // Flag 2 - Lodestone Burst ready - Magic only, at least 1 damage
-				if(!tsc || (tsc && !tsc->data[SC_LODESTONECHARGED])) // Make sure target is not already charged
-					sc_start(bl,bl,SC_LODESTONECHARGED,10000,(int)(damage * 4),-1);
-		}
-	}
-
 	switch( skill_id ) {
 		case SC_TRIANGLESHOT:
 			if( rnd()%100 > (1 + skill_lv) )
@@ -3212,6 +3246,33 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			if (sd) //Can't attack nor use items until skill's delay expires. [Skotlex]
 				sd->ud.attackabletime = sd->canuseitem_tick = sd->ud.canact_tick;
 			break;
+	}
+
+	// ADGTH skill_attack
+	if( skill_id ) {
+		switch ( skill_id ) {
+			case THF_STIFLE: {
+				struct unit_data *ud = NULL;
+				ud = unit_bl2ud(bl);
+
+				if( !ud || ud->skilltimer != INVALID_TIMER ) { // x2 damage if target is casting
+					unit_skillcastcancel(bl, 0);
+					damage *= 2;
+				}
+			}
+			break;
+		}
+	
+	
+		// ITEM CHECKS
+		if(tsd && tsd->bonus.magiccounter) {
+			if(tsd->bonus.magiccounter & 1) // Flag 1 - Silence when casted on
+				sc_start(src,src,SC_SILENCE,10000,1,8000);
+				
+			if(tsd->bonus.magiccounter & 2 && dmg.flag & BF_MAGIC && damage > 0) // Flag 2 - Lodestone Burst ready - Magic only, at least 1 damage
+				if(!tsc || (tsc && !tsc->data[SC_LODESTONECHARGED])) // Make sure target is not already charged
+					sc_start(bl,bl,SC_LODESTONECHARGED,10000,(int)(damage * 4),-1);
+		}
 	}
 
 	//combo handling
@@ -4224,6 +4285,15 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 
 	switch(skill_id)
 	{
+	case THF_HAMSTRING:
+	case THF_STIFLE:
+	case THF_PUNCTURE:
+	case THF_BONECUTTER:
+	case SWD_SLEDGEHAMMER:
+	case SWD_UMBOBLOW:
+	case SWD_HILTBASH:
+	case SWD_HEAVYSWING:
+	case SWD_SHIELDBOOMERANG:
 	case WR_SUNDER:
 	case WR_HILTBASH:
 //	case WR_CLEAVE:
@@ -4393,6 +4463,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 			BF_WEAPON, src, src, skill_id, skill_lv, tick, flag, BCT_ENEMY);
 		break;
 
+	case THF_SONICSTRIKE:
   case WR_BULWARKBLITZ:
 	case KN_CHARGEATK:
 		{
@@ -4530,6 +4601,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 		break;
 
 	//Splash attack skills.
+	case THF_BLADEFLOURISH:
 	case TR_EXPUNGE_SPLASH:
 	case WR_CLEAVE:
 	case WR_BULWARKBASH:
@@ -5753,7 +5825,10 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 
 	if( sc && sc->data[SC_CURSEDCIRCLE_ATKER] ) //Should only remove after the skill has been casted.
 		status_change_end(src,SC_CURSEDCIRCLE_ATKER,INVALID_TIMER);
-
+		
+	if( sc && sc->data[SC_DOUBLETEAM] ) //Removed on offensive skill use
+		status_change_end(src,SC_DOUBLETEAM,INVALID_TIMER);
+		
 	map_freeblock_unlock();
 
 	if( sd && !(flag&1) )
@@ -6140,7 +6215,48 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		sc_start4(src,src,(enum sc_type)SC_STONESTANCE,100,skill_lv+5,pc_checkskill(sd,TR_STONESTANCE)*50,1,1,5000);
     clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
 		break;
+
+  case SWD_SECONDWIND:
+		if(pc_iscritical(sd)) {
+			sc_start2(src,src,(enum sc_type)SC_SECONDWIND,100,skill_lv,3000 + 200*skill_lv,skill_get_time(skill_id,skill_lv));
+			
+			status_change_end(bl, SC_POISON, INVALID_TIMER);
+			status_change_end(bl, SC_IGNITE, INVALID_TIMER);
+			status_change_end(bl, SC_BLEEDING, INVALID_TIMER);
+			status_change_end(bl, SC_BLIND, INVALID_TIMER);
+			
+			if( sd )
+				skill_blockpc_start(sd, skill_id, skill_get_time2(skill_id, skill_lv));
+				
+			clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
+    } else
+			clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
+			break;
+
+  case SWD_EYETOEYE:
+		status_change_end(src, SC_EYETOEYE, INVALID_TIMER);
+		sc_start2(src,src,SC_EYETOEYE,100,skill_lv,bl->id,skill_get_time(skill_id,skill_lv));
 		
+		if( dstmd ) {
+			dstmd->state.provoke_flag = src->id;
+			mob_target(dstmd, src, 15);
+		}
+		break;
+	
+	case SWD_ENDURE:
+		status_change_end(src, SC_ENDURE_, INVALID_TIMER);
+		sc_start2(src,src,SC_ENDURE_,100,skill_lv,sd->status.max_hp * (10+2*skill_lv) / 100,skill_get_time(skill_id,skill_lv));
+    clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
+		break;
+		
+	case THF_CAMOUFLAGE:
+		sc_start(src,src,SC_CAMO,100,100 + 20*skill_lv,skill_get_time(skill_id,skill_lv));
+		break;
+		
+	case THF_DOUBLETEAM:
+		sc_start(src,src,SC_DOUBLETEAM,100,5 + skill_lv,skill_get_time(skill_id,skill_lv));
+		break;	
+			
   case TR_NATURALCURE:
 		if(battle_check_target(src,bl,BCT_PARTY|BCT_SELF|BCT_ENEMY)>0) { // can't use on random people
 			status_change_end(bl, SC_POISON, INVALID_TIMER);
@@ -6900,7 +7016,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		}
 		break;
 
-//	case SM_PROVOKE:
+	case SM_PROVOKE:
 	case SM_SELFPROVOKE:
 	case MER_PROVOKE:
 		if( (tstatus->mode&MD_BOSS) || battle_check_undead(tstatus->race,tstatus->def_ele) )
@@ -6935,32 +7051,19 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			mob_target(dstmd, src, skill_get_range2(src,skill_id,skill_lv));
 		}
 		break;
-		
-	case SM_PROVOKE:
+
+	case SWD_SWASHBUCKLING:
     if (flag&1)
-			sc_start(src,bl,type, 100, 1,1);
+			sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv));
 		else {
 			map_foreachinrange(skill_area_sub, src, skill_get_splash(skill_id, skill_lv), BL_CHAR,
 				src, skill_id, skill_lv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
-      //map_freeblock_unlock();
 			clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
 		}
-		
-		unit_skillcastcancel(bl, 2);
 
-		if( tsc && tsc->count )
-		{
-			status_change_end(bl, SC_FREEZE, INVALID_TIMER);
-			if( tsc->data[SC_STONE] && tsc->opt1 == OPT1_STONE )
-				status_change_end(bl, SC_STONE, INVALID_TIMER);
-			status_change_end(bl, SC_SLEEP, INVALID_TIMER);
-			status_change_end(bl, SC_TRICKDEAD, INVALID_TIMER);
-		}
-
-		if( dstmd )
-		{
+		if( dstmd ) {
 			dstmd->state.provoke_flag = src->id;
-			mob_target(dstmd, src, skill_get_range2(src,skill_id,skill_lv));
+			mob_target(dstmd, src, 15);
 		}
 		break;
 
@@ -7102,7 +7205,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		clif_skill_nodamage(src,bl,skill_id,skill_lv,
 			sc_start(src,bl,SC_STUN,(20 + 10 * skill_lv),skill_lv,skill_get_time2(skill_id,skill_lv)));
 		break;
-		
+	
+	case THF_BLADEFLOURISH:
 	case WR_BULWARKBASH:
 	case RG_RAID:
 		skill_area_temp[1] = 0;
@@ -14840,6 +14944,12 @@ bool skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_i
 	}
 	// perform skill-specific checks (and actions)
 	switch( skill_id ) {
+		case SWD_SLEDGEHAMMER:
+			if(!sc)
+				return false;
+			if(sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SWD_HEAVYSWING)
+				break;
+			return false;
 		case SO_SPELLFIST:
 			if(sd->skill_id_old != MG_FIREBOLT && sd->skill_id_old != MG_COLDBOLT && sd->skill_id_old != MG_LIGHTNINGBOLT) {
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
@@ -16449,23 +16559,23 @@ int skill_delayfix (struct block_list *bl, uint16 skill_id, uint16 skill_lv)
 		if( sc && !sc->data[SC_BASILICA] )
 			time = 0; // There is no Delay on Basilica creation, only on cancel
 		break;
-	default:
-		if (battle_config.delay_dependon_dex && !(delaynodex&1))
-		{	// if skill delay is allowed to be reduced by dex
-			int scale = battle_config.castrate_dex_scale - status_get_dex(bl);
-			if (scale > 0)
-				time = time * scale / battle_config.castrate_dex_scale;
-			else //To be capped later to minimum.
-				time = 0;
-		}
-		if (battle_config.delay_dependon_agi && !(delaynodex&1))
-		{	// if skill delay is allowed to be reduced by agi
-			int scale = battle_config.castrate_dex_scale - status_get_agi(bl);
-			if (scale > 0)
-				time = time * scale / battle_config.castrate_dex_scale;
-			else //To be capped later to minimum.
-				time = 0;
-		}
+	//default:
+	//	if (battle_config.delay_dependon_dex && !(delaynodex&1))
+	//	{	// if skill delay is allowed to be reduced by dex
+	//		int scale = battle_config.castrate_dex_scale - status_get_dex(bl);
+	//		if (scale > 0)
+	//			time = time * scale / battle_config.castrate_dex_scale;
+	//		else //To be capped later to minimum.
+	//			time = 0;
+	//	}
+	//	if (battle_config.delay_dependon_agi && !(delaynodex&1))
+	//	{	// if skill delay is allowed to be reduced by agi
+	//		int scale = battle_config.castrate_dex_scale - status_get_agi(bl);
+	//		if (scale > 0)
+	//			time = time * scale / battle_config.castrate_dex_scale;
+	//		else //To be capped later to minimum.
+	//			time = 0;
+	//	}
 	}
 
 	if ( sc && sc->data[SC_SPIRIT] ) {
@@ -16492,14 +16602,14 @@ int skill_delayfix (struct block_list *bl, uint16 skill_id, uint16 skill_lv)
 
 	}
 
-	if( !(delaynodex&4) && sd && sd->delayrate != 100 )
-		time = time * sd->delayrate / 100;
+	//if( !(delaynodex&4) && sd && sd->delayrate != 100 )
+	//	time = time * sd->delayrate / 100;
 
-	if (battle_config.delay_rate != 100)
-		time = time * battle_config.delay_rate / 100;
+	//if (battle_config.delay_rate != 100)
+	//	time = time * battle_config.delay_rate / 100;
 
 	//min delay
-	time = max(time, status_get_amotion(bl)/10);// [ADGTH]
+	time = max(time, status_get_amotion(bl) * 150 / 100); // x1.5 attack delay with skills [ADGTH]
 	time = max(time, battle_config.min_skill_delay_limit);
 
 	//ShowInfo("Delay delayfix = %d\n",time);
