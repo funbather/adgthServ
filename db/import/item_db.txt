@@ -232,7 +232,7 @@
 55015,_hpregen,Shard of Health Regen,6,20,,10,,,,,,,,,,,,,{ bonus bHPrecovRate,calcbonus2(15,2,getrolls()); },{},{}
 55016,_spregen,Shard of Mana Regen,6,20,,10,,,,,,,,,,,,,{ bonus bSPrecovRate,calcbonus2(15,2,getrolls()); },{},{}
 55017,_lifesteal,Shard of Lifesteal,6,20,,10,,,,,,,,,,,,,{ bonus2 bHPDrainRate,1000,calcbonus2(5,10,getrolls()); },{},{}
-55018,_spsteal,Shard of Soulsteal,6,20,,10,,,,,,,,,,,,,{ bonus bSPGainValue,10; bonus bMagicSPGainValue,calcbonus2(3,5,getrolls()); },{},{}
+55018,_spsteal,Shard of Soulsteal,6,20,,10,,,,,,,,,,,,,{ bonus bSPGainValue,calcbonus2(3,5,getrolls()); bonus bMagicSPGainValue,calcbonus2(3,5,getrolls()); },{},{}
 // 55.1K - SEALS
 55100,_hp2,Seal of Health,6,20,,10,,,,,,,,,,,,,{ bonus bMaxHPrate,calcbonus2(15,2,getrolls()); },{},{}
 55101,_sp2,Seal of Mana,6,20,,10,,,,,,,,,,,,,{ bonus bMaxSPrate,calcbonus2(20,2,getrolls()); },{},{}

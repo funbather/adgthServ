@@ -406,6 +406,9 @@ enum e_damage_type {
 	DMG_TOUCH,				/// (touch skill?)
 	DMG_MULTICRIT = 20,    /// [adgth] double attack crit
 	DMG_BLOCKED,           /// [adgth] blocked attack
+	DMG_POISON,            /// poison damage
+	DMG_BLEEDING,          /// bleed damage
+	DMG_IGNITE,            /// ignite damage
 };
 
 int clif_setip(const char* ip);

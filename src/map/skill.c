@@ -6254,7 +6254,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 		break;
 		
 	case THF_DOUBLETEAM:
-		sc_start(src,src,SC_DOUBLETEAM,100,5 + skill_lv,skill_get_time(skill_id,skill_lv));
+		sc_start(src,src,SC_DOUBLETEAM,100,50 + 10*skill_lv,skill_get_time(skill_id,skill_lv));
 		break;	
 			
   case TR_NATURALCURE:

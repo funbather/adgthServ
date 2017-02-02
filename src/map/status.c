@@ -4703,11 +4703,8 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 			if(status->aspd_rate != 1000)
 				amotion = amotion*status->aspd_rate/1000;
 #else
-			if( (status_calc_aspd(bl, sc, 2) + status->aspd_rate2) != 0 ) // RE ASPD percertage modifier
-				amotion -= ( amotion ) * (status_calc_aspd(bl, sc, 2) + status->aspd_rate2) / 1000;
-
-			if(status->aspd_rate != 1000) // Absolute percentage modifier
-				amotion = 50000 / ((50000 / amotion) * status->aspd_rate / 1000);
+			if((status->aspd_rate + status_calc_aspd(bl, sc, 2)) != 1000) // Absolute percentage modifier
+				amotion = 50000 / ((50000 / amotion) * (status->aspd_rate + (status_calc_aspd(bl, sc, 2))) / 1000);
 #endif
 			amotion = status_calc_fix_aspd(bl, sc, amotion);
 			
@@ -4843,14 +4840,12 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_ca
 		}
 		if(b_status.luk != status->luk)
 			clif_updatestatus(sd,SP_LUK);
-		if(b_status.hit != 150) {//status->hit) [ADGTH] 
-			clif_updatestatus(sd,SP_ATK1);
+		if(b_status.hit != 150) {//status->hit) [ADGTH]
 			clif_updatestatus(sd,SP_HIT);
 		}
 		if(b_status.flee != status->flee)
 			clif_updatestatus(sd,SP_FLEE1);
 		if(b_status.amotion != status->amotion) {
-      clif_updatestatus(sd,SP_ATK1);
 			clif_updatestatus(sd,SP_ASPD);
 			}
 		if(b_status.speed != status->speed)
@@ -4892,8 +4887,8 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_ca
 		}
 		if(b_status.flee2 != (300-(2*sd->battle_status.speed))/3);//status->flee2) [ADGTH]
 			clif_updatestatus(sd,SP_FLEE2);
+			
 		if(b_status.cri != status->cri || b_status.dex != status->dex) {
-			clif_updatestatus(sd,SP_ATK1);
 			clif_updatestatus(sd,SP_CRITICAL);
 		}
 #ifndef RENEWAL
@@ -6499,6 +6494,8 @@ static short status_calc_aspd(struct block_list *bl, struct status_change *sc, s
 	
 	if( sc->data[SC_ENERG] )
     skills2 += sc->data[SC_ENERG]->val1 / 100;
+  if( sc->data[SC_DOUBLETEAM] )
+		skills2 += sc->data[SC_DOUBLETEAM]->val1;
 	
 	/* Change to static bonuses [ADGTH]
 	if(sc->data[SC_SPIRIT_1] && sc->data[SC_SPIRIT_1]->val1 == SCS_WIND) {
@@ -11863,7 +11860,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 				if(sd && pc_checkskill(sd,TR_IMMUNITY))
 					status_heal(bl, sce->val4, 0, 1);
 				else
-					status_zap(bl, sce->val4, 0);
+					status_damage(bl, bl, sce->val4, 0, clif_damage(bl,bl,tick,status_get_amotion(bl),status_get_dmotion(bl)+500,sce->val4,1,DMG_POISON,0), 1);
 					
 				if (sc->data[type]) { // Check if the status still last ( can be dead since then ).
 					sc_timer_next(500 + tick, status_change_timer, bl->id, data );
@@ -11883,7 +11880,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 						mob_log_damage((TBL_MOB*)bl,src,sce->val4);
 				}
 				map_freeblock_lock();
-				status_damage(bl, bl, sce->val4, 0, clif_damage(bl,bl,tick,status_get_amotion(bl),status_get_dmotion(bl)+500,sce->val4,1,DMG_NORMAL,0), 1);
+				status_damage(bl, bl, sce->val4, 0, clif_damage(bl,bl,tick,status_get_amotion(bl),status_get_dmotion(bl)+500,sce->val4,1,DMG_BLEEDING,0), 1);
 					
 				if (sc->data[type]) { // Check if the status still last ( can be dead since then ).
 					sc_timer_next(500 + tick, status_change_timer, bl->id, data );
@@ -11901,7 +11898,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 						mob_log_damage((TBL_MOB*)bl,src,sce->val4);
 				}
 				map_freeblock_lock();
-				status_damage(bl, bl, sce->val4, 0, clif_damage(bl,bl,tick,status_get_amotion(bl),status_get_dmotion(bl)+500,sce->val4,1,DMG_NORMAL,0), 1);
+				status_damage(bl, bl, sce->val4, 0, clif_damage(bl,bl,tick,status_get_amotion(bl),status_get_dmotion(bl)+500,sce->val4,1,DMG_IGNITE,0), 1);
 					
 				if (sc->data[type]) { // Check if the status still last ( can be dead since then ).
 					sc_timer_next(500 + tick, status_change_timer, bl->id, data );
