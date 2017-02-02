@@ -13057,10 +13057,6 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 		sregen = regen->ssregen;
 		if(flag&(RGN_SHP)) { // Sitting HP regen
 			rate = (int)(natural_heal_diff_tick * (sregen->rate.hp / 100.));
-			
-			//if (regen->state.overweight)
-			//	rate >>= 1; // Half as fast when overweight.
-      
 			sregen->tick.hp += rate;
 			while(sregen->tick.hp >= (unsigned int)battle_config.natural_heal_skill_interval) {
 				sregen->tick.hp -= battle_config.natural_heal_skill_interval;
@@ -13072,8 +13068,6 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 		}
 		if(flag&(RGN_SSP)) { // Sitting SP regen
 			rate = (int)(natural_heal_diff_tick * (sregen->rate.sp / 100.));
-			//if (regen->state.overweight)
-			//	rate >>= 1; // Half as fast when overweight.
 			sregen->tick.sp += rate;
 			while(sregen->tick.sp >= (unsigned int)battle_config.natural_heal_skill_interval) {
 				sregen->tick.sp -= battle_config.natural_heal_skill_interval;
@@ -13084,9 +13078,6 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 			}
 		}
 	}
-
-	//if (flag && regen->state.overweight)
-	//	flag = RGN_NONE;
 
 	ud = unit_bl2ud(bl);
 
@@ -13107,7 +13098,7 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 		if(!vd)
 			vd = status_get_viewdata(bl);
 		if(vd && vd->dead_sit == 2)
-			bonus += 900;
+			bonus += 3000;
 		if(regen->state.gc)
 			bonus += 100;
 	}
@@ -13115,15 +13106,10 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 	// Natural Hp regen
 	if (flag&RGN_HP) {
 		rate = (int)(natural_heal_diff_tick * (regen->rate.hp/100. + bonus/1000.));
-		if (ud && ud->walktimer != INVALID_TIMER)
-			rate /= 2;		
 			
 		// Homun HP regen fix (they should regen as if they were sitting (twice as fast)
 		if(bl->type == BL_HOM)
 			rate *= 2;
-			
-		if(bl->type == BL_PC) // Base 1 tick/second [ADGTH]
-			rate /= 5;
 			
 		regen->tick.hp += rate;
 
@@ -13142,8 +13128,6 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 	if(flag&RGN_SP) {
 		rate = (int)(natural_heal_diff_tick * (regen->rate.sp/100. + bonus/1000.));
 		// Homun SP regen fix (they should regen as if they were sitting (twice as fast)
-		if(bl->type==BL_PC) // Base 1 tick/second [ADGTH]
-			rate /= 5;
 		if(bl->type==BL_HOM)
 			rate *= 2;
 #ifdef RENEWAL
