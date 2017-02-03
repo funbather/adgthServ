@@ -6229,7 +6229,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 				skill_blockpc_start(sd, skill_id, skill_get_time2(skill_id, skill_lv));
 				
 			clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
-    } else
+		} else
 			clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0);
 			break;
 
@@ -6241,20 +6241,23 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			dstmd->state.provoke_flag = src->id;
 			mob_target(dstmd, src, 15);
 		}
+		clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
 		break;
 	
 	case SWD_ENDURE:
 		status_change_end(src, SC_ENDURE_, INVALID_TIMER);
 		sc_start2(src,src,SC_ENDURE_,100,skill_lv,sd->status.max_hp * (10+2*skill_lv) / 100,skill_get_time(skill_id,skill_lv));
-    clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
+		clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
 		break;
 		
 	case THF_CAMOUFLAGE:
 		sc_start(src,src,SC_CAMO,100,100 + 20*skill_lv,skill_get_time(skill_id,skill_lv));
+		clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
 		break;
 		
 	case THF_DOUBLETEAM:
 		sc_start(src,src,SC_DOUBLETEAM,100,50 + 10*skill_lv,skill_get_time(skill_id,skill_lv));
+		clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
 		break;	
 			
   case TR_NATURALCURE:
@@ -7215,7 +7218,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 			skill_get_splash(skill_id, skill_lv), splash_target(src),
 			src,skill_id,skill_lv,tick, flag|BCT_ENEMY|1,
 			skill_castend_damage_id);
-		status_change_end(src, SC_HIDING, INVALID_TIMER);
 		break;
 
 	//List of self skills that give damage around caster
