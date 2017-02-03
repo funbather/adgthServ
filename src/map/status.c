@@ -1032,7 +1032,7 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_PROVOKE] = SI_PROVOKE;
 	StatusIconChangeTable[SC_SECONDWIND] = SI_SECONDWIND;
 	StatusIconChangeTable[SC_EYETOEYE] = SI_EYETOEYE;
-	StatusIconChangeTable[SC_ENDURE_] = SI_ENDURE;
+	StatusIconChangeTable[SC_ENDURE_] = SI_ENDURE_;
 
 	/* Other SC which are not necessarily associated to skills */
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
