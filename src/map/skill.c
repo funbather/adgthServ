@@ -4483,6 +4483,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, uint
 			//HACK: since knockback officially defaults to the left, the client also turns to the left... therefore,
 			// make the caster look in the direction of the target
 			unit_setdir(src, (dir+4)%8);
+			unit_attack(src, bl->id, 1); // Auto-target after successful cast [ADGTH]
 		}
 
 		}
@@ -6258,7 +6259,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, ui
 	case THF_DOUBLETEAM:
 		sc_start(src,src,SC_DOUBLETEAM,100,50 + 10*skill_lv,skill_get_time(skill_id,skill_lv));
 		clif_skill_nodamage (src, bl, skill_id, skill_lv, 0);
-		break;	
+		break;
 			
   case TR_NATURALCURE:
 		if(battle_check_target(src,bl,BCT_PARTY|BCT_SELF|BCT_ENEMY)>0) { // can't use on random people
