@@ -4,9 +4,9 @@
 // ID,Name,Name,Type,Price,Sell,Weight,ATK,DEF,Range,Slot,Job,Class,Gender,Loc,wLV,eLV,Refineable,View,{ Script },{ OnEquip_Script },{ OnUnequip_Script }
 
 // 50K - COMMON ARMOR
-50000,_heavyarmor1,Iron Lamellar,4,50,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,calcbonus(60,HPM,getrefine(),getilvl()); bonus bDef,calcbonus(39,DEFM,getrefine(),getilvl());},{},{}
-50001,_heavyarmor2,Steel Chainmail,4,50,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,calcbonus(66,HPM,getrefine(),getilvl()); bonus bDef,calcbonus(42,DEFM,getrefine(),getilvl());},{},{}
-50002,_heavyarmor3,Tempered Platemail,4,50,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,calcbonus(72,HPM,getrefine(),getilvl()); bonus bDef,calcbonus(45,DEFM,getrefine(),getilvl());},{},{}
+50000,_heavyarmor1,Iron Lamellar,4,50,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,calcbonus(74,HPM,getrefine(),getilvl()); bonus bDef,calcbonus(50,DEFM,getrefine(),getilvl());},{},{}
+50001,_heavyarmor2,Steel Chainmail,4,50,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,calcbonus(80,HPM,getrefine(),getilvl()); bonus bDef,calcbonus(54,DEFM,getrefine(),getilvl());},{},{}
+50002,_heavyarmor3,Tempered Platemail,4,50,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,calcbonus(86,HPM,getrefine(),getilvl()); bonus bDef,calcbonus(58,DEFM,getrefine(),getilvl());},{},{}
 
 50003,_medarmor1,Ironweave Coat,4,50,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,calcbonus(40,HPM,getrefine(),getilvl()); bonus bMaxSP,calcbonus(6,MPM,getrefine(),getilvl()); bonus bDef,calcbonus(32,DEFM,getrefine(),getilvl());},{},{}
 50004,_medarmor2,Runic Doublet,4,50,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,calcbonus(44,HPM,getrefine(),getilvl()); bonus bMaxSP,calcbonus(7,MPM,getrefine(),getilvl()); bonus bDef,calcbonus(35,DEFM,getrefine(),getilvl());},{},{}
@@ -21,8 +21,8 @@
 50011,_shield3,Angelic Shield,4,50,,50,,0,,0,0xFFFFFFFF,63,2,32,,0,1,1,{bonus bMaxHP,calcbonus(28,HPM,getrefine(),getilvl()); bonus bDef2,calcbonus(140,DEF2M,getrefine(),getilvl()); bonus bMdef2,calcbonus(70,MDEF2M,getrefine(),getilvl());},{},{}
 
 50012,_tome1,Cantrip Spellbook,4,50,,50,,0,,0,0xFFFFFFFF,63,2,32,,0,1,0,{bonus bMdef2,calcbonus(150,MDEF2M,getrefine(),getilvl()); bonus bMdef,calcbonus(24,MDEFM,getrefine(),getilvl()); bonus bSkillDamage,calcbonus(12,INCSKILLDMGM,getrefine(),getilvl()); bonus bSpellDamage,calcbonus(12,INCSKILLDMGM,getrefine(),getilvl());},{},{}
-50013,_tome2,Ancient Spellbook,4,50,,50,,0,,0,0xFFFFFFFF,63,2,32,,0,1,0,{bonus bMdef2,calcbonus(170,MDEF2M,getrefine(),getilvl()); bonus bMdef,calcbonus(27,MDEFM,getrefine(),getilvl()); bonus bSkillDamage,calcbonus(12,INCSKILLDMGM,getrefine(),getilvl()); bonus bSpellDamage,calcbonus(13,INCSKILLDMGM,getrefine(),getilvl());},{},{}
-50014,_tome3,Magus Spellbook,4,50,,50,,0,,0,0xFFFFFFFF,63,2,32,,0,1,0,{bonus bMdef2,calcbonus(190,MDEF2M,getrefine(),getilvl()); bonus bMdef,calcbonus(30,MDEFM,getrefine(),getilvl()); bonus bSkillDamage,calcbonus(12,INCSKILLDMGM,getrefine(),getilvl()); bonus bSpellDamage,calcbonus(14,INCSKILLDMGM,getrefine(),getilvl());},{},{}
+50013,_tome2,Ancient Spellbook,4,50,,50,,0,,0,0xFFFFFFFF,63,2,32,,0,1,0,{bonus bMdef2,calcbonus(170,MDEF2M,getrefine(),getilvl()); bonus bMdef,calcbonus(27,MDEFM,getrefine(),getilvl()); bonus bSkillDamage,calcbonus(13,INCSKILLDMGM,getrefine(),getilvl()); bonus bSpellDamage,calcbonus(13,INCSKILLDMGM,getrefine(),getilvl());},{},{}
+50014,_tome3,Magus Spellbook,4,50,,50,,0,,0,0xFFFFFFFF,63,2,32,,0,1,0,{bonus bMdef2,calcbonus(190,MDEF2M,getrefine(),getilvl()); bonus bMdef,calcbonus(30,MDEFM,getrefine(),getilvl()); bonus bSkillDamage,calcbonus(14,INCSKILLDMGM,getrefine(),getilvl()); bonus bSpellDamage,calcbonus(14,INCSKILLDMGM,getrefine(),getilvl());},{},{}
 
 50015,_gauntlets1,Iron Gauntlets,4,50,,50,,0,,0,0xFFFFFFFF,63,2,65536,,0,1,0,{bonus bMaxHP,calcbonus(17,HPM,getrefine(),getilvl()); bonus bDef,calcbonus(8,DEFM,getrefine(),getilvl()); bonus bCriticalRate,calcbonus(13,INCCRITM,getrefine(),getilvl());},{},{}
 50016,_gauntlets2,Steel Gauntlets,4,50,,50,,0,,0,0xFFFFFFFF,63,2,65536,,0,1,0,{bonus bMaxHP,calcbonus(20,HPM,getrefine(),getilvl()); bonus bDef,calcbonus(9,DEFM,getrefine(),getilvl()); bonus bCriticalRate,calcbonus(15,INCCRITM,getrefine(),getilvl());},{},{}
@@ -33,8 +33,8 @@
 50020,_gloves3,Regal Gloves,4,50,,50,,0,,0,0xFFFFFFFF,63,2,65536,,0,1,1,{bonus bMaxHP,calcbonus(18,HPM,getrefine(),getilvl()); bonus bAspdRate,calcbonus(11,ASPDM,getrefine(),getilvl()); bonus bCastSpeed,calcbonus(15,INCCASTSPDM,getrefine(),getilvl());},{},{}
 
 50021,_belt1,Reinforced Belt,4,50,,50,,0,,0,0xFFFFFFFF,63,2,524288,,0,1,0,{bonus bBaseHP,calcbonus(20,5,getrefine(),getilvl());},{},{}
-50022,_belt2,Leather Belt,4,50,,50,,0,,0,0xFFFFFFFF,63,2,524288,,0,1,0,{bonus bMaxHP,calcbonus(15,HPM,getrefine(),getilvl()); bonus bDefRate,calcbonus(7,2,getrefine(),getilvl());},{},{}
-50023,_belt3,Silken Sash,4,50,,50,,0,,0,0xFFFFFFFF,63,2,524288,,0,1,0,{bonus bMaxHP,calcbonus(15,HPM,getrefine(),getilvl()); bonus bMdefRate,calcbonus(10,2,getrefine(),getilvl());},{},{}
+50022,_belt2,Leather Belt,4,50,,50,,0,,0,0xFFFFFFFF,63,2,524288,,0,1,0,{bonus bMaxHP,calcbonus(15,HPM,getrefine(),getilvl()); bonus bDefRate,calcbonus(9,2,getrefine(),getilvl());},{},{}
+50023,_belt3,Silken Sash,4,50,,50,,0,,0,0xFFFFFFFF,63,2,524288,,0,1,0,{bonus bMaxHP,calcbonus(15,HPM,getrefine(),getilvl()); bonus bMdefRate,calcbonus(13,2,getrefine(),getilvl());},{},{}
 
 50024,_robe1,Layered Shawl,4,50,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bMaxHP,calcbonus(6,HPM,getrefine(),getilvl()); bonus bFlee,calcbonus(40,EVAM,getrefine(),getilvl());},{},{}
 50025,_robe2,Wool Scarf,4,50,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bMaxHP,calcbonus(7,HPM,getrefine(),getilvl()); bonus bFlee,calcbonus(45,EVAM,getrefine(),getilvl());},{},{}
@@ -44,9 +44,9 @@
 50028,_pauldron2,Steel Pauldron,4,50,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bMaxHP,calcbonus(21,HPM,getrefine(),getilvl()); bonus bDef,calcbonus(14,DEFM,getrefine(),getilvl()); bonus bFlee,calcbonus(11,EVAM,getrefine(),getilvl());},{},{}
 50029,_pauldron3,Runic Pauldron,4,50,,50,,0,,0,0xFFFFFFFF,63,2,4,,0,1,1,{bonus bMaxHP,calcbonus(23,HPM,getrefine(),getilvl()); bonus bDef,calcbonus(16,DEFM,getrefine(),getilvl()); bonus bFlee,calcbonus(12,EVAM,getrefine(),getilvl());},{},{}
 
-50030,_shoes1,Leather Shoes,4,50,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bFlee,calcbonus(24,EVAM,getrefine(),getilvl()); bonus bSpeedAddRate,calcbonus(9,MSPDM,getrefine(),getilvl());},{},{}
-50031,_shoes2,Reinforced Shoes,4,50,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bFlee,calcbonus(27,EVAM,getrefine(),getilvl()); bonus bSpeedAddRate,calcbonus(10,MSPDM,getrefine(),getilvl());},{},{}
-50032,_shoes3,Groundpounders,4,50,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bFlee,calcbonus(30,EVAM,getrefine(),getilvl()); bonus bSpeedAddRate,calcbonus(11,MSPDM,getrefine(),getilvl());},{},{}
+50030,_shoes1,Leather Shoes,4,50,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bFlee,calcbonus(24,EVAM,getrefine(),getilvl()); bonus bSpeedAddRate,calcbonus(8,MSPDM,getrefine(),getilvl());},{},{}
+50031,_shoes2,Reinforced Shoes,4,50,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bFlee,calcbonus(27,EVAM,getrefine(),getilvl()); bonus bSpeedAddRate,calcbonus(9,MSPDM,getrefine(),getilvl());},{},{}
+50032,_shoes3,Groundpounders,4,50,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bFlee,calcbonus(30,EVAM,getrefine(),getilvl()); bonus bSpeedAddRate,calcbonus(10,MSPDM,getrefine(),getilvl());},{},{}
 
 50033,_boots1,Plated Boots,4,50,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bMaxHP,calcbonus(16,HPM,getrefine(),getilvl()); bonus bDef,calcbonus(9,DEFM,getrefine(),getilvl()); bonus bSpeedAddRate,calcbonus(6,MSPDM,getrefine(),getilvl());},{},{}
 50034,_boots2,Ironscale Boots,4,50,,50,,0,,0,0xFFFFFFFF,63,2,64,,0,1,1,{bonus bMaxHP,calcbonus(18,HPM,getrefine(),getilvl()); bonus bDef,calcbonus(10,DEFM,getrefine(),getilvl()); bonus bSpeedAddRate,calcbonus(6,MSPDM,getrefine(),getilvl());},{},{}
@@ -64,33 +64,33 @@
 50045,_ironbangle,Iron Bangle,4,10,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,1,1,{bonus bCritAtkRate,calcbonus(10,4,getrefine(),getilvl());},{},{}
 
 // 51K - COMMON WEAPONS
-51000,_shortsword1,Curved Blade,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,2,{bonus bAtk,calcbonus(8,WPM,getrefine(),getilvl());},{},{}
-51001,_shortsword2,Arming Sword,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,2,{bonus bAtk,calcbonus(9,WPM,getrefine(),getilvl());},{},{}
-51002,_shortsword3,Hallowed Sabre,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,2,{bonus bAtk,calcbonus(10,WPM,getrefine(),getilvl());},{},{}
+51000,_shortsword1,Curved Blade,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,2,{bonus bAtk,calcbonus(9,WPM,getrefine(),getilvl());},{},{}
+51001,_shortsword2,Arming Sword,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,2,{bonus bAtk,calcbonus(10,WPM,getrefine(),getilvl());},{},{}
+51002,_shortsword3,Hallowed Sabre,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,2,{bonus bAtk,calcbonus(11,WPM,getrefine(),getilvl());},{},{}
 
-51003,_mace1,Cudgel,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,8,{bonus bAtk,calcbonus(14,WPM,getrefine(),getilvl());},{},{}
-51004,_mace2,Morningstar,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,8,{bonus bAtk,calcbonus(15,WPM,getrefine(),getilvl());},{},{}
-51005,_mace3,Aklys,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,8,{bonus bAtk,calcbonus(16,WPM,getrefine(),getilvl());},{},{}
+51003,_mace1,Cudgel,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,8,{bonus bAtk,calcbonus(15,WPM,getrefine(),getilvl());},{},{}
+51004,_mace2,Morningstar,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,8,{bonus bAtk,calcbonus(16,WPM,getrefine(),getilvl());},{},{}
+51005,_mace3,Aklys,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,2,1,1,1,8,{bonus bAtk,calcbonus(17,WPM,getrefine(),getilvl());},{},{}
 
-51006,_dagger1,Spiritual Dagger,5,50,,50,0,,1,3,0xFFFFFFFF,63,2,2,1,1,1,1,{bonus bMatk,calcbonus(7,MAGM,getrefine(),getilvl()); bonus bCastSpeed,calcbonus(10,INCCASTSPDM,getrefine(),getilvl());},{},{}
-51007,_dagger2,Ceremonial Dagger,5,50,,50,0,,1,3,0xFFFFFFFF,63,2,2,1,1,1,1,{bonus bMatk,calcbonus(8,MAGM,getrefine(),getilvl()); bonus bCastSpeed,calcbonus(12,INCCASTSPDM,getrefine(),getilvl());},{},{}
-51008,_dagger3,Ivory Dagger,5,50,,50,0,,1,3,0xFFFFFFFF,63,2,2,1,1,1,1,{bonus bMatk,calcbonus(9,MAGM,getrefine(),getilvl()); bonus bCastSpeed,calcbonus(14,INCCASTSPDM,getrefine(),getilvl());},{},{}
+51006,_dagger1,Spiritual Dagger,5,50,,50,0,,1,3,0xFFFFFFFF,63,2,2,1,1,1,1,{bonus bMatk,calcbonus(8,MAGM,getrefine(),getilvl()); bonus bCastSpeed,calcbonus(10,INCCASTSPDM,getrefine(),getilvl());},{},{}
+51007,_dagger2,Ceremonial Dagger,5,50,,50,0,,1,3,0xFFFFFFFF,63,2,2,1,1,1,1,{bonus bMatk,calcbonus(9,MAGM,getrefine(),getilvl()); bonus bCastSpeed,calcbonus(12,INCCASTSPDM,getrefine(),getilvl());},{},{}
+51008,_dagger3,Ivory Dagger,5,50,,50,0,,1,3,0xFFFFFFFF,63,2,2,1,1,1,1,{bonus bMatk,calcbonus(10,MAGM,getrefine(),getilvl()); bonus bCastSpeed,calcbonus(14,INCCASTSPDM,getrefine(),getilvl());},{},{}
 
 51009,_knightsword1,Longsword,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,3,{bonus bSplashAddRange,1; bonus bAtk,calcbonus(12,WPM,getrefine(),getilvl());},{},{}
 51010,_knightsword2,Claymore,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,3,{bonus bSplashAddRange,1; bonus bAtk,calcbonus(13,WPM,getrefine(),getilvl());},{},{}
 51011,_knightsword3,Zweihander,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,3,{bonus bSplashAddRange,1; bonus bAtk,calcbonus(14,WPM,getrefine(),getilvl());},{},{}
 
 51012,_axe1,Broadaxe,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,7,{bonus bAtk,calcbonus(21,WPM,getrefine(),getilvl());},{},{}
-51013,_axe2,Battleaxe,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,7,{bonus bAtk,calcbonus(22,WPM,getrefine(),getilvl());},{},{}
-51014,_axe3,Grand Labrys,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,7,{bonus bAtk,calcbonus(23,WPM,getrefine(),getilvl());},{},{}
+51013,_axe2,Battleaxe,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,7,{bonus bAtk,calcbonus(23,WPM,getrefine(),getilvl());},{},{}
+51014,_axe3,Grand Labrys,5,50,,50,0,,2,3,0xFFFFFFFF,63,2,34,1,1,1,7,{bonus bAtk,calcbonus(25,WPM,getrefine(),getilvl());},{},{}
 
 51015,_bow1,Cedar Bow,5,50,,50,0,,12,3,0xFFFFFFFF,63,2,34,1,1,1,11,{bonus bAtk,calcbonus(13,WPM,getrefine(),getilvl());},{},{}
 51016,_bow2,Composite Bow,5,50,,50,0,,12,3,0xFFFFFFFF,63,2,34,1,1,1,11,{bonus bAtk,calcbonus(14,WPM,getrefine(),getilvl());},{},{}
 51017,_bow3,Hunting Bow,5,50,,50,0,,12,3,0xFFFFFFFF,63,2,34,1,1,1,11,{bonus bAtk,calcbonus(15,WPM,getrefine(),getilvl());},{},{}
 
-51018,_staff1,Oak Staff,5,50,,50,0,,8,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMatk,calcbonus(16,MAGM,getrefine(),getilvl());},{},{}
-51019,_staff2,Arcane Wand,5,50,,50,0,,8,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMatk,calcbonus(17,MAGM,getrefine(),getilvl());},{},{}
-51020,_staff3,Ruby Rod,5,50,,50,0,,8,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMatk,calcbonus(18,MAGM,getrefine(),getilvl());},{},{}
+51018,_staff1,Oak Staff,5,50,,50,0,,8,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMatk,calcbonus(18,MAGM,getrefine(),getilvl());},{},{}
+51019,_staff2,Arcane Wand,5,50,,50,0,,8,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMatk,calcbonus(19,MAGM,getrefine(),getilvl());},{},{}
+51020,_staff3,Ruby Rod,5,50,,50,0,,8,3,0xFFFFFFFF,63,2,34,1,1,1,10,{bonus bMatk,calcbonus(20,MAGM,getrefine(),getilvl());},{},{}
 
 // 50K - COMMON ARMOR
 //50000,_heavyarmor1,Breastplate,4,40,,50,,0,,0,0xFFFFFFFF,63,2,16,,0,1,0,{bonus bMaxHP,(((getilvl()*2*60*14 / 100) + 60) * getrefine() / 100); bonus bDef,(((getilvl()*2*39*5 / 100) + 39) * getrefine() / 100);},{},{}
@@ -218,13 +218,13 @@
 55001,_agi,Shard of Agility,6,20,,10,,,,,,,,,,,,,{ bonus bAgi,calcbonus2(2,5,getrolls()); },{},{}
 55002,_vit,Shard of Vitality,6,20,,10,,,,,,,,,,,,,{ bonus bVit,calcbonus2(2,5,getrolls()); },{},{}
 55003,_int,Shard of Intelligence,6,20,,10,,,,,,,,,,,,,{ bonus bInt,calcbonus2(2,5,getrolls()); },{},{}
-55004,_pre,Shard of Precision,6,20,,10,,,,,,,,,,,,,{ bonus bDex,calcbonus2(2,5,getrolls()); },{},{}
+55004,_mst,Shard of Mastery,6,20,,10,,,,,,,,,,,,,{ bonus bDex,calcbonus2(2,5,getrolls()); },{},{}
 55005,_luk,Shard of Luck,6,20,,10,,,,,,,,,,,,,{ bonus bLuk,calcbonus2(5,4,getrolls()); },{},{}
 55006,_hp,Shard of Health,6,20,,10,,,,,,,,,,,,,{ bonus bMaxHPrate,calcbonus2(5,3,getrolls()); },{},{}
 55007,_sp,Shard of Mana,6,20,,10,,,,,,,,,,,,,{ bonus bMaxSP,calcbonus2(5,3,getrolls()); },{},{}
 55008,_def,Shard of Defense,6,20,,10,,,,,,,,,,,,,{ bonus bDef,calcbonus2(3,5,getrolls()); },{},{}
 55009,_mdef,Shard of Magic Defense,6,20,,10,,,,,,,,,,,,,{ bonus bMdef,calcbonus2(5,5,getrolls()); },{},{}
-55010,_crit,Shard of Critical Chance,6,20,,10,,,,,,,,,,,,,{ bonus bCritical,calcbonus2(10,6,getrolls()); },{},{}
+55010,_crit,Shard of Critical Chance,6,20,,10,,,,,,,,,,,,,{ bonus bCritical,calcbonus2(4,6,getrolls()); },{},{}
 55011,_cd,Shard of Critical Damage,6,20,,10,,,,,,,,,,,,,{ bonus bCritAtkRate,calcbonus2(6,2,getrolls()); },{},{}
 55012,_aspd,Shard of Attack Speed,6,20,,10,,,,,,,,,,,,,{ bonus bAspdRate,calcbonus2(7,2,getrolls()); },{},{}
 55013,_eva,Shard of Evasion,6,20,,10,,,,,,,,,,,,,{ bonus bFlee,calcbonus2(5,5,getrolls()); },{},{}

@@ -15,7 +15,7 @@
 //                  runtime values, such as Zeny, as well (see pc_readparam/pc_setparam).
 
 HPM 15
-MPM 12
+MPM 10
 DEFM 6
 MDEFM 6
 DEF2M 2
